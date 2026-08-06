@@ -1,0 +1,145 @@
+/* ── Overlay ─────────────────────────────────────────────── */
+
+.share-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+/* ── Modal box ───────────────────────────────────────────── */
+
+.share-modal {
+  background: #111;
+  border: 1px solid #242424;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-width: 440px;
+  width: 100%;
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.7);
+}
+
+/* ── Header ──────────────────────────────────────────────── */
+
+.share-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem 1rem;
+  border-bottom: 1px solid #1a1a1a;
+}
+
+.share-modal-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.01em;
+}
+
+.share-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+
+.share-close:hover {
+  color: var(--text);
+}
+
+/* ── Card preview area ───────────────────────────────────── */
+
+.share-card-wrap {
+  padding: 20px 20px 16px;
+  background: #0a0a0a;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Scale down to fit viewport widths below 440px */
+.share-card-scaler {
+  transform-origin: top center;
+}
+
+.share-card-scaler > div {
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 24px 64px rgba(0, 0, 0, 0.7);
+}
+
+@media (max-width: 420px) {
+  .share-card-scaler {
+    transform: scale(0.82);
+    margin-bottom: calc(504px * -0.18);
+  }
+}
+
+/* ── Action buttons ──────────────────────────────────────── */
+
+.share-modal-actions {
+  display: flex;
+  gap: 0.625rem;
+  padding: 1rem 1.5rem 1.25rem;
+  border-top: 1px solid #1a1a1a;
+}
+
+.btn-share-download {
+  flex: 1;
+  background: var(--accent);
+  color: #0d0d0d;
+  border: none;
+  border-radius: 9px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.7rem 1.25rem;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: 0.01em;
+  transition: opacity 0.15s, transform 0.12s;
+}
+
+.btn-share-download:hover:not(:disabled) {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.btn-share-download:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-share-copy {
+  flex: 1;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid #2e2e2e;
+  border-radius: 9px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.7rem 1.25rem;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: 0.01em;
+  transition: border-color 0.15s, color 0.15s, transform 0.12s;
+}
+
+.btn-share-copy:hover {
+  border-color: #4a4a4a;
+  transform: translateY(-1px);
+}

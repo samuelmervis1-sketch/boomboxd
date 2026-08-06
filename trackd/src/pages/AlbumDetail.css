@@ -1,0 +1,454 @@
+/* ── Page wrapper ──────────────────────────────────────── */
+
+.album-detail {
+  display: flex;
+  flex-direction: column;
+  /* Break out of .main's 2rem side padding so the hero reaches the container edge */
+  margin-left: -2rem;
+  margin-right: -2rem;
+}
+
+/* ── Status ────────────────────────────────────────────── */
+
+.album-detail-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.spinner {
+  width: 26px;
+  height: 26px;
+  border: 2px solid #2a2a2a;
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Hero ──────────────────────────────────────────────── */
+
+.album-hero {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Blurred, darkened album art as backdrop */
+.album-hero-bg {
+  position: absolute;
+  inset: -40px;             /* oversize so blur edges don't show */
+  background-size: cover;
+  background-position: center;
+  filter: blur(72px) brightness(0.22) saturate(1.6);
+  z-index: 0;
+}
+
+/* Gradient that fades the backdrop into the page bg */
+.album-hero-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 40%,
+    var(--bg) 100%
+  );
+}
+
+.album-hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem 2rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  width: fit-content;
+  transition: color 0.15s;
+}
+
+.back-btn:hover {
+  color: var(--text);
+}
+
+.back-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.album-hero-body {
+  display: flex;
+  align-items: flex-end;
+  gap: 2rem;
+}
+
+/* ── Cover art ─────────────────────────────────────────── */
+
+.album-cover {
+  width: 220px;
+  height: 220px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+}
+
+.album-cover-placeholder {
+  width: 220px;
+  height: 220px;
+  border-radius: 8px;
+  background: #1e1e1e;
+  flex-shrink: 0;
+}
+
+/* ── Album info ────────────────────────────────────────── */
+
+.album-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding-bottom: 0.25rem;
+  min-width: 0;
+}
+
+.album-type-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.album-name {
+  font-size: clamp(1.75rem, 4vw, 3rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  color: var(--text);
+  margin: 0.15rem 0 0.25rem;
+}
+
+.album-artists {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.album-stats {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+}
+
+.album-stats-dot {
+  opacity: 0.4;
+}
+
+.album-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: var(--accent);
+  color: #0d0d0d;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.15s;
+  letter-spacing: 0.01em;
+}
+
+.btn-primary:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.btn-primary svg {
+  width: 13px;
+  height: 13px;
+}
+
+/* ── Rate button ───────────────────────────────────────── */
+
+.btn-rate {
+  display: inline-flex;
+  align-items: center;
+  background: transparent;
+  border: 1px solid #3a3a3a;
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.btn-rate:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Already-rated button */
+.btn-rated {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(232, 255, 107, 0.07);
+  border: 1px solid rgba(232, 255, 107, 0.25);
+  border-radius: 6px;
+  padding: 0.4rem 0.75rem;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+
+.btn-rated:hover {
+  background: rgba(232, 255, 107, 0.12);
+}
+
+.inline-stars {
+  display: inline-flex;
+  gap: 1px;
+}
+
+.inline-stars .star-glyph {
+  font-size: 0.85rem;
+  pointer-events: none;
+}
+
+.btn-rated-value {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.btn-rated-edit {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-left: 0.15rem;
+}
+
+/* Share button */
+.btn-share {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: transparent;
+  border: 1px solid #333;
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.btn-share svg {
+  width: 12px;
+  height: 12px;
+}
+
+.btn-share:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Sign-in nudge */
+.sign-in-prompt {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+.sign-in-prompt a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+/* Inline review quote */
+.my-review {
+  margin-top: 0.75rem;
+  border-left: 2px solid rgba(232, 255, 107, 0.3);
+  padding: 0.5rem 0 0.5rem 0.875rem;
+  max-width: 480px;
+}
+
+.my-review p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  font-style: italic;
+}
+
+.my-review footer {
+  font-size: 0.7rem;
+  color: #555;
+  margin-top: 0.35rem;
+  font-style: normal;
+}
+
+/* ── Tracklist ─────────────────────────────────────────── */
+
+.tracklist {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem 2rem 4rem;
+  width: 100%;
+}
+
+.tracklist-header {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr auto;
+  align-items: center;
+  padding: 0 0.5rem 0.5rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0.25rem;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.tracklist-header-duration {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.track-row {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr auto;
+  align-items: center;
+  padding: 0.6rem 0.5rem;
+  border-radius: 6px;
+  gap: 0.5rem;
+  transition: background 0.12s;
+  cursor: default;
+}
+
+.track-row:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.track-row:hover .track-num {
+  opacity: 0;
+}
+
+.track-row:hover .track-num-wrap::after {
+  opacity: 1;
+}
+
+.track-num-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+}
+
+.track-num {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-align: center;
+  transition: opacity 0.12s;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Play icon appears on row hover */
+.track-num-wrap::after {
+  content: '▶';
+  position: absolute;
+  font-size: 0.65rem;
+  color: var(--text);
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+
+.track-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.track-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.track-feat {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.track-duration {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* ── Responsive ────────────────────────────────────────── */
+
+@media (max-width: 640px) {
+  .album-hero-body {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.25rem;
+  }
+
+  .album-cover,
+  .album-cover-placeholder {
+    width: 160px;
+    height: 160px;
+  }
+
+  .tracklist {
+    padding: 1rem 1rem 3rem;
+  }
+}
