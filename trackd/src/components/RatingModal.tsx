@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { SpotifyAlbum } from '../services/spotifyApi'
+import type { SpotifyAlbum, SpotifyTrack } from '../services/spotifyApi'
 import { ratingsApi, type Rating } from '../lib/ratingsApi'
 import './RatingModal.css'
 
@@ -49,12 +49,13 @@ function ratingLabel(r: number) {
 
 interface Props {
   album: SpotifyAlbum
+  track?: SpotifyTrack
   existing: Rating | null
   onClose: () => void
   onSaved: (rating: Rating | null) => void
 }
 
-export default function RatingModal({ album, existing, onClose, onSaved }: Props) {
+export default function RatingModal({ album, track, existing, onClose, onSaved }: Props) {
   const [rating, setRating] = useState(existing?.rating ?? 0)
   const [review, setReview] = useState(existing?.review ?? '')
   const [saving, setSaving] = useState(false)
@@ -65,14 +66,25 @@ export default function RatingModal({ album, existing, onClose, onSaved }: Props
     setSaving(true)
     setError(null)
     try {
-      const saved = await ratingsApi.upsert({
-        albumId: album.id,
-        albumName: album.name,
-        albumArtist: album.artists.map(a => a.name).join(', '),
-        albumImage: album.images[0]?.url ?? null,
-        rating,
-        review: review.trim() || null,
-      })
+      const saved = track
+        ? await ratingsApi.upsertTrack({
+            albumId: album.id,
+            albumName: album.name,
+            albumArtist: album.artists.map(a => a.name).join(', '),
+            albumImage: album.images[0]?.url ?? null,
+            trackId: track.id,
+            trackName: track.name,
+            rating,
+            review: review.trim() || null,
+          })
+        : await ratingsApi.upsert({
+            albumId: album.id,
+            albumName: album.name,
+            albumArtist: album.artists.map(a => a.name).join(', '),
+            albumImage: album.images[0]?.url ?? null,
+            rating,
+            review: review.trim() || null,
+          })
       onSaved(saved)
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Failed to save. Are you signed in?')
@@ -85,7 +97,8 @@ export default function RatingModal({ album, existing, onClose, onSaved }: Props
     setSaving(true)
     setError(null)
     try {
-      await ratingsApi.remove(album.id)
+      if (track) await ratingsApi.removeTrack(album.id, track.id)
+      else await ratingsApi.remove(album.id)
       onSaved(null)
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Failed to delete rating.')
@@ -99,12 +112,21 @@ export default function RatingModal({ album, existing, onClose, onSaved }: Props
 
   return (
     <div className="modal-overlay" onClick={handleOverlayClick}>
-      <div className="modal" role="dialog" aria-modal="true" aria-label="Rate album">
+      <div className="modal" role="dialog" aria-modal="true" aria-label={track ? 'Rate track' : 'Rate album'}>
         {/* Header */}
         <div className="modal-header">
           <div className="modal-album-info">
-            <p className="modal-album-name">{album.name}</p>
-            <p className="modal-album-artist">{album.artists.map(a => a.name).join(', ')}</p>
+            {track ? (
+              <>
+                <p className="modal-album-name">{track.name}</p>
+                <p className="modal-album-artist">{album.name} · {album.artists.map(a => a.name).join(', ')}</p>
+              </>
+            ) : (
+              <>
+                <p className="modal-album-name">{album.name}</p>
+                <p className="modal-album-artist">{album.artists.map(a => a.name).join(', ')}</p>
+              </>
+            )}
           </div>
           <button className="modal-close" onClick={onClose} aria-label="Close">×</button>
         </div>

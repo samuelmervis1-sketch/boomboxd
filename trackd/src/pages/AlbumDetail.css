@@ -389,7 +389,7 @@
   border-radius: 6px;
   gap: 0.5rem;
   transition: background 0.12s;
-  cursor: default;
+  cursor: pointer;
 }
 
 .track-row:hover {
@@ -420,12 +420,12 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Play icon appears on row hover */
+/* Rating hint appears on row hover */
 .track-num-wrap::after {
-  content: '▶';
+  content: '★';
   position: absolute;
-  font-size: 0.65rem;
-  color: var(--text);
+  font-size: 0.75rem;
+  color: var(--accent);
   opacity: 0;
   transition: opacity 0.12s;
 }
@@ -452,6 +452,28 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.track-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  justify-content: flex-end;
+}
+
+.track-rating-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.track-rating-star {
+  color: var(--accent);
+  font-size: 0.7rem;
 }
 
 .track-duration {

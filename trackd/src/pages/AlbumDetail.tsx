@@ -88,11 +88,13 @@ export default function AlbumDetail() {
 
   const [user, setUser]         = useState<User | null>(null)
   const [myRating, setMyRating] = useState<Rating | null>(null)
-  const [modalOpen, setModalOpen] = useState(false)
+  const [ratingTarget, setRatingTarget] = useState<SpotifyTrack | 'album' | null>(null)
   const [shareOpen, setShareOpen] = useState(false)
   const [signInPrompt, setSignInPrompt] = useState(false)
 
   const [communityRatings, setCommunityRatings] = useState<Rating[]>([])
+  const [trackCommunityRatings, setTrackCommunityRatings] = useState<Rating[]>([])
+  const [myTrackRatings, setMyTrackRatings] = useState<Rating[]>([])
 
   // Load album + tracks
   useEffect(() => {
@@ -127,24 +129,53 @@ export default function AlbumDetail() {
       .catch(() => setMyRating(null))
   }, [user?.id, id])
 
-  // Load community ratings for this album
+  // Load this user's existing track ratings for this album
+  useEffect(() => {
+    if (!user || !id) { setMyTrackRatings([]); return }
+    ratingsApi.getMyTrackRatingsForAlbum(id)
+      .then(setMyTrackRatings)
+      .catch(() => setMyTrackRatings([]))
+  }, [user?.id, id])
+
+  // Load community ratings (album + per-track) for this album
   useEffect(() => {
     if (!id) return
-    ratingsApi.getAlbumRatings(id)
-      .then(setCommunityRatings)
-      .catch(() => setCommunityRatings([]))
+    Promise.all([ratingsApi.getAlbumRatings(id), ratingsApi.getTrackRatings(id)])
+      .then(([albumRatings, trackRatings]) => {
+        setCommunityRatings(albumRatings)
+        setTrackCommunityRatings(trackRatings)
+      })
+      .catch(() => {
+        setCommunityRatings([])
+        setTrackCommunityRatings([])
+      })
   }, [id])
 
   function openRating() {
     if (!user) { setSignInPrompt(true); return }
     setSignInPrompt(false)
-    setModalOpen(true)
+    setRatingTarget('album')
+  }
+
+  function openTrackRating(track: SpotifyTrack) {
+    if (!user) { setSignInPrompt(true); return }
+    setSignInPrompt(false)
+    setRatingTarget(track)
   }
 
   function handleRatingSaved(rating: Rating | null) {
-    setMyRating(rating)
-    setModalOpen(false)
-    if (id) ratingsApi.getAlbumRatings(id).then(setCommunityRatings).catch(() => {})
+    if (ratingTarget && ratingTarget !== 'album') {
+      const trackId = ratingTarget.id
+      setMyTrackRatings(prev => {
+        const rest = prev.filter(r => r.spotify_track_id !== trackId)
+        return rating ? [...rest, rating] : rest
+      })
+      if (id) ratingsApi.getTrackRatings(id).then(setTrackCommunityRatings).catch(() => {})
+    } else {
+      setMyRating(rating)
+      if (id) ratingsApi.getAlbumRatings(id).then(setCommunityRatings).catch(() => {})
+    }
+    setRatingTarget(null)
   }
 
   if (loading) return <div className="album-detail-status"><div className="spinner" /></div>
@@ -163,6 +194,15 @@ export default function AlbumDetail() {
   const otherReviews = communityRatings.filter(
     r => r.user_id !== user?.id && r.review && r.review.trim().length > 0
   )
+
+  const trackRatingStats = new Map<string, { sum: number; count: number }>()
+  for (const r of trackCommunityRatings) {
+    if (!r.spotify_track_id) continue
+    const cur = trackRatingStats.get(r.spotify_track_id) ?? { sum: 0, count: 0 }
+    cur.sum += r.rating
+    cur.count += 1
+    trackRatingStats.set(r.spotify_track_id, cur)
+  }
 
   return (
     <>
@@ -239,7 +279,7 @@ export default function AlbumDetail() {
 
                 {signInPrompt && (
                   <p className="sign-in-prompt">
-                    <Link to="/profile">Sign in</Link> to rate albums
+                    <Link to="/profile">Sign in</Link> to rate albums and tracks
                   </p>
                 )}
 
@@ -264,8 +304,22 @@ export default function AlbumDetail() {
 
           {tracks.map((track, i) => {
             const feat = featArtists(track, albumArtistIds)
+            const stats = trackRatingStats.get(track.id)
+            const trackAvg = stats ? stats.sum / stats.count : null
             return (
-              <div key={track.id} className="track-row">
+              <div
+                key={track.id}
+                className="track-row"
+                onClick={() => openTrackRating(track)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    openTrackRating(track)
+                  }
+                }}
+              >
                 <div className="track-num-wrap">
                   <span className="track-num">{i + 1}</span>
                 </div>
@@ -273,7 +327,18 @@ export default function AlbumDetail() {
                   <span className="track-name">{track.name}</span>
                   {feat && <span className="track-feat">feat. {feat}</span>}
                 </div>
-                <span className="track-duration">{formatDuration(track.duration_ms)}</span>
+                <div className="track-meta">
+                  {trackAvg !== null && (
+                    <span
+                      className="track-rating-badge"
+                      title={`${trackAvg.toFixed(1)} avg from ${stats!.count} rating${stats!.count === 1 ? '' : 's'}`}
+                    >
+                      <span className="track-rating-star">★</span>
+                      {trackAvg.toFixed(1)}
+                    </span>
+                  )}
+                  <span className="track-duration">{formatDuration(track.duration_ms)}</span>
+                </div>
               </div>
             )
           })}
@@ -308,11 +373,16 @@ export default function AlbumDetail() {
         )}
       </div>
 
-      {modalOpen && (
+      {ratingTarget && (
         <RatingModal
           album={album}
-          existing={myRating}
-          onClose={() => setModalOpen(false)}
+          track={ratingTarget !== 'album' ? ratingTarget : undefined}
+          existing={
+            ratingTarget === 'album'
+              ? myRating
+              : myTrackRatings.find(r => r.spotify_track_id === ratingTarget.id) ?? null
+          }
+          onClose={() => setRatingTarget(null)}
           onSaved={handleRatingSaved}
         />
       )}
