@@ -331,6 +331,11 @@
   font-weight: 600;
 }
 
+.tracklist-sign-in-prompt {
+  margin: 0 0 1rem;
+  padding: 0 0.5rem;
+}
+
 /* Inline review quote */
 .my-review {
   margin-top: 0.75rem;
