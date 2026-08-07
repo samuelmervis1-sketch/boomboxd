@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { format } from 'date-fns'
 import type { User } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
+import { ratingsApi, type Rating } from '../lib/ratingsApi'
+import { StarGlyph } from '../components/RatingModal'
 import './Profile.css'
 
 // ── Helpers ────────────────────────────────────────────────
@@ -157,6 +159,31 @@ function ProfileView({ user }: { user: User }) {
   const avatarColor = getAvatarColor(user.id)
   const joinDate = user.created_at ? format(new Date(user.created_at), 'MMMM yyyy') : null
 
+  const [ratings, setRatings] = useState<Rating[]>([])
+  const [ratingsLoading, setRatingsLoading] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+    setRatingsLoading(true)
+    ratingsApi.getMyRatings()
+      .then(data => { if (!cancelled) setRatings(data) })
+      .catch(() => { if (!cancelled) setRatings([]) })
+      .finally(() => { if (!cancelled) setRatingsLoading(false) })
+    return () => { cancelled = true }
+  }, [user.id])
+
+  const totalAlbums = ratings.length
+  const totalReviews = ratings.filter(r => r.review && r.review.trim().length > 0).length
+  const avgRatingLabel = totalAlbums > 0
+    ? (ratings.reduce((sum, r) => sum + r.rating, 0) / totalAlbums).toFixed(1)
+    : '–'
+
+  const recentRatings = ratings.slice(0, 5)
+
+  const favoriteAlbums = [...ratings]
+    .sort((a, b) => b.rating - a.rating || new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .slice(0, 4)
+
   async function signOut() {
     await supabase.auth.signOut()
   }
@@ -189,20 +216,16 @@ function ProfileView({ user }: { user: User }) {
       {/* Stats */}
       <div className="profile-stats">
         <div className="profile-stat">
-          <span className="stat-value">0</span>
+          <span className="stat-value">{totalAlbums}</span>
           <span className="stat-label">Albums</span>
         </div>
         <div className="profile-stat">
-          <span className="stat-value">0</span>
+          <span className="stat-value">{totalReviews}</span>
           <span className="stat-label">Reviews</span>
         </div>
         <div className="profile-stat">
-          <span className="stat-value">0</span>
-          <span className="stat-label">Lists</span>
-        </div>
-        <div className="profile-stat">
-          <span className="stat-value">0</span>
-          <span className="stat-label">Following</span>
+          <span className="stat-value">{avgRatingLabel}</span>
+          <span className="stat-label">Avg Rating</span>
         </div>
       </div>
 
@@ -210,22 +233,65 @@ function ProfileView({ user }: { user: User }) {
       <div className="profile-section">
         <p className="profile-section-heading">Favorite Albums</p>
         <div className="favorites-shelf">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="favorites-slot" title="Add a favorite album">
-              <PlusIcon />
-            </div>
-          ))}
+          {Array.from({ length: 4 }).map((_, i) => {
+            const fav = favoriteAlbums[i]
+            if (!fav) {
+              return (
+                <div key={i} className="favorites-slot" title="Rate more albums to fill this spot">
+                  <PlusIcon />
+                </div>
+              )
+            }
+            return (
+              <Link
+                key={fav.id}
+                to={`/album/${fav.album_id}`}
+                className="favorites-album"
+                title={`${fav.album_name} — ${fav.rating} stars`}
+              >
+                {fav.album_image
+                  ? <img src={fav.album_image} alt={fav.album_name} />
+                  : <div className="favorites-album-placeholder" />}
+                <span className="favorites-album-rating">{fav.rating}★</span>
+              </Link>
+            )
+          })}
         </div>
       </div>
 
       {/* Recent activity */}
       <div className="profile-section">
         <p className="profile-section-heading">Recent Activity</p>
-        <div className="activity-empty">
-          <div className="activity-empty-icon">🎵</div>
-          <p>No activity yet. Log an album to get started.</p>
-          <Link to="/" className="activity-empty-link">Search albums →</Link>
-        </div>
+        {ratingsLoading ? (
+          <div className="activity-empty">
+            <div className="activity-empty-icon">🎵</div>
+            <p>Loading your activity…</p>
+          </div>
+        ) : recentRatings.length === 0 ? (
+          <div className="activity-empty">
+            <div className="activity-empty-icon">🎵</div>
+            <p>No activity yet. Log an album to get started.</p>
+            <Link to="/" className="activity-empty-link">Search albums →</Link>
+          </div>
+        ) : (
+          <div className="activity-list">
+            {recentRatings.map(r => (
+              <Link key={r.id} to={`/album/${r.album_id}`} className="activity-item">
+                {r.album_image
+                  ? <img className="activity-art" src={r.album_image} alt={r.album_name} />
+                  : <div className="activity-art-placeholder" />}
+                <div className="activity-body">
+                  <p className="activity-album-name">{r.album_name}</p>
+                  <p className="activity-album-artist">{r.album_artist}</p>
+                  <span className="activity-stars">
+                    {[1, 2, 3, 4, 5].map(n => <StarGlyph key={n} value={r.rating} pos={n} />)}
+                  </span>
+                  {r.review && <p className="activity-review">{r.review}</p>}
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )
