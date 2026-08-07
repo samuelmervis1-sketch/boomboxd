@@ -3,6 +3,7 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "rewrites": [
-    { "source": "/api/spotify/:path*", "destination": "/api/spotify-proxy" }
+    { "source": "/api/spotify/:path*", "destination": "/api/spotify-proxy" },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }
