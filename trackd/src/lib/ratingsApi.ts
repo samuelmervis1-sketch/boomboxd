@@ -28,6 +28,17 @@ export const ratingsApi = {
     return data ?? []
   },
 
+  async getAlbumRatings(albumId: string): Promise<Rating[]> {
+    const { data, error } = await supabase
+      .from('ratings')
+      .select()
+      .eq('album_id', albumId)
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+    return data ?? []
+  },
+
   async getMyRating(albumId: string): Promise<Rating | null> {
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) return null
