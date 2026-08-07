@@ -296,6 +296,12 @@ export default function AlbumDetail() {
 
         {/* ── Tracklist ── */}
         <div className="tracklist">
+          {signInPrompt && (
+            <p className="sign-in-prompt tracklist-sign-in-prompt">
+              <Link to="/profile">Sign in</Link> to rate albums and tracks
+            </p>
+          )}
+
           <div className="tracklist-header">
             <span>#</span>
             <span>Title</span>
