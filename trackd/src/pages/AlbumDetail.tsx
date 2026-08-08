@@ -6,8 +6,10 @@ import { spotifyApi, type SpotifyAlbum, type SpotifyTrack } from '../services/sp
 import { supabase } from '../lib/supabase'
 import { ratingsApi, type Rating } from '../lib/ratingsApi'
 import { profilesApi, type Profile } from '../lib/profilesApi'
+import { followsApi } from '../lib/followsApi'
 import RatingModal, { StarGlyph } from '../components/RatingModal'
 import ShareCardModal from '../components/ShareCardModal'
+import FollowButton from '../components/FollowButton'
 import './AlbumDetail.css'
 
 // ── Helpers ────────────────────────────────────────────────
@@ -106,6 +108,7 @@ export default function AlbumDetail() {
   const [trackCommunityRatings, setTrackCommunityRatings] = useState<Rating[]>([])
   const [myTrackRatings, setMyTrackRatings] = useState<Rating[]>([])
   const [reviewerProfiles, setReviewerProfiles] = useState<Record<string, Profile>>({})
+  const [followingIds, setFollowingIds] = useState<Set<string>>(new Set())
 
   // Load album + tracks
   useEffect(() => {
@@ -172,6 +175,23 @@ export default function AlbumDetail() {
       .then(profiles => setReviewerProfiles(Object.fromEntries(profiles.map(p => [p.id, p]))))
       .catch(() => setReviewerProfiles({}))
   }, [communityRatings])
+
+  // Load who the signed-in user follows, to render Follow/Following state
+  useEffect(() => {
+    if (!user) { setFollowingIds(new Set()); return }
+    followsApi.getFollowing(user.id)
+      .then(rows => setFollowingIds(new Set(rows.map(r => r.following_id))))
+      .catch(() => setFollowingIds(new Set()))
+  }, [user?.id])
+
+  function handleFollowChange(targetUserId: string, following: boolean) {
+    setFollowingIds(prev => {
+      const next = new Set(prev)
+      if (following) next.add(targetUserId)
+      else next.delete(targetUserId)
+      return next
+    })
+  }
 
   function openRating() {
     if (!user) { setSignInPrompt(true); return }
@@ -396,6 +416,13 @@ export default function AlbumDetail() {
                         <span className="community-review-date">
                           {format(new Date(r.created_at), 'MMM d, yyyy')}
                         </span>
+                        <FollowButton
+                          targetUserId={r.user_id}
+                          isFollowing={followingIds.has(r.user_id)}
+                          signedIn={!!user}
+                          onChange={following => handleFollowChange(r.user_id, following)}
+                          onRequireSignIn={() => setSignInPrompt(true)}
+                        />
                       </div>
                       <p className="community-review-text">{r.review}</p>
                     </div>

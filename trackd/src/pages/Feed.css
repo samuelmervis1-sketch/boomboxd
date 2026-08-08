@@ -1,0 +1,183 @@
+.feed-page h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Status / spinner ──────────────────────────────────── */
+
+.feed-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+}
+
+.spinner {
+  width: 26px;
+  height: 26px;
+  border: 2px solid #2a2a2a;
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Empty state ───────────────────────────────────────── */
+
+.feed-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3.5rem 1rem;
+  gap: 0.6rem;
+  background: #141414;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+
+.feed-empty-icon {
+  font-size: 2rem;
+  opacity: 0.4;
+}
+
+.feed-empty p {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  text-align: center;
+  max-width: 340px;
+  line-height: 1.5;
+}
+
+.feed-empty-link {
+  font-size: 0.82rem;
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+  margin-top: 0.25rem;
+}
+
+.feed-empty-link:hover {
+  opacity: 0.8;
+}
+
+/* ── Feed list ─────────────────────────────────────────── */
+
+.feed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.feed-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  background: #141414;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  text-decoration: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.feed-item:hover {
+  border-color: #3a3a3a;
+  background: #1a1a1a;
+}
+
+.feed-item-art,
+.feed-item-art-placeholder {
+  width: 64px;
+  height: 64px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  object-fit: cover;
+}
+
+.feed-item-art-placeholder {
+  background: #1f1f1f;
+}
+
+.feed-item-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.feed-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.feed-item-reviewer {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.feed-item-date {
+  font-size: 0.72rem;
+  color: #555;
+  flex-shrink: 0;
+}
+
+.feed-item-album {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.feed-item-artist {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.feed-item-stars {
+  display: inline-flex;
+  gap: 1px;
+  margin-top: 0.15rem;
+}
+
+.feed-item-stars .star-glyph {
+  font-size: 0.85rem;
+  pointer-events: none;
+}
+
+.feed-item-review {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-top: 0.3rem;
+}
+
+/* ── Responsive ────────────────────────────────────────── */
+
+@media (max-width: 480px) {
+  .feed-item {
+    gap: 0.75rem;
+    padding: 0.75rem;
+  }
+
+  .feed-item-art,
+  .feed-item-art-placeholder {
+    width: 52px;
+    height: 52px;
+  }
+}

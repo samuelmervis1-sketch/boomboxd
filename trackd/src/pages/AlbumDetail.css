@@ -558,6 +558,10 @@
   color: #555;
 }
 
+.community-review-header .follow-btn {
+  margin-left: auto;
+}
+
 .community-review-text {
   font-size: 0.85rem;
   color: var(--text-muted);
