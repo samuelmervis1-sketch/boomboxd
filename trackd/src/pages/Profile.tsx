@@ -4,6 +4,7 @@ import { format } from 'date-fns'
 import type { User } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
 import { ratingsApi, type Rating } from '../lib/ratingsApi'
+import { profilesApi, type Profile } from '../lib/profilesApi'
 import { StarGlyph } from '../components/RatingModal'
 import './Profile.css'
 
@@ -153,14 +154,17 @@ function AuthForm() {
 
 function ProfileView({ user }: { user: User }) {
   const meta = user.user_metadata as { full_name?: string; avatar_url?: string } | undefined
-  const displayName = meta?.full_name ?? user.email ?? 'Music fan'
-  const avatarUrl = meta?.avatar_url
-  const initials = getInitials(displayName)
-  const avatarColor = getAvatarColor(user.id)
   const joinDate = user.created_at ? format(new Date(user.created_at), 'MMMM yyyy') : null
 
   const [ratings, setRatings] = useState<Rating[]>([])
   const [ratingsLoading, setRatingsLoading] = useState(true)
+
+  const [profile, setProfile] = useState<Profile | null>(null)
+  const [editing, setEditing] = useState(false)
+  const [editUsername, setEditUsername] = useState('')
+  const [editDisplayName, setEditDisplayName] = useState('')
+  const [savingProfile, setSavingProfile] = useState(false)
+  const [profileError, setProfileError] = useState<string | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -171,6 +175,58 @@ function ProfileView({ user }: { user: User }) {
       .finally(() => { if (!cancelled) setRatingsLoading(false) })
     return () => { cancelled = true }
   }, [user.id])
+
+  useEffect(() => {
+    let cancelled = false
+    profilesApi.getProfile(user.id)
+      .then(p => {
+        if (cancelled) return
+        setProfile(p)
+        setEditUsername(p?.username ?? '')
+        setEditDisplayName(p?.display_name ?? '')
+      })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [user.id])
+
+  const displayName = profile?.display_name || profile?.username || meta?.full_name || user.email || 'Music fan'
+  const avatarUrl = profile?.avatar_url ?? meta?.avatar_url
+  const initials = getInitials(displayName)
+  const avatarColor = getAvatarColor(user.id)
+
+  function openEdit() {
+    setEditUsername(profile?.username ?? '')
+    setEditDisplayName(profile?.display_name ?? '')
+    setProfileError(null)
+    setEditing(true)
+  }
+
+  function cancelEdit() {
+    setEditing(false)
+    setProfileError(null)
+  }
+
+  async function handleSaveProfile(e: React.FormEvent) {
+    e.preventDefault()
+    const username = editUsername.trim()
+    if (!username) { setProfileError('Username is required.'); return }
+
+    setSavingProfile(true)
+    setProfileError(null)
+    try {
+      const updated = await profilesApi.updateMyProfile({
+        username,
+        displayName: editDisplayName.trim() || null,
+      })
+      setProfile(updated)
+      setEditing(false)
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to update profile.'
+      setProfileError(msg.includes('duplicate key') ? 'That username is already taken.' : msg)
+    } finally {
+      setSavingProfile(false)
+    }
+  }
 
   const totalAlbums = ratings.length
   const totalReviews = ratings.filter(r => r.review && r.review.trim().length > 0).length
@@ -205,12 +261,53 @@ function ProfileView({ user }: { user: User }) {
         }
 
         <div className="profile-identity">
-          <h1 className="profile-name">{displayName}</h1>
-          {meta?.full_name && <p className="profile-email">{user.email}</p>}
-          {joinDate && <p className="profile-joined">Member since {joinDate}</p>}
+          {editing ? (
+            <form className="profile-edit-form" onSubmit={handleSaveProfile}>
+              <div className="form-field">
+                <label className="form-label">Username</label>
+                <input
+                  className="form-input"
+                  value={editUsername}
+                  onChange={e => setEditUsername(e.target.value)}
+                  maxLength={30}
+                  required
+                />
+              </div>
+              <div className="form-field">
+                <label className="form-label">Display name</label>
+                <input
+                  className="form-input"
+                  value={editDisplayName}
+                  onChange={e => setEditDisplayName(e.target.value)}
+                  maxLength={60}
+                  placeholder="Optional"
+                />
+              </div>
+              {profileError && <p className="auth-error">{profileError}</p>}
+              <div className="profile-edit-actions">
+                <button type="button" className="btn-cancel-edit" onClick={cancelEdit} disabled={savingProfile}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn-submit" disabled={savingProfile}>
+                  {savingProfile ? 'Saving…' : 'Save'}
+                </button>
+              </div>
+            </form>
+          ) : (
+            <>
+              <h1 className="profile-name">{displayName}</h1>
+              {profile?.username && <p className="profile-email">@{profile.username}</p>}
+              {joinDate && <p className="profile-joined">Member since {joinDate}</p>}
+            </>
+          )}
         </div>
 
-        <button className="btn-signout" onClick={signOut}>Sign out</button>
+        {!editing && (
+          <div className="profile-header-actions">
+            <button className="btn-edit-profile" onClick={openEdit}>Edit profile</button>
+            <button className="btn-signout" onClick={signOut}>Sign out</button>
+          </div>
+        )}
       </div>
 
       {/* Stats */}
