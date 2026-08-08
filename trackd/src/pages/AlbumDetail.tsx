@@ -6,6 +6,7 @@ import { spotifyApi, type SpotifyAlbum, type SpotifyTrack } from '../services/sp
 import { supabase } from '../lib/supabase'
 import { ratingsApi, type Rating } from '../lib/ratingsApi'
 import { profilesApi, type Profile } from '../lib/profilesApi'
+import { momentsApi, type Moment } from '../lib/momentsApi'
 import { followsApi } from '../lib/followsApi'
 import RatingModal, { StarGlyph } from '../components/RatingModal'
 import ShareCardModal from '../components/ShareCardModal'
@@ -29,6 +30,18 @@ function totalRuntime(tracks: SpotifyTrack[]): string {
 function featArtists(track: SpotifyTrack, albumArtistIds: Set<string>): string {
   const feat = track.artists.filter(a => !albumArtistIds.has(a.id))
   return feat.length ? feat.map(a => a.name).join(', ') : ''
+}
+
+function parseTimestamp(input: string): number | null {
+  const match = input.trim().match(/^(\d{1,3}):([0-5]\d)$/)
+  if (!match) return null
+  return parseInt(match[1], 10) * 60 + parseInt(match[2], 10)
+}
+
+function formatTimestamp(totalSeconds: number): string {
+  const m = Math.floor(totalSeconds / 60)
+  const s = totalSeconds % 60
+  return `${m}:${String(s).padStart(2, '0')}`
 }
 
 // ── Icons ──────────────────────────────────────────────────
@@ -110,6 +123,14 @@ export default function AlbumDetail() {
   const [reviewerProfiles, setReviewerProfiles] = useState<Record<string, Profile>>({})
   const [followingIds, setFollowingIds] = useState<Set<string>>(new Set())
 
+  const [momentsByTrack, setMomentsByTrack] = useState<Record<string, Moment[]>>({})
+  const [momentProfiles, setMomentProfiles] = useState<Record<string, Profile>>({})
+  const [momentFormTrack, setMomentFormTrack] = useState<string | null>(null)
+  const [momentTimestamp, setMomentTimestamp] = useState('')
+  const [momentComment, setMomentComment] = useState('')
+  const [momentSaving, setMomentSaving] = useState(false)
+  const [momentError, setMomentError] = useState<string | null>(null)
+
   // Load album + tracks
   useEffect(() => {
     if (!id) return
@@ -175,6 +196,29 @@ export default function AlbumDetail() {
       .then(profiles => setReviewerProfiles(Object.fromEntries(profiles.map(p => [p.id, p]))))
       .catch(() => setReviewerProfiles({}))
   }, [communityRatings])
+
+  // Load moments (timestamped comments) for every track on this album
+  useEffect(() => {
+    if (!id) return
+    momentsApi.getMomentsForAlbum(id)
+      .then(moments => {
+        const grouped: Record<string, Moment[]> = {}
+        for (const m of moments) {
+          (grouped[m.spotify_track_id] ??= []).push(m)
+        }
+        setMomentsByTrack(grouped)
+      })
+      .catch(() => setMomentsByTrack({}))
+  }, [id])
+
+  // Load profiles for anyone who's left a moment, to show @username
+  useEffect(() => {
+    const ids = [...new Set(Object.values(momentsByTrack).flat().map(m => m.user_id))]
+    if (ids.length === 0) { setMomentProfiles({}); return }
+    profilesApi.getProfiles(ids)
+      .then(profiles => setMomentProfiles(Object.fromEntries(profiles.map(p => [p.id, p]))))
+      .catch(() => setMomentProfiles({}))
+  }, [momentsByTrack])
 
   // Load who the signed-in user follows, to render Follow/Following state
   useEffect(() => {
@@ -244,6 +288,66 @@ export default function AlbumDetail() {
     cur.sum += r.rating
     cur.count += 1
     trackRatingStats.set(r.spotify_track_id, cur)
+  }
+
+  function openMomentForm(trackId: string) {
+    if (!user) { setSignInPrompt(true); return }
+    setSignInPrompt(false)
+    setMomentFormTrack(trackId)
+    setMomentTimestamp('')
+    setMomentComment('')
+    setMomentError(null)
+  }
+
+  function closeMomentForm() {
+    setMomentFormTrack(null)
+    setMomentError(null)
+  }
+
+  async function handleAddMoment(e: React.FormEvent, track: SpotifyTrack) {
+    e.preventDefault()
+    const seconds = parseTimestamp(momentTimestamp)
+    if (seconds === null) { setMomentError('Enter a timestamp like 0:47.'); return }
+    const comment = momentComment.trim()
+    if (!comment) { setMomentError('Enter a comment.'); return }
+
+    setMomentSaving(true)
+    setMomentError(null)
+    try {
+      const saved = await momentsApi.createMoment({
+        trackId: track.id,
+        trackName: track.name,
+        albumId: album!.id,
+        albumName: album!.name,
+        albumImage: album!.images[0]?.url ?? null,
+        timestampSeconds: seconds,
+        commentText: comment,
+      })
+      setMomentsByTrack(prev => {
+        const existing = prev[track.id] ?? []
+        const next = [...existing, saved].sort((a, b) => a.timestamp_seconds - b.timestamp_seconds)
+        return { ...prev, [track.id]: next }
+      })
+      setMomentFormTrack(null)
+      setMomentTimestamp('')
+      setMomentComment('')
+    } catch (err: unknown) {
+      setMomentError(err instanceof Error ? err.message : 'Failed to add moment.')
+    } finally {
+      setMomentSaving(false)
+    }
+  }
+
+  async function handleDeleteMoment(moment: Moment) {
+    try {
+      await momentsApi.deleteMoment(moment.id)
+      setMomentsByTrack(prev => ({
+        ...prev,
+        [moment.spotify_track_id]: (prev[moment.spotify_track_id] ?? []).filter(m => m.id !== moment.id),
+      }))
+    } catch {
+      // Best-effort — the pill just stays put if the delete fails.
+    }
   }
 
   return (
@@ -354,39 +458,106 @@ export default function AlbumDetail() {
             const feat = featArtists(track, albumArtistIds)
             const stats = trackRatingStats.get(track.id)
             const trackAvg = stats ? stats.sum / stats.count : null
+            const trackMoments = momentsByTrack[track.id] ?? []
+            const formOpen = momentFormTrack === track.id
             return (
-              <div
-                key={track.id}
-                className="track-row"
-                onClick={() => openTrackRating(track)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={e => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault()
-                    openTrackRating(track)
-                  }
-                }}
-              >
-                <div className="track-num-wrap">
-                  <span className="track-num">{i + 1}</span>
-                </div>
-                <div className="track-body">
-                  <span className="track-name">{track.name}</span>
-                  {feat && <span className="track-feat">feat. {feat}</span>}
-                </div>
-                <div className="track-meta">
-                  {trackAvg !== null && (
-                    <span
-                      className="track-rating-badge"
-                      title={`${trackAvg.toFixed(1)} avg from ${stats!.count} rating${stats!.count === 1 ? '' : 's'}`}
+              <div key={track.id} className="track-block">
+                <div
+                  className="track-row"
+                  onClick={() => openTrackRating(track)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      openTrackRating(track)
+                    }
+                  }}
+                >
+                  <div className="track-num-wrap">
+                    <span className="track-num">{i + 1}</span>
+                  </div>
+                  <div className="track-body">
+                    <span className="track-name">{track.name}</span>
+                    {feat && <span className="track-feat">feat. {feat}</span>}
+                  </div>
+                  <div className="track-meta">
+                    {trackAvg !== null && (
+                      <span
+                        className="track-rating-badge"
+                        title={`${trackAvg.toFixed(1)} avg from ${stats!.count} rating${stats!.count === 1 ? '' : 's'}`}
+                      >
+                        <span className="track-rating-star">★</span>
+                        {trackAvg.toFixed(1)}
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      className="track-moment-btn"
+                      onClick={e => { e.stopPropagation(); openMomentForm(track.id) }}
+                      title="Add a moment"
                     >
-                      <span className="track-rating-star">★</span>
-                      {trackAvg.toFixed(1)}
-                    </span>
-                  )}
-                  <span className="track-duration">{formatDuration(track.duration_ms)}</span>
+                      + moment
+                    </button>
+                    <span className="track-duration">{formatDuration(track.duration_ms)}</span>
+                  </div>
                 </div>
+
+                {(trackMoments.length > 0 || formOpen) && (
+                  <div className="track-moments">
+                    {trackMoments.map(m => {
+                      const mp = momentProfiles[m.user_id]
+                      return (
+                        <div key={m.id} className="moment-pill">
+                          <span className="moment-timestamp">{formatTimestamp(m.timestamp_seconds)}</span>
+                          <span className="moment-sep">—</span>
+                          <span className="moment-comment">{m.comment_text}</span>
+                          <span className="moment-sep">—</span>
+                          <span className="moment-author">@{mp?.username ?? 'fan'}</span>
+                          {user?.id === m.user_id && (
+                            <button
+                              type="button"
+                              className="moment-delete"
+                              onClick={() => handleDeleteMoment(m)}
+                              aria-label="Delete moment"
+                            >
+                              ×
+                            </button>
+                          )}
+                        </div>
+                      )
+                    })}
+
+                    {formOpen && (
+                      <>
+                        <form className="moment-form" onSubmit={e => handleAddMoment(e, track)}>
+                          <input
+                            className="moment-form-timestamp"
+                            placeholder="0:47"
+                            value={momentTimestamp}
+                            onChange={e => setMomentTimestamp(e.target.value)}
+                            maxLength={6}
+                            autoFocus
+                          />
+                          <input
+                            className="moment-form-comment"
+                            placeholder="What happens here?"
+                            value={momentComment}
+                            onChange={e => setMomentComment(e.target.value)}
+                            maxLength={200}
+                          />
+                          <button type="submit" className="moment-form-save" disabled={momentSaving}>
+                            {momentSaving ? '…' : 'Add'}
+                          </button>
+                          <button type="button" className="moment-form-cancel" onClick={closeMomentForm}>
+                            Cancel
+                          </button>
+                        </form>
+                        {momentError && <p className="moment-error">{momentError}</p>}
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
             )
           })}
