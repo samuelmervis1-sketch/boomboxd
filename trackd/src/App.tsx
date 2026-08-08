@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom'
+import { Analytics } from '@vercel/analytics/react'
 import Home from './pages/Home'
 import Discover from './pages/Discover'
 import Feed from './pages/Feed'
@@ -36,6 +37,7 @@ export default function App() {
           <Route path="/album/:id" element={<AlbumDetail />} />
         </Routes>
       </main>
+      <Analytics />
     </BrowserRouter>
   )
 }
