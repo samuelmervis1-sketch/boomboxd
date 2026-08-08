@@ -5,6 +5,7 @@ import type { User } from '@supabase/supabase-js'
 import { spotifyApi, type SpotifyAlbum, type SpotifyTrack } from '../services/spotifyApi'
 import { supabase } from '../lib/supabase'
 import { ratingsApi, type Rating } from '../lib/ratingsApi'
+import { profilesApi, type Profile } from '../lib/profilesApi'
 import RatingModal, { StarGlyph } from '../components/RatingModal'
 import ShareCardModal from '../components/ShareCardModal'
 import './AlbumDetail.css'
@@ -66,7 +67,7 @@ function InlineStars({ rating }: { rating: number }) {
   )
 }
 
-// ── Reviewer avatar (no profile data available, so derive from user_id) ──
+// ── Reviewer avatar (falls back to a color derived from user_id) ─────
 
 const REVIEWER_PALETTE = ['#e8ff6b', '#ff6b6b', '#6bffb8', '#6bb8ff', '#ff6bcd', '#ffb86b']
 
@@ -74,6 +75,15 @@ function reviewerColor(userId: string): string {
   let hash = 0
   for (const ch of userId) hash = ch.charCodeAt(0) + ((hash << 5) - hash)
   return REVIEWER_PALETTE[Math.abs(hash) % REVIEWER_PALETTE.length]
+}
+
+function reviewerName(profile: Profile | undefined): string {
+  return profile?.display_name || profile?.username || 'boomboxd fan'
+}
+
+function reviewerInitial(profile: Profile | undefined): string {
+  const name = reviewerName(profile)
+  return name[0]?.toUpperCase() ?? '?'
 }
 
 // ── Page ───────────────────────────────────────────────────
@@ -95,6 +105,7 @@ export default function AlbumDetail() {
   const [communityRatings, setCommunityRatings] = useState<Rating[]>([])
   const [trackCommunityRatings, setTrackCommunityRatings] = useState<Rating[]>([])
   const [myTrackRatings, setMyTrackRatings] = useState<Rating[]>([])
+  const [reviewerProfiles, setReviewerProfiles] = useState<Record<string, Profile>>({})
 
   // Load album + tracks
   useEffect(() => {
@@ -150,6 +161,17 @@ export default function AlbumDetail() {
         setTrackCommunityRatings([])
       })
   }, [id])
+
+  // Load profiles for anyone who left a written review, to show real names
+  useEffect(() => {
+    const reviewerIds = [...new Set(
+      communityRatings.filter(r => r.review && r.review.trim().length > 0).map(r => r.user_id)
+    )]
+    if (reviewerIds.length === 0) { setReviewerProfiles({}); return }
+    profilesApi.getProfiles(reviewerIds)
+      .then(profiles => setReviewerProfiles(Object.fromEntries(profiles.map(p => [p.id, p]))))
+      .catch(() => setReviewerProfiles({}))
+  }, [communityRatings])
 
   function openRating() {
     if (!user) { setSignInPrompt(true); return }
@@ -357,23 +379,29 @@ export default function AlbumDetail() {
               Reviews ({otherReviews.length})
             </p>
             <div className="community-reviews-list">
-              {otherReviews.map(r => (
-                <div key={r.id} className="community-review">
-                  <div
-                    className="community-review-avatar"
-                    style={{ background: reviewerColor(r.user_id) }}
-                  />
-                  <div className="community-review-body">
-                    <div className="community-review-header">
-                      <InlineStars rating={r.rating} />
-                      <span className="community-review-date">
-                        {format(new Date(r.created_at), 'MMM d, yyyy')}
-                      </span>
+              {otherReviews.map(r => {
+                const profile = reviewerProfiles[r.user_id]
+                return (
+                  <div key={r.id} className="community-review">
+                    <div
+                      className="community-review-avatar"
+                      style={{ background: reviewerColor(r.user_id) }}
+                    >
+                      {reviewerInitial(profile)}
                     </div>
-                    <p className="community-review-text">{r.review}</p>
+                    <div className="community-review-body">
+                      <div className="community-review-header">
+                        <span className="community-review-name">{reviewerName(profile)}</span>
+                        <InlineStars rating={r.rating} />
+                        <span className="community-review-date">
+                          {format(new Date(r.created_at), 'MMM d, yyyy')}
+                        </span>
+                      </div>
+                      <p className="community-review-text">{r.review}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
         )}
