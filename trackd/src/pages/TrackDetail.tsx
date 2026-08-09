@@ -12,6 +12,7 @@ import { formatDuration } from '../lib/format'
 import { reviewerColor, reviewerName, reviewerInitial } from '../lib/reviewerDisplay'
 import RatingModal, { StarGlyph } from '../components/RatingModal'
 import FollowButton from '../components/FollowButton'
+import AddToListButton from '../components/AddToListButton'
 import './TrackDetail.css'
 
 // ── Helpers ────────────────────────────────────────────────
@@ -313,6 +314,19 @@ export default function TrackDetail() {
                   <button type="button" className="btn-moment" onClick={openMomentForm}>
                     + moment
                   </button>
+
+                  {album && (
+                    <AddToListButton
+                      item={{
+                        albumId: album.id,
+                        albumName: album.name,
+                        albumArtist: album.artists.map(a => a.name).join(', '),
+                        albumImage: image ?? null,
+                        trackId: track.id,
+                        trackName: track.name,
+                      }}
+                    />
+                  )}
 
                   {album && (
                     <Link className="btn-album-link" to={`/album/${album.id}`}>
