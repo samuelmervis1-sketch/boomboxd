@@ -3,6 +3,7 @@ import Home from './pages/Home'
 import Discover from './pages/Discover'
 import Feed from './pages/Feed'
 import Lists from './pages/Lists'
+import ListDetail from './pages/ListDetail'
 import Profile from './pages/Profile'
 import AlbumDetail from './pages/AlbumDetail'
 import TrackDetail from './pages/TrackDetail'
@@ -33,6 +34,7 @@ export default function App() {
           <Route path="/discover" element={<Discover />} />
           <Route path="/feed" element={<Feed />} />
           <Route path="/lists" element={<Lists />} />
+          <Route path="/list/:id" element={<ListDetail />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/album/:id" element={<AlbumDetail />} />
           <Route path="/track/:id" element={<TrackDetail />} />

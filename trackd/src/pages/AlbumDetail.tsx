@@ -13,6 +13,7 @@ import { reviewerColor, reviewerName, reviewerInitial } from '../lib/reviewerDis
 import RatingModal, { StarGlyph } from '../components/RatingModal'
 import ShareCardModal from '../components/ShareCardModal'
 import FollowButton from '../components/FollowButton'
+import AddToListButton from '../components/AddToListButton'
 import './AlbumDetail.css'
 
 // ── Helpers ────────────────────────────────────────────────
@@ -399,6 +400,15 @@ export default function AlbumDetail() {
                       Rate this album
                     </button>
                   )}
+
+                  <AddToListButton
+                    item={{
+                      albumId: album.id,
+                      albumName: album.name,
+                      albumArtist: artists,
+                      albumImage: image ?? null,
+                    }}
+                  />
                 </div>
 
                 {signInPrompt && (
