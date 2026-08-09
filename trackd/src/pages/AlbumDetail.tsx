@@ -8,17 +8,14 @@ import { ratingsApi, type Rating } from '../lib/ratingsApi'
 import { profilesApi, type Profile } from '../lib/profilesApi'
 import { momentsApi, type Moment } from '../lib/momentsApi'
 import { followsApi } from '../lib/followsApi'
+import { formatDuration } from '../lib/format'
+import { reviewerColor, reviewerName, reviewerInitial } from '../lib/reviewerDisplay'
 import RatingModal, { StarGlyph } from '../components/RatingModal'
 import ShareCardModal from '../components/ShareCardModal'
 import FollowButton from '../components/FollowButton'
 import './AlbumDetail.css'
 
 // ── Helpers ────────────────────────────────────────────────
-
-function formatDuration(ms: number): string {
-  const s = Math.floor(ms / 1000)
-  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
-}
 
 function totalRuntime(tracks: SpotifyTrack[]): string {
   const ms = tracks.reduce((sum, t) => sum + t.duration_ms, 0)
@@ -80,25 +77,6 @@ function InlineStars({ rating }: { rating: number }) {
       {[1, 2, 3, 4, 5].map(n => <StarGlyph key={n} value={rating} pos={n} />)}
     </span>
   )
-}
-
-// ── Reviewer avatar (falls back to a color derived from user_id) ─────
-
-const REVIEWER_PALETTE = ['#e8ff6b', '#ff6b6b', '#6bffb8', '#6bb8ff', '#ff6bcd', '#ffb86b']
-
-function reviewerColor(userId: string): string {
-  let hash = 0
-  for (const ch of userId) hash = ch.charCodeAt(0) + ((hash << 5) - hash)
-  return REVIEWER_PALETTE[Math.abs(hash) % REVIEWER_PALETTE.length]
-}
-
-function reviewerName(profile: Profile | undefined): string {
-  return profile?.display_name || profile?.username || 'boomboxd fan'
-}
-
-function reviewerInitial(profile: Profile | undefined): string {
-  const name = reviewerName(profile)
-  return name[0]?.toUpperCase() ?? '?'
 }
 
 // ── Page ───────────────────────────────────────────────────

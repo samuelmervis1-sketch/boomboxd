@@ -64,11 +64,24 @@ export interface SpotifyTrack {
   duration_ms: number
   preview_url: string | null
   artists: { id: string; name: string }[]
+  // Present on full track objects (search results, GET /tracks/:id) but not
+  // on the simplified tracks returned by GET /albums/:id/tracks.
+  album?: SpotifyAlbum
+  popularity?: number
+  external_urls?: { spotify: string }
 }
 
 export interface SpotifySearchResult {
   albums: {
     items: SpotifyAlbum[]
+    total: number
+    next: string | null
+  }
+}
+
+export interface SpotifyTrackSearchResult {
+  tracks: {
+    items: SpotifyTrack[]
     total: number
     next: string | null
   }
@@ -85,6 +98,16 @@ export const spotifyApi = {
     })
   },
 
+  // Spotify Development Mode caps limit at 10
+  async searchTracks(query: string, limit = 10, offset = 0): Promise<SpotifyTrackSearchResult> {
+    return request<SpotifyTrackSearchResult>('/search', {
+      q: query,
+      type: 'track',
+      limit: String(Math.min(limit, 10)),
+      offset: String(offset),
+    })
+  },
+
   async getAlbum(albumId: string): Promise<SpotifyAlbum> {
     return request<SpotifyAlbum>(`/albums/${albumId}`)
   },
@@ -93,5 +116,9 @@ export const spotifyApi = {
     return request<{ items: SpotifyTrack[] }>(`/albums/${albumId}/tracks`, {
       limit: String(limit),
     })
+  },
+
+  async getTrack(trackId: string): Promise<SpotifyTrack> {
+    return request<SpotifyTrack>(`/tracks/${trackId}`)
   },
 }
