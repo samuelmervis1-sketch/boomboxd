@@ -188,4 +188,32 @@ export const ratingsApi = {
 
     if (error) throw error
   },
+
+  // Track ratings scoped by track alone (for the standalone /track/:id page)
+
+  async getRatingsForTrack(trackId: string): Promise<Rating[]> {
+    const { data, error } = await supabase
+      .from('ratings')
+      .select()
+      .eq('spotify_track_id', trackId)
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+    return data ?? []
+  },
+
+  async getMyRatingForTrack(trackId: string): Promise<Rating | null> {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return null
+
+    const { data, error } = await supabase
+      .from('ratings')
+      .select()
+      .eq('user_id', session.user.id)
+      .eq('spotify_track_id', trackId)
+      .maybeSingle()
+
+    if (error) throw error
+    return data
+  },
 }

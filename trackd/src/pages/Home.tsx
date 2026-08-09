@@ -1,7 +1,14 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import { spotifyApi, type SpotifyAlbum } from '../services/spotifyApi'
+import type { User } from '@supabase/supabase-js'
+import { spotifyApi, type SpotifyAlbum, type SpotifyTrack } from '../services/spotifyApi'
+import { supabase } from '../lib/supabase'
+import { ratingsApi, type Rating } from '../lib/ratingsApi'
+import { formatDuration } from '../lib/format'
+import RatingModal from '../components/RatingModal'
 import './Home.css'
+
+type Tab = 'songs' | 'albums'
 
 function SearchIcon() {
   return (
@@ -54,17 +61,79 @@ function AlbumCard({ album }: { album: SpotifyAlbum }) {
   )
 }
 
+function TrackCard({ track, onRate }: { track: SpotifyTrack; onRate: (track: SpotifyTrack) => void }) {
+  const image = track.album?.images[0]?.url
+  const artist = track.artists.map(a => a.name).join(', ')
+
+  return (
+    <div
+      className="track-card"
+      onClick={() => onRate(track)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onRate(track)
+        }
+      }}
+    >
+      <div className="track-card-art">
+        {image ? (
+          <img src={image} alt={track.name} loading="lazy" />
+        ) : (
+          <div className="track-card-art-placeholder">
+            <MusicIcon />
+          </div>
+        )}
+      </div>
+      <div className="track-card-info">
+        <div className="track-card-title" title={track.name}>{track.name}</div>
+        <div className="track-card-meta">
+          <span className="track-card-artist" title={artist}>{artist}</span>
+        </div>
+      </div>
+      <span className="track-card-duration">{formatDuration(track.duration_ms)}</span>
+      {track.id && (
+        <Link
+          to={`/track/${track.id}`}
+          className="track-card-view-link"
+          onClick={e => e.stopPropagation()}
+        >
+          View
+        </Link>
+      )}
+    </div>
+  )
+}
+
 export default function Home() {
+  const [tab, setTab] = useState<Tab>('songs')
   const [query, setQuery] = useState('')
-  const [results, setResults] = useState<SpotifyAlbum[]>([])
+  const [trackResults, setTrackResults] = useState<SpotifyTrack[]>([])
+  const [albumResults, setAlbumResults] = useState<SpotifyAlbum[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const runSearch = useCallback(async (q: string) => {
+  const [user, setUser] = useState<User | null>(null)
+  const [ratingTrack, setRatingTrack] = useState<SpotifyTrack | null>(null)
+  const [ratingExisting, setRatingExisting] = useState<Rating | null>(null)
+  const [signInPrompt, setSignInPrompt] = useState(false)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null))
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      setUser(session?.user ?? null)
+    })
+    return () => subscription.unsubscribe()
+  }, [])
+
+  const runSearch = useCallback(async (q: string, activeTab: Tab) => {
     if (q.trim().length < 2) {
-      setResults([])
+      setTrackResults([])
+      setAlbumResults([])
       setTotal(0)
       setError(null)
       return
@@ -72,12 +141,23 @@ export default function Home() {
     setLoading(true)
     setError(null)
     try {
-      const data = await spotifyApi.search(q.trim(), 10)
-      setResults(data.albums.items.filter(Boolean))
-      setTotal(data.albums.total)
+      if (activeTab === 'songs') {
+        const data = await spotifyApi.searchTracks(q.trim(), 10)
+        const items = data.tracks.items
+          .filter(Boolean)
+          .slice()
+          .sort((a, b) => (b.popularity ?? 0) - (a.popularity ?? 0))
+        setTrackResults(items)
+        setTotal(data.tracks.total)
+      } else {
+        const data = await spotifyApi.search(q.trim(), 10)
+        setAlbumResults(data.albums.items.filter(Boolean))
+        setTotal(data.albums.total)
+      }
     } catch {
       setError('Could not reach Spotify. Check your API credentials.')
-      setResults([])
+      setTrackResults([])
+      setAlbumResults([])
     } finally {
       setLoading(false)
     }
@@ -85,16 +165,39 @@ export default function Home() {
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current)
-    debounceRef.current = setTimeout(() => runSearch(query), 420)
+    debounceRef.current = setTimeout(() => runSearch(query, tab), 420)
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
-  }, [query, runSearch])
+  }, [query, tab, runSearch])
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (debounceRef.current) clearTimeout(debounceRef.current)
-    runSearch(query)
+    runSearch(query, tab)
   }
 
+  function handleTabChange(next: Tab) {
+    setTab(next)
+    setError(null)
+  }
+
+  async function openTrackRating(track: SpotifyTrack) {
+    if (!user) { setSignInPrompt(true); return }
+    if (!track.album) return
+    setSignInPrompt(false)
+    setRatingTrack(track)
+    try {
+      setRatingExisting(await ratingsApi.getMyRatingForTrack(track.id))
+    } catch {
+      setRatingExisting(null)
+    }
+  }
+
+  function closeRating() {
+    setRatingTrack(null)
+    setRatingExisting(null)
+  }
+
+  const results = tab === 'songs' ? trackResults : albumResults
   const showEmpty = !loading && !error && query.trim().length >= 2 && results.length === 0
   const showPrompt = !loading && !error && query.trim().length < 2
 
@@ -103,11 +206,33 @@ export default function Home() {
       <div className="search-wrap">
         <span className="search-eyebrow">boomboxd</span>
         <h1 className="search-heading">What are you listening to?</h1>
+
+        <div className="search-tabs" role="tablist">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={tab === 'songs'}
+            className={`search-tab${tab === 'songs' ? ' active' : ''}`}
+            onClick={() => handleTabChange('songs')}
+          >
+            Songs
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={tab === 'albums'}
+            className={`search-tab${tab === 'albums' ? ' active' : ''}`}
+            onClick={() => handleTabChange('albums')}
+          >
+            Albums
+          </button>
+        </div>
+
         <form className="search-form" onSubmit={handleSubmit}>
           <input
             className="search-input"
             type="search"
-            placeholder="Search albums, artists…"
+            placeholder={tab === 'songs' ? 'Search songs, artists…' : 'Search albums, artists…'}
             value={query}
             onChange={e => setQuery(e.target.value)}
             autoFocus
@@ -118,6 +243,12 @@ export default function Home() {
             <SearchIcon />
           </button>
         </form>
+
+        {signInPrompt && (
+          <p className="sign-in-prompt">
+            <Link to="/profile">Sign in</Link> to rate songs
+          </p>
+        )}
       </div>
 
       {loading && (
@@ -138,15 +269,36 @@ export default function Home() {
         <div className="search-status">No results for "{query}"</div>
       )}
 
-      {!loading && results.length > 0 && (
+      {!loading && tab === 'songs' && trackResults.length > 0 && (
+        <>
+          <p className="results-meta">{total.toLocaleString()} songs found</p>
+          <div className="track-list">
+            {trackResults.map(track => (
+              <TrackCard key={track.id} track={track} onRate={openTrackRating} />
+            ))}
+          </div>
+        </>
+      )}
+
+      {!loading && tab === 'albums' && albumResults.length > 0 && (
         <>
           <p className="results-meta">{total.toLocaleString()} albums found</p>
           <div className="album-grid">
-            {results.map(album => (
+            {albumResults.map(album => (
               <AlbumCard key={album.id} album={album} />
             ))}
           </div>
         </>
+      )}
+
+      {ratingTrack && ratingTrack.album && (
+        <RatingModal
+          album={ratingTrack.album}
+          track={ratingTrack}
+          existing={ratingExisting}
+          onClose={closeRating}
+          onSaved={closeRating}
+        />
       )}
     </div>
   )

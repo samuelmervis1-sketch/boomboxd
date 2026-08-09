@@ -5,6 +5,7 @@ import Feed from './pages/Feed'
 import Lists from './pages/Lists'
 import Profile from './pages/Profile'
 import AlbumDetail from './pages/AlbumDetail'
+import TrackDetail from './pages/TrackDetail'
 import './App.css'
 
 function Nav() {
@@ -34,6 +35,7 @@ export default function App() {
           <Route path="/lists" element={<Lists />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/album/:id" element={<AlbumDetail />} />
+          <Route path="/track/:id" element={<TrackDetail />} />
         </Routes>
       </main>
     </BrowserRouter>
