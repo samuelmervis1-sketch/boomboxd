@@ -10,6 +10,9 @@ import './Home.css'
 
 type Tab = 'songs' | 'albums'
 
+const SEARCH_EXAMPLES = ['Kendrick Lamar', 'APT', 'Brat']
+const WELCOME_DISMISSED_KEY = 'boomboxd:welcome-dismissed'
+
 function SearchIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -25,6 +28,15 @@ function MusicIcon() {
       <path d="M9 18V5l12-2v13" />
       <circle cx="6" cy="18" r="3" />
       <circle cx="18" cy="16" r="3" />
+    </svg>
+  )
+}
+
+function CloseIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
     </svg>
   )
 }
@@ -121,6 +133,9 @@ export default function Home() {
   const [ratingTrack, setRatingTrack] = useState<SpotifyTrack | null>(null)
   const [ratingExisting, setRatingExisting] = useState<Rating | null>(null)
   const [signInPrompt, setSignInPrompt] = useState(false)
+  const [welcomeDismissed, setWelcomeDismissed] = useState(
+    () => localStorage.getItem(WELCOME_DISMISSED_KEY) === '1'
+  )
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null))
@@ -129,6 +144,11 @@ export default function Home() {
     })
     return () => subscription.unsubscribe()
   }, [])
+
+  function dismissWelcome() {
+    localStorage.setItem(WELCOME_DISMISSED_KEY, '1')
+    setWelcomeDismissed(true)
+  }
 
   const runSearch = useCallback(async (q: string, activeTab: Tab) => {
     if (q.trim().length < 2) {
@@ -203,11 +223,32 @@ export default function Home() {
 
   return (
     <div className="home">
+      {user && !welcomeDismissed && (
+        <div className="welcome-banner">
+          <div className="welcome-banner-body">
+            <p className="welcome-banner-title">Welcome to boomboxd! 🎧</p>
+            <p className="welcome-banner-text">
+              Start by searching for a song you love and rating it. Your ratings build
+              your profile, and you can collect favourites into lists.
+            </p>
+          </div>
+          <button
+            type="button"
+            className="welcome-banner-close"
+            onClick={dismissWelcome}
+            aria-label="Dismiss welcome message"
+          >
+            <CloseIcon />
+          </button>
+        </div>
+      )}
+
       <div className="search-wrap">
         <span className="search-eyebrow">boomboxd</span>
         <h1 className="search-heading">What are you listening to?</h1>
+        <p className="search-tagline">Rate songs and albums. Share your taste.</p>
 
-        <div className="search-tabs" role="tablist">
+        <div className="search-tabs" role="tablist" aria-label="Search type">
           <button
             type="button"
             role="tab"
@@ -244,6 +285,22 @@ export default function Home() {
           </button>
         </form>
 
+        <p className="search-hint">
+          Try searching{' '}
+          {SEARCH_EXAMPLES.map((example, i) => (
+            <span key={example}>
+              {i > 0 && (i === SEARCH_EXAMPLES.length - 1 ? ' or ' : ', ')}
+              <button
+                type="button"
+                className="search-hint-example"
+                onClick={() => setQuery(example)}
+              >
+                {example}
+              </button>
+            </span>
+          ))}
+        </p>
+
         {signInPrompt && (
           <p className="sign-in-prompt">
             <Link to="/profile">Sign in</Link> to rate songs
@@ -262,7 +319,23 @@ export default function Home() {
       )}
 
       {showPrompt && (
-        <div className="search-status">Type at least 2 characters to search</div>
+        <div className="how-it-works">
+          <div className="how-it-works-step">
+            <span className="how-it-works-num">1</span>
+            <p className="how-it-works-title">Search</p>
+            <p className="how-it-works-text">Find any song or album from Spotify's catalogue.</p>
+          </div>
+          <div className="how-it-works-step">
+            <span className="how-it-works-num">2</span>
+            <p className="how-it-works-title">Rate it</p>
+            <p className="how-it-works-text">Give it up to five stars and write a short review.</p>
+          </div>
+          <div className="how-it-works-step">
+            <span className="how-it-works-num">3</span>
+            <p className="how-it-works-title">Share your taste</p>
+            <p className="how-it-works-text">Build lists, follow friends, and compare ratings.</p>
+          </div>
+        </div>
       )}
 
       {showEmpty && (

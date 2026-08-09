@@ -4,6 +4,7 @@ import type { User } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
 import { listsApi, type List } from '../lib/listsApi'
 import CreateListModal from '../components/CreateListModal'
+import EmptyState, { ListPlusIcon } from '../components/EmptyState'
 import './Lists.css'
 
 export default function Lists() {
@@ -41,8 +42,14 @@ export default function Lists() {
   return (
     <div className="page lists-page">
       <div className="lists-header">
-        <h1>Lists</h1>
-        {user && (
+        <div className="lists-header-text">
+          <h1 className="page-title">Lists</h1>
+          <p className="page-subtitle">
+            Group songs and albums into ranked collections — best of the year, desert
+            island picks, whatever you like.
+          </p>
+        </div>
+        {user && lists.length > 0 && (
           <button type="button" className="btn-rate" onClick={() => setCreateOpen(true)}>
             + Create list
           </button>
@@ -52,16 +59,21 @@ export default function Lists() {
       {!authChecked || (user && loading) ? (
         <div className="search-status"><div className="spinner" /></div>
       ) : !user ? (
-        <p className="lists-empty-msg">
-          <Link to="/profile">Sign in</Link> to create and manage your lists.
-        </p>
+        <EmptyState
+          icon={<ListPlusIcon />}
+          title="Sign in to make lists"
+          text="Lists let you rank your favourite songs and albums and share them with other listeners."
+          to="/profile"
+          actionLabel="Sign in"
+        />
       ) : lists.length === 0 ? (
-        <div className="lists-empty-state">
-          <p>You haven't made any lists yet.</p>
-          <button type="button" className="btn-rate" onClick={() => setCreateOpen(true)}>
-            + Create your first list
-          </button>
-        </div>
+        <EmptyState
+          icon={<ListPlusIcon />}
+          title="No lists yet"
+          text="Create your first list, then add songs and albums to it from any album or track page."
+          onAction={() => setCreateOpen(true)}
+          actionLabel="+ Create your first list"
+        />
       ) : (
         <div className="lists-grid">
           {lists.map(list => (

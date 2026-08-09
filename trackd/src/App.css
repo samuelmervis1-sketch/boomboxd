@@ -7,10 +7,41 @@
 :root {
   --bg: #0d0d0d;
   --bg-surface: #1a1a1a;
+  --bg-raised: #141414;
   --border: #2a2a2a;
+  --border-strong: #3a3a3a;
   --text: #f0f0f0;
   --text-muted: #888;
+  --text-dim: #666;
   --accent: #e8ff6b;
+  --accent-ink: #0d0d0d;
+
+  /* Type scale */
+  --fs-xs: 0.72rem;
+  --fs-sm: 0.8rem;
+  --fs-base: 0.875rem;
+  --fs-md: 1rem;
+  --fs-lg: 1.25rem;
+  --fs-xl: 1.75rem;
+  --fs-2xl: 2.25rem;
+
+  /* Weights — 500 body, 600 emphasis, 700 headings, 800 display */
+  --fw-body: 500;
+  --fw-medium: 600;
+  --fw-bold: 700;
+  --fw-display: 800;
+
+  /* Spacing */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.5rem;
+  --sp-6: 2rem;
+  --sp-7: 3rem;
+
+  --radius: 8px;
+  --radius-lg: 12px;
 }
 
 html, body, #root {
@@ -21,53 +52,343 @@ html, body, #root {
   -webkit-font-smoothing: antialiased;
 }
 
+/* ── Nav ─────────────────────────────────────────────────── */
+
 .nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 2rem;
-  height: 56px;
+  gap: var(--sp-4);
+  padding: 0 var(--sp-6);
+  height: 60px;
   border-bottom: 1px solid var(--border);
-  background: var(--bg);
+  background: rgba(13, 13, 13, 0.92);
+  backdrop-filter: blur(8px);
   position: sticky;
   top: 0;
   z-index: 100;
 }
 
 .nav-logo {
-  font-size: 1.25rem;
-  font-weight: 700;
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-display);
   letter-spacing: -0.03em;
   color: var(--accent);
+  text-decoration: none;
+  flex-shrink: 0;
 }
 
 .nav-links {
   display: flex;
-  gap: 1.75rem;
+  gap: var(--sp-1);
 }
 
 .nav-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
   color: var(--text-muted);
   text-decoration: none;
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: color 0.15s;
+  font-size: var(--fs-base);
+  font-weight: var(--fw-medium);
+  padding: 0.45rem 0.7rem;
+  border-radius: var(--radius);
+  position: relative;
+  transition: color 0.15s, background 0.15s;
 }
 
-.nav-links a:hover,
-.nav-links a.active {
+.nav-links a svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.nav-links a:hover {
   color: var(--text);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Active page: accent text + tinted pill + underline bar */
+.nav-links a.active {
+  color: var(--accent);
+  background: rgba(232, 255, 107, 0.1);
+}
+
+.nav-links a.active::after {
+  content: '';
+  position: absolute;
+  left: 0.7rem;
+  right: 0.7rem;
+  bottom: -0.55rem;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+.nav-label {
+  display: inline;
 }
 
 .main {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: var(--sp-6);
 }
 
-.page h1 {
-  font-size: 2rem;
-  font-weight: 700;
+/* ── Shared page headings ────────────────────────────────── */
+
+.page h1,
+.page-title {
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-bold);
   letter-spacing: -0.03em;
-  margin-bottom: 1.5rem;
+  line-height: 1.15;
+  margin-bottom: var(--sp-2);
+}
+
+.page-subtitle {
+  font-size: var(--fs-base);
+  font-weight: var(--fw-body);
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: var(--sp-5);
+}
+
+/* Section label used above content blocks */
+.section-heading {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding-bottom: var(--sp-3);
+  border-bottom: 1px solid var(--border);
+}
+
+/* ── Shared action buttons ───────────────────────────────── */
+/* Rating is the primary CTA everywhere; everything else is secondary. */
+
+.btn-rate,
+.btn-rated,
+.btn-spotify,
+.btn-share,
+.btn-moment,
+.btn-album-link,
+.btn-add-list {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  /* 40px min height keeps taps comfortable on mobile */
+  min-height: 40px;
+  padding: 0.5rem 0.9rem;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.15s;
+}
+
+/* PRIMARY — rate */
+.btn-rate {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border: 1px solid var(--accent);
+  font-size: var(--fs-base);
+  font-weight: var(--fw-bold);
+  padding: 0.6rem 1.35rem;
+  min-height: 44px;
+  box-shadow: 0 4px 18px rgba(232, 255, 107, 0.18);
+}
+
+.btn-rate:hover {
+  background: #f2ff8f;
+  border-color: #f2ff8f;
+  transform: translateY(-1px);
+}
+
+/* PRIMARY (rated state) — still prominent, shows your score */
+.btn-rated {
+  background: rgba(232, 255, 107, 0.12);
+  border: 1px solid rgba(232, 255, 107, 0.5);
+  color: var(--text);
+  padding: 0.6rem 1rem;
+  min-height: 44px;
+  gap: 0.45rem;
+}
+
+.btn-rated:hover {
+  background: rgba(232, 255, 107, 0.2);
+  transform: translateY(-1px);
+}
+
+.btn-rated-value {
+  font-size: var(--fs-base);
+  font-weight: var(--fw-bold);
+  color: var(--accent);
+}
+
+.btn-rated-edit {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  margin-left: 0.1rem;
+}
+
+/* SECONDARY — everything else */
+.btn-spotify,
+.btn-share,
+.btn-moment,
+.btn-album-link,
+.btn-add-list {
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--text-muted);
+}
+
+.btn-spotify:hover,
+.btn-share:hover,
+.btn-moment:hover,
+.btn-album-link:hover,
+.btn-add-list:hover {
+  border-color: var(--text-muted);
+  color: var(--text);
+}
+
+.btn-spotify svg,
+.btn-share svg {
+  width: 14px;
+  height: 14px;
+}
+
+.inline-stars {
+  display: inline-flex;
+  gap: 1px;
+}
+
+.inline-stars .star-glyph {
+  font-size: 0.9rem;
+  pointer-events: none;
+}
+
+/* ── Shared empty state ──────────────────────────────────── */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: var(--sp-3);
+  padding: var(--sp-7) var(--sp-4);
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.empty-state-icon {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(232, 255, 107, 0.1);
+  color: var(--accent);
+  margin-bottom: var(--sp-1);
+}
+
+.empty-state-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.empty-state-title {
+  font-size: var(--fs-md);
+  font-weight: var(--fw-bold);
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.empty-state-text {
+  font-size: var(--fs-base);
+  font-weight: var(--fw-body);
+  color: var(--text-muted);
+  line-height: 1.55;
+  max-width: 380px;
+}
+
+.empty-state-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: var(--sp-2);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: var(--fs-base);
+  font-weight: var(--fw-bold);
+  text-decoration: none;
+  border: none;
+  border-radius: var(--radius);
+  padding: 0.6rem 1.2rem;
+  min-height: 44px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, transform 0.15s;
+}
+
+.empty-state-cta:hover {
+  background: #f2ff8f;
+  transform: translateY(-1px);
+}
+
+/* ── Mobile ──────────────────────────────────────────────── */
+
+@media (max-width: 720px) {
+  .nav {
+    padding: 0 var(--sp-4);
+    height: 56px;
+  }
+
+  .nav-links {
+    gap: 0;
+  }
+
+  .nav-links a {
+    padding: 0.4rem 0.5rem;
+    font-size: var(--fs-xs);
+  }
+
+  /* Icons carry the meaning on narrow screens */
+  .nav-label {
+    display: none;
+  }
+
+  .nav-links a svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .nav-links a.active::after {
+    left: 0.35rem;
+    right: 0.35rem;
+    bottom: -0.4rem;
+  }
+
+  .main {
+    padding: var(--sp-4);
+  }
+
+  .page h1,
+  .page-title {
+    font-size: var(--fs-lg);
+  }
+}
+
+@media (max-width: 400px) {
+  .nav-logo {
+    font-size: var(--fs-md);
+  }
 }

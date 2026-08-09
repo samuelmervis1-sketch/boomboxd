@@ -290,3 +290,88 @@
   opacity: 0.35;
   cursor: not-allowed;
 }
+
+/* ── Mobile ────────────────────────────────────────────── */
+
+@media (max-width: 560px) {
+  /* Bottom-sheet style: easier to reach one-handed than a centred box */
+  .modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .modal {
+    max-width: none;
+    border-radius: 16px 16px 0 0;
+    border-bottom: none;
+    max-height: 92vh;
+    overflow-y: auto;
+  }
+
+  .modal-header {
+    padding: 1.1rem 1.1rem 0.9rem;
+    position: sticky;
+    top: 0;
+    background: #1a1a1a;
+    z-index: 1;
+  }
+
+  /* Give the close control a proper tap target */
+  .modal-close {
+    font-size: 1.6rem;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin: -0.5rem -0.35rem 0 0;
+  }
+
+  .modal-body {
+    padding: 1.25rem 1.1rem;
+  }
+
+  /* Stars fill the width so half-star taps stay accurate */
+  .star-picker {
+    width: 100%;
+    justify-content: space-between;
+    gap: 0;
+  }
+
+  .star-cell {
+    width: 3.25rem;
+    height: 3.25rem;
+  }
+
+  .star-glyph {
+    font-size: 2.6rem;
+  }
+
+  .review-textarea {
+    /* 16px prevents iOS Safari zooming on focus */
+    font-size: 1rem;
+    min-height: 110px;
+  }
+
+  .modal-footer {
+    padding: 1rem 1.1rem 1.25rem;
+    flex-wrap: wrap;
+  }
+
+  .btn-delete,
+  .btn-cancel,
+  .btn-save {
+    min-height: 44px;
+    padding: 0.6rem 1.1rem;
+    font-size: 0.875rem;
+  }
+
+  .modal-footer-right {
+    gap: 0.5rem;
+  }
+
+  /* Save is the primary action — let it take the remaining room */
+  .btn-save {
+    flex: 1;
+  }
+}

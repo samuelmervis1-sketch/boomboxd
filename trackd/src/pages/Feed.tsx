@@ -7,6 +7,7 @@ import { followsApi, type Follow } from '../lib/followsApi'
 import { profilesApi, type Profile } from '../lib/profilesApi'
 import type { Rating } from '../lib/ratingsApi'
 import { StarGlyph } from '../components/RatingModal'
+import EmptyState, { HeadphonesIcon } from '../components/EmptyState'
 import './Feed.css'
 
 function reviewerName(profile: Profile | undefined): string {
@@ -62,10 +63,17 @@ export default function Feed() {
       .catch(() => setProfiles({}))
   }, [ratings])
 
+  const header = (
+    <>
+      <h1 className="page-title">Feed</h1>
+      <p className="page-subtitle">Ratings and reviews from the people you follow.</p>
+    </>
+  )
+
   if (authLoading || loading) {
     return (
       <div className="feed-page">
-        <h1>Feed</h1>
+        {header}
         <div className="feed-status"><div className="spinner" /></div>
       </div>
     )
@@ -74,12 +82,14 @@ export default function Feed() {
   if (!user) {
     return (
       <div className="feed-page">
-        <h1>Feed</h1>
-        <div className="feed-empty">
-          <div className="feed-empty-icon">🎧</div>
-          <p>Sign in to see ratings from people you follow.</p>
-          <Link to="/profile" className="feed-empty-link">Sign in →</Link>
-        </div>
+        {header}
+        <EmptyState
+          icon={<HeadphonesIcon />}
+          title="Sign in to build your feed"
+          text="Follow other listeners and their ratings will show up here as they post them."
+          to="/profile"
+          actionLabel="Sign in"
+        />
       </div>
     )
   }
@@ -87,12 +97,14 @@ export default function Feed() {
   if (following.length === 0) {
     return (
       <div className="feed-page">
-        <h1>Feed</h1>
-        <div className="feed-empty">
-          <div className="feed-empty-icon">🎧</div>
-          <p>Your feed is empty. Rate some albums and follow other reviewers to see their ratings here.</p>
-          <Link to="/" className="feed-empty-link">Find albums to rate →</Link>
-        </div>
+        {header}
+        <EmptyState
+          icon={<HeadphonesIcon />}
+          title="You're not following anyone yet"
+          text="Find an album or song, open it, and follow the people whose reviews you like. Their ratings will land here."
+          to="/"
+          actionLabel="Find music to rate"
+        />
       </div>
     )
   }
@@ -100,18 +112,21 @@ export default function Feed() {
   if (ratings.length === 0) {
     return (
       <div className="feed-page">
-        <h1>Feed</h1>
-        <div className="feed-empty">
-          <div className="feed-empty-icon">🎧</div>
-          <p>Nobody you follow has rated an album yet. Check back soon.</p>
-        </div>
+        {header}
+        <EmptyState
+          icon={<HeadphonesIcon />}
+          title="Nothing here just yet"
+          text="Nobody you follow has rated anything so far. Check back soon, or rate something yourself to get started."
+          to="/"
+          actionLabel="Rate something"
+        />
       </div>
     )
   }
 
   return (
     <div className="feed-page">
-      <h1>Feed</h1>
+      {header}
       <div className="feed-list">
         {ratings.map(r => {
           const profile = profiles[r.user_id]

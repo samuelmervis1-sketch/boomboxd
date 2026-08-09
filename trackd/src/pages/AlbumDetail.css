@@ -202,121 +202,9 @@
   flex-wrap: wrap;
 }
 
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  background: var(--accent);
-  color: #0d0d0d;
-  border: none;
-  border-radius: 6px;
-  padding: 0.5rem 1rem;
-  font-size: 0.8rem;
-  font-weight: 700;
-  text-decoration: none;
-  cursor: pointer;
-  transition: opacity 0.15s, transform 0.15s;
-  letter-spacing: 0.01em;
-}
-
-.btn-primary:hover {
-  opacity: 0.88;
-  transform: translateY(-1px);
-}
-
-.btn-primary svg {
-  width: 13px;
-  height: 13px;
-}
-
-/* ── Rate button ───────────────────────────────────────── */
-
-.btn-rate {
-  display: inline-flex;
-  align-items: center;
-  background: transparent;
-  border: 1px solid #3a3a3a;
-  color: var(--text-muted);
-  border-radius: 6px;
-  padding: 0.5rem 1rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
-  transition: border-color 0.15s, color 0.15s;
-}
-
-.btn-rate:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-/* Already-rated button */
-.btn-rated {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  background: rgba(232, 255, 107, 0.07);
-  border: 1px solid rgba(232, 255, 107, 0.25);
-  border-radius: 6px;
-  padding: 0.4rem 0.75rem;
-  cursor: pointer;
-  font-family: inherit;
-  transition: background 0.15s;
-}
-
-.btn-rated:hover {
-  background: rgba(232, 255, 107, 0.12);
-}
-
-.inline-stars {
-  display: inline-flex;
-  gap: 1px;
-}
-
-.inline-stars .star-glyph {
-  font-size: 0.85rem;
-  pointer-events: none;
-}
-
-.btn-rated-value {
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--accent);
-}
-
-.btn-rated-edit {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  margin-left: 0.15rem;
-}
-
-/* Share button */
-.btn-share {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  background: transparent;
-  border: 1px solid #333;
-  color: var(--text-muted);
-  border-radius: 6px;
-  padding: 0.5rem 0.875rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
-  transition: border-color 0.15s, color 0.15s;
-}
-
-.btn-share svg {
-  width: 12px;
-  height: 12px;
-}
-
-.btn-share:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-}
+/* Action button styles (.btn-rate / .btn-rated / .btn-spotify / .btn-share /
+   .btn-moment / .btn-album-link) are centralized in App.css so the primary
+   vs. secondary hierarchy stays consistent across album and track pages. */
 
 /* Sign-in nudge */
 .sign-in-prompt {
@@ -743,7 +631,17 @@
 
 /* ── Responsive ────────────────────────────────────────── */
 
-@media (max-width: 640px) {
+@media (max-width: 720px) {
+  /* The hero breaks out of .main's padding, which is smaller on mobile */
+  .album-detail {
+    margin-left: calc(var(--sp-4) * -1);
+    margin-right: calc(var(--sp-4) * -1);
+  }
+
+  .album-hero-content {
+    padding: 1rem 1rem 2rem;
+  }
+
   .album-hero-body {
     flex-direction: column;
     align-items: flex-start;
@@ -752,11 +650,72 @@
 
   .album-cover,
   .album-cover-placeholder {
-    width: 160px;
-    height: 160px;
+    width: 150px;
+    height: 150px;
+  }
+
+  /* Primary CTA goes full width; secondary actions share the next row */
+  .album-actions {
+    width: 100%;
+    gap: 0.5rem;
+  }
+
+  .album-actions .btn-rate,
+  .album-actions .btn-rated {
+    width: 100%;
   }
 
   .tracklist {
     padding: 1rem 1rem 3rem;
+  }
+
+  .track-row {
+    /* Rating badge + moment button need their own row on narrow screens */
+    grid-template-columns: 2rem 1fr auto;
+    padding: 0.7rem 0.4rem;
+  }
+
+  .track-meta {
+    gap: 0.4rem;
+  }
+
+  .track-moment-btn {
+    min-height: 32px;
+    padding: 0.25rem 0.6rem;
+  }
+
+  .track-moments {
+    padding-left: 2.4rem;
+  }
+
+  .moment-pill {
+    /* Long comments wrap instead of being clipped to one line */
+    flex-wrap: wrap;
+  }
+
+  .moment-comment {
+    white-space: normal;
+  }
+
+  .moment-form {
+    flex-wrap: wrap;
+  }
+
+  .moment-form-comment {
+    /* Take the full second row rather than squeezing beside the timestamp */
+    flex-basis: 100%;
+    order: 3;
+  }
+
+  .community-reviews {
+    padding: 0 1rem 3rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .album-cover,
+  .album-cover-placeholder {
+    width: 128px;
+    height: 128px;
   }
 }

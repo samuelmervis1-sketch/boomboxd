@@ -233,11 +233,13 @@
 }
 
 .profile-name {
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
   letter-spacing: -0.03em;
   color: var(--text);
   margin: 0;
+  /* Long names / emails must not run under the header buttons */
+  overflow-wrap: anywhere;
 }
 
 .profile-email {
@@ -562,11 +564,57 @@
 
 /* ── Responsive ────────────────────────────────────────── */
 
-@media (max-width: 480px) {
+@media (max-width: 720px) {
+  /* Avatar + name on one row, actions on their own row underneath, so a long
+     name or email can never collide with the buttons. */
   .profile-header {
     flex-wrap: wrap;
+    gap: var(--sp-4);
+    padding-bottom: var(--sp-5);
   }
 
+  .profile-avatar,
+  .profile-avatar-initials {
+    width: 60px;
+    height: 60px;
+  }
+
+  .profile-avatar-initials {
+    font-size: 1.2rem;
+  }
+
+  .profile-identity {
+    /* Force the actions onto the next line */
+    flex-basis: calc(100% - 60px - var(--sp-4));
+  }
+
+  .profile-header-actions {
+    flex-direction: row;
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .profile-header-actions button {
+    flex: 1;
+    min-height: 44px;
+  }
+
+  .profile-edit-form {
+    max-width: none;
+  }
+
+  .profile-edit-actions .btn-submit,
+  .btn-cancel-edit {
+    flex: 1;
+    min-height: 44px;
+  }
+
+  .activity-item {
+    padding: var(--sp-3);
+  }
+}
+
+@media (max-width: 480px) {
   .favorites-shelf {
     grid-template-columns: repeat(4, 1fr);
     gap: 0.5rem;
