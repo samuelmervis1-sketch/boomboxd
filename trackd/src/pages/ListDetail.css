@@ -211,3 +211,40 @@
 .ranked-item-remove:hover {
   color: #ff6b6b;
 }
+
+/* ── Mobile ────────────────────────────────────────────── */
+
+@media (max-width: 720px) {
+  .list-detail-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--sp-3);
+  }
+
+  .ranked-item-link {
+    gap: 0.7rem;
+    padding: 0.6rem 0.5rem 0.6rem 0.7rem;
+  }
+
+  /* Reclaim width from the rank column */
+  .ranked-item-pos {
+    width: 2.5rem;
+    gap: 0.3rem;
+  }
+
+  .ranked-item-art,
+  .ranked-item-art-placeholder {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* Remove is destructive — make it a deliberate, full-size tap target */
+  .ranked-item-remove {
+    min-width: 44px;
+    min-height: 44px;
+    margin-right: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}

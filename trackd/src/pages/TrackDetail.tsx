@@ -288,17 +288,6 @@ export default function TrackDetail() {
                 )}
 
                 <div className="track-actions">
-                  {track.external_urls?.spotify && (
-                    <a
-                      className="btn-primary"
-                      href={track.external_urls.spotify}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <SpotifyIcon /> Open in Spotify
-                    </a>
-                  )}
-
                   {myRating ? (
                     <button className="btn-rated" onClick={openRating}>
                       <InlineStars rating={myRating.rating} />
@@ -307,8 +296,19 @@ export default function TrackDetail() {
                     </button>
                   ) : (
                     <button className="btn-rate" onClick={openRating}>
-                      Rate this song
+                      ★ Rate this song
                     </button>
+                  )}
+
+                  {track.external_urls?.spotify && (
+                    <a
+                      className="btn-spotify"
+                      href={track.external_urls.spotify}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <SpotifyIcon /> Open in Spotify
+                    </a>
                   )}
 
                   <button type="button" className="btn-moment" onClick={openMomentForm}>

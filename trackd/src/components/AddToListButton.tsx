@@ -83,7 +83,7 @@ export default function AddToListButton({ item }: Props) {
 
   return (
     <div className="add-to-list-wrap" ref={wrapRef}>
-      <button type="button" className="btn-rate" onClick={toggleOpen}>
+      <button type="button" className="btn-add-list" onClick={toggleOpen}>
         + Add to list
       </button>
 

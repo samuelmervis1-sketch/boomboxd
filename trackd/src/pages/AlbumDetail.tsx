@@ -375,15 +375,6 @@ export default function AlbumDetail() {
                 )}
 
                 <div className="album-actions">
-                  <a
-                    className="btn-primary"
-                    href={album.external_urls.spotify}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <SpotifyIcon /> Open in Spotify
-                  </a>
-
                   {myRating ? (
                     <>
                       <button className="btn-rated" onClick={openRating}>
@@ -397,9 +388,18 @@ export default function AlbumDetail() {
                     </>
                   ) : (
                     <button className="btn-rate" onClick={openRating}>
-                      Rate this album
+                      ★ Rate this album
                     </button>
                   )}
+
+                  <a
+                    className="btn-spotify"
+                    href={album.external_urls.spotify}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <SpotifyIcon /> Open in Spotify
+                  </a>
 
                   <AddToListButton
                     item={{
