@@ -61,7 +61,7 @@ function AuthForm() {
     setError(null)
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: window.location.origin },
+      options: { redirectTo: window.location.origin + '/profile' },
     })
     if (error) setError(error.message)
     setLoading(false)
