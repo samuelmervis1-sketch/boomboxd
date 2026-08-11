@@ -41,80 +41,132 @@ function CloseIcon() {
   )
 }
 
-function AlbumCard({ album }: { album: SpotifyAlbum }) {
+function formatRatingValue(rating: number) {
+  return Number.isInteger(rating) ? String(rating) : rating.toFixed(1)
+}
+
+function RateButton({
+  rating,
+  label,
+  className = '',
+  onClick,
+}: {
+  rating: Rating | null
+  label: string
+  className?: string
+  onClick: (e: React.MouseEvent) => void
+}) {
+  return (
+    <button
+      type="button"
+      className={`rate-btn${rating ? ' rate-btn-rated' : ''} ${className}`.trim()}
+      onClick={onClick}
+      aria-label={
+        rating
+          ? `You rated this ${formatRatingValue(rating.rating)} stars. Tap to edit.`
+          : label
+      }
+    >
+      <span className="rate-btn-star" aria-hidden="true">★</span>
+      {rating && <span className="rate-btn-value">{formatRatingValue(rating.rating)}</span>}
+    </button>
+  )
+}
+
+function AlbumCard({
+  album,
+  rating,
+  onRate,
+}: {
+  album: SpotifyAlbum
+  rating: Rating | null
+  onRate: (album: SpotifyAlbum) => void
+}) {
   const image = album.images[0]?.url
   const artist = album.artists.map(a => a.name).join(', ')
   const year = album.release_date?.slice(0, 4) ?? ''
 
   return (
-    <Link to={`/album/${album.id}`} className="album-card">
-      <div className="album-card-art">
-        {image ? (
-          <img src={image} alt={album.name} loading="lazy" />
-        ) : (
-          <div className="album-card-art-placeholder">
-            <MusicIcon />
-          </div>
-        )}
-      </div>
-      <div className="album-card-info">
-        <div className="album-card-title" title={album.name}>{album.name}</div>
-        <div className="album-card-meta">
-          <span className="album-card-artist" title={artist}>{artist}</span>
-          {year && (
-            <>
-              <span className="album-card-dot">·</span>
-              <span className="album-card-year">{year}</span>
-            </>
+    <div className="album-card">
+      <Link to={`/album/${album.id}`} className="album-card-link">
+        <div className="album-card-art">
+          {image ? (
+            <img src={image} alt={album.name} loading="lazy" />
+          ) : (
+            <div className="album-card-art-placeholder">
+              <MusicIcon />
+            </div>
           )}
         </div>
-      </div>
-    </Link>
+        <div className="album-card-info">
+          <div className="album-card-title" title={album.name}>{album.name}</div>
+          <div className="album-card-meta">
+            <span className="album-card-artist" title={artist}>{artist}</span>
+            {year && (
+              <>
+                <span className="album-card-dot">·</span>
+                <span className="album-card-year">{year}</span>
+              </>
+            )}
+          </div>
+        </div>
+      </Link>
+      <RateButton
+        rating={rating}
+        label="Rate this album"
+        className="rate-btn-corner"
+        onClick={e => {
+          e.preventDefault()
+          e.stopPropagation()
+          onRate(album)
+        }}
+      />
+    </div>
   )
 }
 
-function TrackCard({ track, onRate }: { track: SpotifyTrack; onRate: (track: SpotifyTrack) => void }) {
+function TrackCard({
+  track,
+  rating,
+  onRate,
+}: {
+  track: SpotifyTrack
+  rating: Rating | null
+  onRate: (track: SpotifyTrack) => void
+}) {
   const image = track.album?.images[0]?.url
   const artist = track.artists.map(a => a.name).join(', ')
 
   return (
-    <div
-      className="track-card"
-      onClick={() => onRate(track)}
-      role="button"
-      tabIndex={0}
-      onKeyDown={e => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          onRate(track)
-        }
-      }}
-    >
-      <div className="track-card-art">
-        {image ? (
-          <img src={image} alt={track.name} loading="lazy" />
-        ) : (
-          <div className="track-card-art-placeholder">
-            <MusicIcon />
-          </div>
-        )}
-      </div>
-      <div className="track-card-info">
-        <div className="track-card-title" title={track.name}>{track.name}</div>
-        <div className="track-card-meta">
-          <span className="track-card-artist" title={artist}>{artist}</span>
+    <div className="track-card">
+      <Link to={`/track/${track.id}`} className="track-card-link">
+        <div className="track-card-art">
+          {image ? (
+            <img src={image} alt={track.name} loading="lazy" />
+          ) : (
+            <div className="track-card-art-placeholder">
+              <MusicIcon />
+            </div>
+          )}
         </div>
-      </div>
-      <span className="track-card-duration">{formatDuration(track.duration_ms)}</span>
-      {track.id && (
-        <Link
-          to={`/track/${track.id}`}
-          className="track-card-view-link"
-          onClick={e => e.stopPropagation()}
-        >
-          View
-        </Link>
-      )}
+        <div className="track-card-info">
+          <div className="track-card-title" title={track.name}>{track.name}</div>
+          <div className="track-card-meta">
+            <span className="track-card-artist" title={artist}>{artist}</span>
+          </div>
+        </div>
+        <span className="track-card-duration">{formatDuration(track.duration_ms)}</span>
+      </Link>
+      <RateButton
+        rating={rating}
+        label="Rate this song"
+        className="rate-btn-inline"
+        onClick={e => {
+          e.preventDefault()
+          e.stopPropagation()
+          onRate(track)
+        }}
+      />
     </div>
   )
 }
@@ -131,7 +183,9 @@ export default function Home() {
 
   const [user, setUser] = useState<User | null>(null)
   const [ratingTrack, setRatingTrack] = useState<SpotifyTrack | null>(null)
-  const [ratingExisting, setRatingExisting] = useState<Rating | null>(null)
+  const [ratingAlbum, setRatingAlbum] = useState<SpotifyAlbum | null>(null)
+  const [myTrackRatings, setMyTrackRatings] = useState<Record<string, Rating>>({})
+  const [myAlbumRatings, setMyAlbumRatings] = useState<Record<string, Rating>>({})
   const [signInPrompt, setSignInPrompt] = useState(false)
   const [welcomeDismissed, setWelcomeDismissed] = useState(
     () => localStorage.getItem(WELCOME_DISMISSED_KEY) === '1'
@@ -189,6 +243,32 @@ export default function Home() {
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
   }, [query, tab, runSearch])
 
+  // Batch-fetch the signed-in user's existing ratings for the visible search
+  // results so rated tracks/albums can show their rating inline.
+  useEffect(() => {
+    if (!user || trackResults.length === 0) {
+      setMyTrackRatings({})
+      return
+    }
+    let cancelled = false
+    ratingsApi.getMyRatingsForTracks(trackResults.map(t => t.id))
+      .then(map => { if (!cancelled) setMyTrackRatings(map) })
+      .catch(() => { if (!cancelled) setMyTrackRatings({}) })
+    return () => { cancelled = true }
+  }, [trackResults, user])
+
+  useEffect(() => {
+    if (!user || albumResults.length === 0) {
+      setMyAlbumRatings({})
+      return
+    }
+    let cancelled = false
+    ratingsApi.getMyRatingsForAlbums(albumResults.map(a => a.id))
+      .then(map => { if (!cancelled) setMyAlbumRatings(map) })
+      .catch(() => { if (!cancelled) setMyAlbumRatings({}) })
+    return () => { cancelled = true }
+  }, [albumResults, user])
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (debounceRef.current) clearTimeout(debounceRef.current)
@@ -200,21 +280,37 @@ export default function Home() {
     setError(null)
   }
 
-  async function openTrackRating(track: SpotifyTrack) {
+  function openTrackRating(track: SpotifyTrack) {
     if (!user) { setSignInPrompt(true); return }
     if (!track.album) return
     setSignInPrompt(false)
     setRatingTrack(track)
-    try {
-      setRatingExisting(await ratingsApi.getMyRatingForTrack(track.id))
-    } catch {
-      setRatingExisting(null)
-    }
   }
 
-  function closeRating() {
+  function openAlbumRating(album: SpotifyAlbum) {
+    if (!user) { setSignInPrompt(true); return }
+    setSignInPrompt(false)
+    setRatingAlbum(album)
+  }
+
+  function handleTrackRated(track: SpotifyTrack, saved: Rating | null) {
+    setMyTrackRatings(prev => {
+      const next = { ...prev }
+      if (saved) next[track.id] = saved
+      else delete next[track.id]
+      return next
+    })
     setRatingTrack(null)
-    setRatingExisting(null)
+  }
+
+  function handleAlbumRated(album: SpotifyAlbum, saved: Rating | null) {
+    setMyAlbumRatings(prev => {
+      const next = { ...prev }
+      if (saved) next[album.id] = saved
+      else delete next[album.id]
+      return next
+    })
+    setRatingAlbum(null)
   }
 
   const results = tab === 'songs' ? trackResults : albumResults
@@ -347,7 +443,12 @@ export default function Home() {
           <p className="results-meta">{total.toLocaleString()} songs found</p>
           <div className="track-list">
             {trackResults.map(track => (
-              <TrackCard key={track.id} track={track} onRate={openTrackRating} />
+              <TrackCard
+                key={track.id}
+                track={track}
+                rating={myTrackRatings[track.id] ?? null}
+                onRate={openTrackRating}
+              />
             ))}
           </div>
         </>
@@ -358,7 +459,12 @@ export default function Home() {
           <p className="results-meta">{total.toLocaleString()} albums found</p>
           <div className="album-grid">
             {albumResults.map(album => (
-              <AlbumCard key={album.id} album={album} />
+              <AlbumCard
+                key={album.id}
+                album={album}
+                rating={myAlbumRatings[album.id] ?? null}
+                onRate={openAlbumRating}
+              />
             ))}
           </div>
         </>
@@ -368,9 +474,18 @@ export default function Home() {
         <RatingModal
           album={ratingTrack.album}
           track={ratingTrack}
-          existing={ratingExisting}
-          onClose={closeRating}
-          onSaved={closeRating}
+          existing={myTrackRatings[ratingTrack.id] ?? null}
+          onClose={() => setRatingTrack(null)}
+          onSaved={saved => handleTrackRated(ratingTrack, saved)}
+        />
+      )}
+
+      {ratingAlbum && (
+        <RatingModal
+          album={ratingAlbum}
+          existing={myAlbumRatings[ratingAlbum.id] ?? null}
+          onClose={() => setRatingAlbum(null)}
+          onSaved={saved => handleAlbumRated(ratingAlbum, saved)}
         />
       )}
     </div>

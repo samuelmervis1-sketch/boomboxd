@@ -110,6 +110,26 @@ export const ratingsApi = {
     if (error) throw error
   },
 
+  // Batch lookup of the current user's album ratings, keyed by album_id.
+  // Used to show existing ratings inline across a list of search results.
+  async getMyRatingsForAlbums(albumIds: string[]): Promise<Record<string, Rating>> {
+    if (albumIds.length === 0) return {}
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return {}
+
+    const { data, error } = await supabase
+      .from('ratings')
+      .select()
+      .eq('user_id', session.user.id)
+      .in('album_id', albumIds)
+      .is('spotify_track_id', null)
+
+    if (error) throw error
+    const map: Record<string, Rating> = {}
+    for (const r of data ?? []) map[r.album_id] = r
+    return map
+  },
+
   // ── Track ratings ──────────────────────────────────────────
 
   async getTrackRatings(albumId: string): Promise<Rating[]> {
@@ -215,5 +235,26 @@ export const ratingsApi = {
 
     if (error) throw error
     return data
+  },
+
+  // Batch lookup of the current user's track ratings, keyed by spotify_track_id.
+  // Used to show existing ratings inline across a list of search results.
+  async getMyRatingsForTracks(trackIds: string[]): Promise<Record<string, Rating>> {
+    if (trackIds.length === 0) return {}
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return {}
+
+    const { data, error } = await supabase
+      .from('ratings')
+      .select()
+      .eq('user_id', session.user.id)
+      .in('spotify_track_id', trackIds)
+
+    if (error) throw error
+    const map: Record<string, Rating> = {}
+    for (const r of data ?? []) {
+      if (r.spotify_track_id) map[r.spotify_track_id] = r
+    }
+    return map
   },
 }
