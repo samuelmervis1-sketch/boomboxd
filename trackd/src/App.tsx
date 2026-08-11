@@ -5,6 +5,7 @@ import Feed from './pages/Feed'
 import Lists from './pages/Lists'
 import ListDetail from './pages/ListDetail'
 import Profile from './pages/Profile'
+import UserProfile from './pages/UserProfile'
 import AlbumDetail from './pages/AlbumDetail'
 import TrackDetail from './pages/TrackDetail'
 import './App.css'
@@ -105,6 +106,7 @@ export default function App() {
           <Route path="/lists" element={<Lists />} />
           <Route path="/list/:id" element={<ListDetail />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/user/:username" element={<UserProfile />} />
           <Route path="/album/:id" element={<AlbumDetail />} />
           <Route path="/track/:id" element={<TrackDetail />} />
         </Routes>

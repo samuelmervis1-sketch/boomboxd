@@ -137,7 +137,7 @@ export default function ListDetail() {
           <h1 className="list-detail-title">{list.title}</h1>
           {list.description && <p className="list-detail-desc">{list.description}</p>}
           <p className="list-detail-meta">
-            {owner && <>by @{owner.username} · </>}
+            {owner && <>by <Link to={`/user/${owner.username}`} className="list-detail-owner">@{owner.username}</Link> · </>}
             {list.is_public ? 'Public' : 'Private'} · {items.length} {items.length === 1 ? 'item' : 'items'}
           </p>
         </div>

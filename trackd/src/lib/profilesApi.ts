@@ -21,6 +21,18 @@ export const profilesApi = {
     return data
   },
 
+  // Looks up a public profile by its handle, for the /user/:username route.
+  async getProfileByUsername(username: string): Promise<Profile | null> {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select()
+      .eq('username', username)
+      .maybeSingle()
+
+    if (error) throw error
+    return data
+  },
+
   async getProfiles(userIds: string[]): Promise<Profile[]> {
     if (userIds.length === 0) return []
 

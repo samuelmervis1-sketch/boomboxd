@@ -76,6 +76,7 @@
   gap: 0.55rem;
   text-decoration: none;
   color: inherit;
+  cursor: pointer;
 }
 
 .discover-card-art {
@@ -191,6 +192,11 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-decoration: none;
+}
+
+a.discover-card-reviewer-name:hover {
+  color: var(--accent);
 }
 
 /* ── Mobile ────────────────────────────────────────────── */

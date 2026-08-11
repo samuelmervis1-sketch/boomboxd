@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { discoverApi, type TopRatedAlbum, type TopRatedTrack } from '../lib/discoverApi'
 import { profilesApi, type Profile } from '../lib/profilesApi'
 import type { Rating } from '../lib/ratingsApi'
@@ -55,6 +55,7 @@ function Row({ heading, children }: { heading: string; children: React.ReactNode
 }
 
 export default function Discover() {
+  const navigate = useNavigate()
   const [topAlbums, setTopAlbums] = useState<TopRatedAlbum[]>([])
   const [recentAlbums, setRecentAlbums] = useState<Rating[]>([])
   const [topSongs, setTopSongs] = useState<TopRatedTrack[]>([])
@@ -128,21 +129,49 @@ export default function Discover() {
 
           {recentAlbums.length > 0 && (
             <Row heading="Recently Rated">
-              {recentAlbums.map(r => (
-                <Link key={r.id} to={`/album/${r.album_id}`} className="discover-card">
-                  <CardArt src={r.album_image} alt={r.album_name} />
-                  <div className="discover-card-info">
-                    <p className="discover-card-title" title={r.album_name}>{r.album_name}</p>
-                    <p className="discover-card-artist" title={r.album_artist}>{r.album_artist}</p>
-                    <div className="discover-card-reviewer">
-                      <span className="inline-stars">
-                        {[1, 2, 3, 4, 5].map(n => <StarGlyph key={n} value={r.rating} pos={n} />)}
-                      </span>
-                      <span className="discover-card-reviewer-name">{reviewerLabel(profiles[r.user_id])}</span>
+              {recentAlbums.map(r => {
+                const profile = profiles[r.user_id]
+                // Card navigates to the album, but the reviewer name is its
+                // own link to their profile — a nested <a> inside <a> would
+                // be invalid HTML, so the card is a div with link semantics.
+                return (
+                  <div
+                    key={r.id}
+                    className="discover-card"
+                    role="link"
+                    tabIndex={0}
+                    onClick={() => navigate(`/album/${r.album_id}`)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        navigate(`/album/${r.album_id}`)
+                      }
+                    }}
+                  >
+                    <CardArt src={r.album_image} alt={r.album_name} />
+                    <div className="discover-card-info">
+                      <p className="discover-card-title" title={r.album_name}>{r.album_name}</p>
+                      <p className="discover-card-artist" title={r.album_artist}>{r.album_artist}</p>
+                      <div className="discover-card-reviewer">
+                        <span className="inline-stars">
+                          {[1, 2, 3, 4, 5].map(n => <StarGlyph key={n} value={r.rating} pos={n} />)}
+                        </span>
+                        {profile?.username ? (
+                          <Link
+                            to={`/user/${profile.username}`}
+                            className="discover-card-reviewer-name"
+                            onClick={e => e.stopPropagation()}
+                          >
+                            {reviewerLabel(profile)}
+                          </Link>
+                        ) : (
+                          <span className="discover-card-reviewer-name">{reviewerLabel(profile)}</span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </Link>
-              ))}
+                )
+              })}
             </Row>
           )}
 

@@ -501,7 +501,9 @@ export default function AlbumDetail() {
                           <span className="moment-sep">—</span>
                           <span className="moment-comment">{m.comment_text}</span>
                           <span className="moment-sep">—</span>
-                          <span className="moment-author">@{mp?.username ?? 'fan'}</span>
+                          {mp?.username
+                            ? <Link to={`/user/${mp.username}`} className="moment-author">@{mp.username}</Link>
+                            : <span className="moment-author">@fan</span>}
                           {user?.id === m.user_id && (
                             <button
                               type="button"
@@ -560,17 +562,24 @@ export default function AlbumDetail() {
             <div className="community-reviews-list">
               {otherReviews.map(r => {
                 const profile = reviewerProfiles[r.user_id]
+                const avatar = (
+                  <div
+                    className="community-review-avatar"
+                    style={{ background: reviewerColor(r.user_id) }}
+                  >
+                    {reviewerInitial(profile)}
+                  </div>
+                )
                 return (
                   <div key={r.id} className="community-review">
-                    <div
-                      className="community-review-avatar"
-                      style={{ background: reviewerColor(r.user_id) }}
-                    >
-                      {reviewerInitial(profile)}
-                    </div>
+                    {profile?.username
+                      ? <Link to={`/user/${profile.username}`}>{avatar}</Link>
+                      : avatar}
                     <div className="community-review-body">
                       <div className="community-review-header">
-                        <span className="community-review-name">{reviewerName(profile)}</span>
+                        {profile?.username
+                          ? <Link to={`/user/${profile.username}`} className="community-review-name">{reviewerName(profile)}</Link>
+                          : <span className="community-review-name">{reviewerName(profile)}</span>}
                         <InlineStars rating={r.rating} />
                         <span className="community-review-date">
                           {format(new Date(r.created_at), 'MMM d, yyyy')}

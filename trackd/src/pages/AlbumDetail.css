@@ -447,6 +447,11 @@
   font-weight: 600;
   flex-shrink: 0;
   white-space: nowrap;
+  text-decoration: none;
+}
+
+a.moment-author:hover {
+  color: #d9b8ff;
 }
 
 .moment-delete {
@@ -582,6 +587,14 @@
   gap: 0.75rem;
 }
 
+/* The avatar may be wrapped in a <Link> to the reviewer's public profile —
+   keep it sized/positioned exactly like the plain div was before. */
+.community-review > a {
+  flex-shrink: 0;
+  display: flex;
+  text-decoration: none;
+}
+
 .community-review-avatar {
   width: 34px;
   height: 34px;
@@ -611,6 +624,11 @@
   font-size: 0.82rem;
   font-weight: 700;
   color: var(--text);
+  text-decoration: none;
+}
+
+a.community-review-name:hover {
+  color: var(--accent);
 }
 
 .community-review-date {
