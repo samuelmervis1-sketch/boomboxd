@@ -58,6 +58,30 @@ export const listsApi = {
     return data ?? []
   },
 
+  // Only lists a user has made public — for the public /user/:username page.
+  async getPublicLists(userId: string): Promise<List[]> {
+    const { data, error } = await supabase
+      .from('lists')
+      .select()
+      .eq('user_id', userId)
+      .eq('is_public', true)
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+    return data ?? []
+  },
+
+  // Lightweight item count for a list card — a head request with no rows.
+  async getListItemCount(listId: string): Promise<number> {
+    const { count, error } = await supabase
+      .from('list_items')
+      .select('*', { count: 'exact', head: true })
+      .eq('list_id', listId)
+
+    if (error) throw error
+    return count ?? 0
+  },
+
   async getList(listId: string): Promise<List | null> {
     const { data, error } = await supabase
       .from('lists')

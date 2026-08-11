@@ -41,6 +41,7 @@
   border: 1px solid var(--border);
   border-radius: 10px;
   text-decoration: none;
+  cursor: pointer;
   transition: border-color 0.15s, background 0.15s;
 }
 
@@ -81,6 +82,11 @@
   font-size: 0.78rem;
   font-weight: 700;
   color: var(--accent);
+  text-decoration: none;
+}
+
+a.feed-item-reviewer:hover {
+  text-decoration: underline;
 }
 
 .feed-item-date {

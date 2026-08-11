@@ -257,4 +257,20 @@ export const ratingsApi = {
     }
     return map
   },
+
+  // ── Public profile ───────────────────────────────────────────
+
+  // All of a given user's ratings (albums + tracks together), most recent
+  // first. Ratings are publicly readable, so this needs no session — used
+  // by the public /user/:username page to show stats and recent activity.
+  async getRatingsForUser(userId: string): Promise<Rating[]> {
+    const { data, error } = await supabase
+      .from('ratings')
+      .select()
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+    return data ?? []
+  },
 }

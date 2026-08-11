@@ -50,6 +50,15 @@
   margin-top: 0.6rem;
 }
 
+.list-detail-owner {
+  color: #666;
+  text-decoration: none;
+}
+
+.list-detail-owner:hover {
+  color: var(--accent);
+}
+
 .btn-delete-list {
   flex-shrink: 0;
   background: none;
