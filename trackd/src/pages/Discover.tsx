@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import type { User } from '@supabase/supabase-js'
+import { supabase } from '../lib/supabase'
 import { discoverApi, type TopRatedAlbum, type TopRatedTrack } from '../lib/discoverApi'
 import { profilesApi, type Profile } from '../lib/profilesApi'
+import { reviewLikesApi, type LikeInfo } from '../lib/reviewLikesApi'
 import type { Rating } from '../lib/ratingsApi'
 import { StarGlyph } from '../components/RatingModal'
+import LikeButton from '../components/LikeButton'
 import EmptyState, { CompassIcon } from '../components/EmptyState'
 import './Discover.css'
 
@@ -56,12 +60,24 @@ function Row({ heading, children }: { heading: string; children: React.ReactNode
 
 export default function Discover() {
   const navigate = useNavigate()
+  const [user, setUser] = useState<User | null>(null)
   const [topAlbums, setTopAlbums] = useState<TopRatedAlbum[]>([])
   const [recentAlbums, setRecentAlbums] = useState<Rating[]>([])
   const [topSongs, setTopSongs] = useState<TopRatedTrack[]>([])
   const [profiles, setProfiles] = useState<Record<string, Profile>>({})
+  const [likes, setLikes] = useState<Record<string, LikeInfo>>({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setUser(data.session?.user ?? null)
+    })
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      setUser(session?.user ?? null)
+    })
+    return () => subscription.unsubscribe()
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -90,6 +106,15 @@ export default function Discover() {
       .then(data => setProfiles(Object.fromEntries(data.map(p => [p.id, p]))))
       .catch(() => setProfiles({}))
   }, [recentAlbums])
+
+  useEffect(() => {
+    if (!user) { setLikes({}); return }
+    const ids = recentAlbums.filter(r => r.user_id !== user.id).map(r => r.id)
+    if (ids.length === 0) { setLikes({}); return }
+    reviewLikesApi.getLikesForRatings(ids)
+      .then(setLikes)
+      .catch(() => setLikes({}))
+  }, [recentAlbums, user?.id])
 
   const nothingToShow = topAlbums.length === 0 && recentAlbums.length === 0 && topSongs.length === 0
 
@@ -168,6 +193,18 @@ export default function Discover() {
                           <span className="discover-card-reviewer-name">{reviewerLabel(profile)}</span>
                         )}
                       </div>
+                      {user && r.user_id !== user.id && (
+                        <div className="discover-card-footer">
+                          <LikeButton
+                            ratingId={r.id}
+                            count={likes[r.id]?.count ?? 0}
+                            liked={likes[r.id]?.liked ?? false}
+                            onChange={(liked, count) =>
+                              setLikes(prev => ({ ...prev, [r.id]: { liked, count } }))
+                            }
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
                 )

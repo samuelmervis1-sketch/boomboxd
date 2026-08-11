@@ -647,6 +647,10 @@ a.community-review-name:hover {
   margin-top: 0.35rem;
 }
 
+.community-review-footer {
+  margin-top: 0.4rem;
+}
+
 /* ── Responsive ────────────────────────────────────────── */
 
 @media (max-width: 720px) {

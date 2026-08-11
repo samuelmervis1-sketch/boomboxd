@@ -1,0 +1,40 @@
+.like-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  background: transparent;
+  border: none;
+  padding: 0.1rem 0.15rem;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1;
+  transition: color 0.15s, transform 0.1s;
+}
+
+.like-btn svg {
+  width: 15px;
+  height: 15px;
+}
+
+.like-btn:hover:not(:disabled) {
+  color: #ff6b6b;
+}
+
+.like-btn.liked {
+  color: #ff6b6b;
+}
+
+.like-btn:active:not(:disabled) {
+  transform: scale(0.9);
+}
+
+.like-btn:disabled {
+  cursor: default;
+}
+
+.like-btn-count {
+  min-width: 0.6rem;
+}

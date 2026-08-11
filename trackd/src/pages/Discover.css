@@ -199,6 +199,10 @@ a.discover-card-reviewer-name:hover {
   color: var(--accent);
 }
 
+.discover-card-footer {
+  margin-top: 0.15rem;
+}
+
 /* ── Mobile ────────────────────────────────────────────── */
 
 @media (max-width: 720px) {

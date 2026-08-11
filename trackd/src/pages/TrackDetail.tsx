@@ -8,11 +8,13 @@ import { ratingsApi, type Rating } from '../lib/ratingsApi'
 import { profilesApi, type Profile } from '../lib/profilesApi'
 import { momentsApi, type Moment } from '../lib/momentsApi'
 import { followsApi } from '../lib/followsApi'
+import { reviewLikesApi, type LikeInfo } from '../lib/reviewLikesApi'
 import { formatDuration } from '../lib/format'
 import { reviewerColor, reviewerName, reviewerInitial } from '../lib/reviewerDisplay'
 import RatingModal, { StarGlyph } from '../components/RatingModal'
 import FollowButton from '../components/FollowButton'
 import AddToListButton from '../components/AddToListButton'
+import LikeButton from '../components/LikeButton'
 import './TrackDetail.css'
 
 // ── Helpers ────────────────────────────────────────────────
@@ -74,6 +76,7 @@ export default function TrackDetail() {
   const [communityRatings, setCommunityRatings] = useState<Rating[]>([])
   const [reviewerProfiles, setReviewerProfiles] = useState<Record<string, Profile>>({})
   const [followingIds, setFollowingIds] = useState<Set<string>>(new Set())
+  const [likes, setLikes] = useState<Record<string, LikeInfo>>({})
 
   const [moments, setMoments] = useState<Moment[]>([])
   const [momentProfiles, setMomentProfiles] = useState<Record<string, Profile>>({})
@@ -131,6 +134,18 @@ export default function TrackDetail() {
       .then(profiles => setReviewerProfiles(Object.fromEntries(profiles.map(p => [p.id, p]))))
       .catch(() => setReviewerProfiles({}))
   }, [communityRatings])
+
+  // Load like counts + whether I've liked each review shown below
+  useEffect(() => {
+    if (!user) { setLikes({}); return }
+    const ids = communityRatings
+      .filter(r => r.user_id !== user.id && r.review && r.review.trim().length > 0)
+      .map(r => r.id)
+    if (ids.length === 0) { setLikes({}); return }
+    reviewLikesApi.getLikesForRatings(ids)
+      .then(setLikes)
+      .catch(() => setLikes({}))
+  }, [communityRatings, user?.id])
 
   // Load moments (timestamped comments) for this track
   useEffect(() => {
@@ -459,6 +474,18 @@ export default function TrackDetail() {
                         />
                       </div>
                       <p className="community-review-text">{r.review}</p>
+                      {user && (
+                        <div className="community-review-footer">
+                          <LikeButton
+                            ratingId={r.id}
+                            count={likes[r.id]?.count ?? 0}
+                            liked={likes[r.id]?.liked ?? false}
+                            onChange={(liked, count) =>
+                              setLikes(prev => ({ ...prev, [r.id]: { liked, count } }))
+                            }
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
                 )
