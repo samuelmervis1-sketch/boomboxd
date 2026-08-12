@@ -16,15 +16,14 @@
 /* ── Modal box ─────────────────────────────────────────── */
 
 .modal {
-  background: #241d2b;
-  border: 1px solid #4a3f59;
-  border-radius: 16px;
+  background: #1a1a1a;
+  border: 1px solid #2e2e2e;
+  border-radius: 14px;
   width: 100%;
   max-width: 440px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: var(--shadow-pop);
 }
 
 /* ── Header ────────────────────────────────────────────── */
@@ -34,7 +33,7 @@
   align-items: flex-start;
   justify-content: space-between;
   padding: 1.25rem 1.5rem 1rem;
-  border-bottom: 1px solid #2f2738;
+  border-bottom: 1px solid #222;
   gap: 1rem;
 }
 
@@ -46,9 +45,8 @@
 }
 
 .modal-album-name {
-  font-family: var(--font-display);
-  font-size: 1.05rem;
-  font-weight: 600;
+  font-size: 0.95rem;
+  font-weight: 700;
   color: var(--text);
   white-space: nowrap;
   overflow: hidden;
@@ -100,9 +98,6 @@
 .star-picker {
   display: flex;
   gap: 0.1rem;
-  padding: 0.3rem 0.6rem;
-  border-radius: 999px;
-  background: radial-gradient(ellipse at center, rgba(242, 168, 60, 0.07) 0%, transparent 72%);
 }
 
 .star-cell {
@@ -133,44 +128,30 @@
   font-size: 2.25rem;
   line-height: 1;
   pointer-events: none;
-  transition: transform 0.1s ease, filter 0.15s ease;
+  transition: transform 0.08s ease;
   display: inline-block;
 }
 
 .star-cell:has(.star-hit:hover) .star-glyph {
-  transform: scale(1.18) rotate(-4deg);
+  transform: scale(1.15);
 }
 
-.star-empty { color: #4a3f59; }
+.star-empty { color: #2e2e2e; }
 
-.star-full { color: var(--accent); }
-
-/* The interactive picker is the signature moment — give its lit stars a
-   warm meter-glow. Small read-only stars elsewhere stay flat so they don't
-   turn muddy at 0.7–0.9rem. */
-.star-picker .star-full {
-  filter: drop-shadow(0 0 7px rgba(242, 168, 60, 0.55));
-}
-
-.star-cell:has(.star-hit:hover) .star-full,
-.star-cell:has(.star-hit:hover) .star-half {
-  filter: drop-shadow(0 0 11px rgba(242, 168, 60, 0.75));
-}
+.star-full  { color: var(--accent); }
 
 .star-half {
-  background: linear-gradient(to right, var(--accent) 50%, #4a3f59 50%);
+  background: linear-gradient(to right, var(--accent) 50%, #2e2e2e 50%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .rating-label {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 500;
-  text-transform: uppercase;
+  font-size: 0.82rem;
+  font-weight: 600;
   color: var(--text-muted);
-  letter-spacing: 0.12em;
+  letter-spacing: 0.02em;
   min-height: 1.2em;
 }
 
@@ -195,8 +176,8 @@
 }
 
 .review-textarea {
-  background: #1a1420;
-  border: 1px solid #332b3d;
+  background: #111;
+  border: 1px solid #2a2a2a;
   border-radius: 8px;
   padding: 0.75rem;
   font-size: 0.875rem;
@@ -210,18 +191,18 @@
 }
 
 .review-textarea:focus {
-  border-color: #5c4f68;
+  border-color: #444;
 }
 
 .review-textarea::placeholder {
-  color: #5c4f68;
+  color: #444;
 }
 
 .modal-error {
   font-size: 0.8rem;
-  color: #ff6a56;
-  background: rgba(255, 106, 86, 0.08);
-  border: 1px solid rgba(255, 106, 86, 0.18);
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.08);
+  border: 1px solid rgba(255, 107, 107, 0.18);
   border-radius: 6px;
   padding: 0.5rem 0.75rem;
 }
@@ -233,7 +214,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 1rem 1.5rem 1.25rem;
-  border-top: 1px solid #2f2738;
+  border-top: 1px solid #222;
   gap: 0.75rem;
 }
 
@@ -245,8 +226,8 @@
 
 .btn-delete {
   background: none;
-  border: 1px solid #3a2024;
-  color: #c1503f;
+  border: 1px solid #3a1a1a;
+  color: #e05555;
   border-radius: 7px;
   font-size: 0.8rem;
   font-weight: 600;
@@ -257,7 +238,7 @@
 }
 
 .btn-delete:hover:not(:disabled) {
-  background: rgba(193, 80, 63, 0.1);
+  background: rgba(224, 85, 85, 0.1);
 }
 
 .btn-delete:disabled {
@@ -267,7 +248,7 @@
 
 .btn-cancel {
   background: none;
-  border: 1px solid #332b3d;
+  border: 1px solid #2a2a2a;
   color: var(--text-muted);
   border-radius: 7px;
   font-size: 0.8rem;
@@ -280,7 +261,7 @@
 
 .btn-cancel:hover:not(:disabled) {
   color: var(--text);
-  border-color: #5c4f68;
+  border-color: #444;
 }
 
 .btn-cancel:disabled {
@@ -291,7 +272,7 @@
 .btn-save {
   background: var(--accent);
   border: none;
-  color: var(--accent-ink);
+  color: #0d0d0d;
   border-radius: 7px;
   font-size: 0.8rem;
   font-weight: 700;
@@ -331,7 +312,7 @@
     padding: 1.1rem 1.1rem 0.9rem;
     position: sticky;
     top: 0;
-    background: #241d2b;
+    background: #1a1a1a;
     z-index: 1;
   }
 

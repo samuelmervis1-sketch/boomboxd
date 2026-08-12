@@ -20,11 +20,11 @@
 }
 
 .like-btn:hover:not(:disabled) {
-  color: #ff6a56;
+  color: #ff6b6b;
 }
 
 .like-btn.liked {
-  color: #ff6a56;
+  color: #ff6b6b;
 }
 
 .like-btn:active:not(:disabled) {
