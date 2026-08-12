@@ -5,39 +5,16 @@
 }
 
 :root {
-  /* ── Surfaces — warm aubergine-black, not flat grey ─────── */
-  --bg: #161119;
-  --bg-surface: #241d2b;
-  --bg-raised: #1e1823;
-  --bg-inset: #120e17;
-  --border: #332b3d;
-  --border-strong: #453a52;
-
-  /* ── Text — warm bone, not clinical white ────────────────── */
-  --text: #f4ede0;
-  --text-muted: #a89bb0;
-  --text-dim: #786a83;
-
-  /* ── Accent — amber, like a VU-meter needle in the hot zone ── */
-  --accent: #f2a83c;
-  --accent-bright: #ffc266;
-  --accent-ink: #1c1208;
-
-  /* ── Secondary accent — violet, reserved for moments/community ── */
-  --violet: #9b7bf5;
-  --violet-bright: #c4aefc;
-  --violet-pale: #e2d6ff;
-
-  /* ── Semantic ─────────────────────────────────────────────── */
-  --crimson: #ff6a56;
-  --crimson-dim: #c1503f;
-  --emerald: #5fd98a;
-
-  /* ── Type: serif for editorial moments, grotesk for UI,
-     mono for anything that reads like a printed tracklist ──── */
-  --font-display: 'Fraunces', Georgia, 'Iowan Old Style', serif;
-  --font-body: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  --bg: #0d0d0d;
+  --bg-surface: #1a1a1a;
+  --bg-raised: #141414;
+  --border: #2a2a2a;
+  --border-strong: #3a3a3a;
+  --text: #f0f0f0;
+  --text-muted: #888;
+  --text-dim: #666;
+  --accent: #e8ff6b;
+  --accent-ink: #0d0d0d;
 
   /* Type scale */
   --fs-xs: 0.72rem;
@@ -65,16 +42,13 @@
 
   --radius: 8px;
   --radius-lg: 12px;
-
-  --shadow-card: 0 14px 32px rgba(10, 6, 16, 0.5);
-  --shadow-pop: 0 20px 48px rgba(10, 6, 16, 0.6);
 }
 
 html, body, #root {
   height: 100%;
   background-color: var(--bg);
   color: var(--text);
-  font-family: var(--font-body);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -86,38 +60,22 @@ html, body, #root {
   justify-content: space-between;
   gap: var(--sp-4);
   padding: 0 var(--sp-6);
-  height: 62px;
+  height: 60px;
   border-bottom: 1px solid var(--border);
-  background: rgba(22, 17, 25, 0.86);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgba(13, 13, 13, 0.92);
+  backdrop-filter: blur(8px);
   position: sticky;
   top: 0;
   z-index: 100;
 }
 
 .nav-logo {
-  font-family: var(--font-display);
-  font-size: 1.35rem;
-  font-weight: 600;
-  font-style: italic;
-  letter-spacing: -0.01em;
-  color: var(--text);
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-display);
+  letter-spacing: -0.03em;
+  color: var(--accent);
   text-decoration: none;
   flex-shrink: 0;
-  position: relative;
-}
-
-.nav-logo::after {
-  content: '';
-  display: inline-block;
-  width: 5px;
-  height: 5px;
-  margin-left: 3px;
-  margin-bottom: 0.4em;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 8px rgba(242, 168, 60, 0.7);
 }
 
 .nav-links {
@@ -147,13 +105,13 @@ html, body, #root {
 
 .nav-links a:hover {
   color: var(--text);
-  background: rgba(244, 237, 224, 0.05);
+  background: rgba(255, 255, 255, 0.05);
 }
 
-/* Active page: accent text + tinted pill + glowing underline bar */
+/* Active page: accent text + tinted pill + underline bar */
 .nav-links a.active {
   color: var(--accent);
-  background: rgba(242, 168, 60, 0.1);
+  background: rgba(232, 255, 107, 0.1);
 }
 
 .nav-links a.active::after {
@@ -165,7 +123,6 @@ html, body, #root {
   height: 2px;
   border-radius: 2px;
   background: var(--accent);
-  box-shadow: 0 0 6px rgba(242, 168, 60, 0.6);
 }
 
 .nav-label {
@@ -182,10 +139,9 @@ html, body, #root {
 
 .page h1,
 .page-title {
-  font-family: var(--font-display);
   font-size: var(--fs-xl);
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.03em;
   line-height: 1.15;
   margin-bottom: var(--sp-2);
 }
@@ -198,12 +154,10 @@ html, body, #root {
   margin-bottom: var(--sp-5);
 }
 
-/* Section label used above content blocks — set in mono, like a
-   tracklist header printed on a sleeve */
+/* Section label used above content blocks */
 .section-heading {
-  font-family: var(--font-mono);
   font-size: var(--fs-xs);
-  font-weight: var(--fw-medium);
+  font-weight: var(--fw-bold);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -226,7 +180,7 @@ html, body, #root {
   justify-content: center;
   gap: 0.4rem;
   border-radius: var(--radius);
-  font-family: var(--font-body);
+  font-family: inherit;
   font-size: var(--fs-sm);
   font-weight: var(--fw-medium);
   cursor: pointer;
@@ -235,7 +189,7 @@ html, body, #root {
   /* 40px min height keeps taps comfortable on mobile */
   min-height: 40px;
   padding: 0.5rem 0.9rem;
-  transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.15s, box-shadow 0.15s;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.15s;
 }
 
 /* PRIMARY — rate */
@@ -247,20 +201,19 @@ html, body, #root {
   font-weight: var(--fw-bold);
   padding: 0.6rem 1.35rem;
   min-height: 44px;
-  box-shadow: 0 4px 20px rgba(242, 168, 60, 0.25);
+  box-shadow: 0 4px 18px rgba(232, 255, 107, 0.18);
 }
 
 .btn-rate:hover {
-  background: var(--accent-bright);
-  border-color: var(--accent-bright);
+  background: #f2ff8f;
+  border-color: #f2ff8f;
   transform: translateY(-1px);
-  box-shadow: 0 6px 24px rgba(242, 168, 60, 0.35);
 }
 
 /* PRIMARY (rated state) — still prominent, shows your score */
 .btn-rated {
-  background: rgba(242, 168, 60, 0.12);
-  border: 1px solid rgba(242, 168, 60, 0.5);
+  background: rgba(232, 255, 107, 0.12);
+  border: 1px solid rgba(232, 255, 107, 0.5);
   color: var(--text);
   padding: 0.6rem 1rem;
   min-height: 44px;
@@ -268,12 +221,11 @@ html, body, #root {
 }
 
 .btn-rated:hover {
-  background: rgba(242, 168, 60, 0.2);
+  background: rgba(232, 255, 107, 0.2);
   transform: translateY(-1px);
 }
 
 .btn-rated-value {
-  font-family: var(--font-mono);
   font-size: var(--fs-base);
   font-weight: var(--fw-bold);
   color: var(--accent);
@@ -343,7 +295,7 @@ html, body, #root {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: rgba(242, 168, 60, 0.1);
+  background: rgba(232, 255, 107, 0.1);
   color: var(--accent);
   margin-bottom: var(--sp-1);
 }
@@ -354,9 +306,8 @@ html, body, #root {
 }
 
 .empty-state-title {
-  font-family: var(--font-display);
   font-size: var(--fs-md);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   color: var(--text);
   letter-spacing: -0.01em;
 }
@@ -384,12 +335,12 @@ html, body, #root {
   padding: 0.6rem 1.2rem;
   min-height: 44px;
   cursor: pointer;
-  font-family: var(--font-body);
+  font-family: inherit;
   transition: background 0.15s, transform 0.15s;
 }
 
 .empty-state-cta:hover {
-  background: var(--accent-bright);
+  background: #f2ff8f;
   transform: translateY(-1px);
 }
 
@@ -438,6 +389,6 @@ html, body, #root {
 
 @media (max-width: 400px) {
   .nav-logo {
-    font-size: 1.15rem;
+    font-size: var(--fs-md);
   }
 }

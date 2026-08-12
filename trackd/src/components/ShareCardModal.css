@@ -16,8 +16,8 @@
 /* ── Modal box ───────────────────────────────────────────── */
 
 .share-modal {
-  background: #1a1420;
-  border: 1px solid #2f2738;
+  background: #111;
+  border: 1px solid #242424;
   border-radius: 20px;
   display: flex;
   flex-direction: column;
@@ -34,16 +34,14 @@
   align-items: center;
   justify-content: space-between;
   padding: 1.25rem 1.5rem 1rem;
-  border-bottom: 1px solid #241d2b;
+  border-bottom: 1px solid #1a1a1a;
 }
 
 .share-modal-title {
-  font-family: var(--font-mono);
-  font-size: 0.76rem;
-  font-weight: 500;
-  color: var(--text-muted);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.01em;
 }
 
 .share-close {
@@ -66,7 +64,7 @@
 
 .share-card-wrap {
   padding: 20px 20px 16px;
-  background: #100c14;
+  background: #0a0a0a;
   display: flex;
   justify-content: center;
   overflow: hidden;
@@ -98,13 +96,13 @@
   display: flex;
   gap: 0.625rem;
   padding: 1rem 1.5rem 1.25rem;
-  border-top: 1px solid #241d2b;
+  border-top: 1px solid #1a1a1a;
 }
 
 .btn-share-download {
   flex: 1;
   background: var(--accent);
-  color: var(--accent-ink);
+  color: #0d0d0d;
   border: none;
   border-radius: 9px;
   font-size: 0.85rem;
@@ -130,7 +128,7 @@
   flex: 1;
   background: transparent;
   color: var(--text);
-  border: 1px solid #4a3f59;
+  border: 1px solid #2e2e2e;
   border-radius: 9px;
   font-size: 0.85rem;
   font-weight: 600;
@@ -142,6 +140,6 @@
 }
 
 .btn-share-copy:hover {
-  border-color: #6b5d78;
+  border-color: #4a4a4a;
   transform: translateY(-1px);
 }
