@@ -57,7 +57,7 @@ async function getDominantColor(dataUrl: string): Promise<[number, number, numbe
 // ── Star glyph safe for html-to-image (inline styles only) ─
 
 function CardStar({ value, pos }: { value: number; pos: number }) {
-  const ACCENT = '#e8ff6b'
+  const ACCENT = '#f2a83c'
   const EMPTY = 'rgba(255,255,255,0.15)'
   const isFull = value >= pos
   const isHalf = !isFull && value >= pos - 0.5
@@ -114,7 +114,7 @@ function ShareCard({ album, rating, review, color, artDataUrl, cardRef }: CardPr
       style={{
         width: 360,
         minHeight: 504,
-        background: `linear-gradient(168deg, ${bgTop} 0%, #090909 58%, #0d0d0d 100%)`,
+        background: `linear-gradient(168deg, ${bgTop} 0%, #0f0a13 58%, #161119 100%)`,
         display: 'flex',
         flexDirection: 'column' as const,
         alignItems: 'center',
@@ -197,7 +197,7 @@ function ShareCard({ album, rating, review, color, artDataUrl, cardRef }: CardPr
       <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginTop: 18, zIndex: 1 }}>
         {[1, 2, 3, 4, 5].map(n => <CardStar key={n} value={rating} pos={n} />)}
         <span style={{
-          color: '#e8ff6b',
+          color: '#f2a83c',
           fontSize: 14,
           fontWeight: 700,
           marginLeft: 7,

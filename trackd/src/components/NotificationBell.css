@@ -36,7 +36,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #ff6b6b;
+  background: #ff6a56;
   color: #fff;
   font-size: 0.62rem;
   font-weight: 700;
@@ -57,7 +57,7 @@
   background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  box-shadow: var(--shadow-pop);
   overflow: hidden;
   z-index: 200;
 }
@@ -120,11 +120,11 @@
 }
 
 .notif-item.unread {
-  background: rgba(232, 255, 107, 0.06);
+  background: rgba(242, 168, 60, 0.06);
 }
 
 .notif-item.unread:hover {
-  background: rgba(232, 255, 107, 0.1);
+  background: rgba(242, 168, 60, 0.1);
 }
 
 .notif-item-text {
@@ -140,6 +140,7 @@
 }
 
 .notif-item-time {
+  font-family: var(--font-mono);
   font-size: var(--fs-xs);
   color: var(--text-dim);
 }

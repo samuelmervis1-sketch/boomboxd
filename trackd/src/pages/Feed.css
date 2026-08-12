@@ -12,7 +12,7 @@
 .spinner {
   width: 26px;
   height: 26px;
-  border: 2px solid #2a2a2a;
+  border: 2px solid #332b3d;
   border-top-color: var(--accent);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
@@ -37,17 +37,18 @@
   align-items: flex-start;
   gap: 1rem;
   padding: 1rem;
-  background: #141414;
+  background: #1e1823;
   border: 1px solid var(--border);
   border-radius: 10px;
   text-decoration: none;
   cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
+  transition: border-color 0.15s, background 0.15s, transform 0.15s;
 }
 
 .feed-item:hover {
-  border-color: #3a3a3a;
-  background: #1a1a1a;
+  transform: translateY(-2px);
+  border-color: #453a52;
+  background: #241d2b;
 }
 
 .feed-item-art,
@@ -60,7 +61,7 @@
 }
 
 .feed-item-art-placeholder {
-  background: #1f1f1f;
+  background: #2b2335;
 }
 
 .feed-item-body {
@@ -90,16 +91,18 @@ a.feed-item-reviewer:hover {
 }
 
 .feed-item-date {
-  font-size: 0.72rem;
-  color: #555;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: #786a83;
   flex-shrink: 0;
 }
 
 .feed-item-album {
-  font-size: 0.95rem;
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 600;
   color: var(--text);
-  letter-spacing: -0.01em;
+  letter-spacing: -0.005em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
