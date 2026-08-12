@@ -22,7 +22,7 @@
 .spinner {
   width: 26px;
   height: 26px;
-  border: 2px solid #2a2a2a;
+  border: 2px solid #332b3d;
   border-top-color: var(--accent);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
@@ -105,17 +105,17 @@
 .album-cover {
   width: 220px;
   height: 220px;
-  border-radius: 8px;
+  border-radius: 6px;
   object-fit: cover;
   flex-shrink: 0;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 24px 64px rgba(10, 6, 16, 0.75), 0 4px 14px rgba(10, 6, 16, 0.5);
 }
 
 .album-cover-placeholder {
   width: 220px;
   height: 220px;
-  border-radius: 8px;
-  background: #1e1e1e;
+  border-radius: 6px;
+  background: #2b2335;
   flex-shrink: 0;
 }
 
@@ -130,18 +130,20 @@
 }
 
 .album-type-label {
+  font-family: var(--font-mono);
   font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
+  font-weight: 500;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--accent);
 }
 
 .album-name {
-  font-size: clamp(1.75rem, 4vw, 3rem);
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  line-height: 1.05;
+  font-family: var(--font-display);
+  font-size: clamp(1.9rem, 4vw, 3.1rem);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.04;
   color: var(--text);
   margin: 0.15rem 0 0.25rem;
 }
@@ -173,8 +175,8 @@
   width: fit-content;
   margin-top: 0.6rem;
   padding: 0.3rem 0.7rem;
-  background: rgba(232, 255, 107, 0.07);
-  border: 1px solid rgba(232, 255, 107, 0.2);
+  background: rgba(242, 168, 60, 0.07);
+  border: 1px solid rgba(242, 168, 60, 0.2);
   border-radius: 20px;
 }
 
@@ -184,8 +186,9 @@
 }
 
 .community-rating-value {
+  font-family: var(--font-mono);
   font-size: 0.85rem;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--text);
 }
 
@@ -227,7 +230,7 @@
 /* Inline review quote */
 .my-review {
   margin-top: 0.75rem;
-  border-left: 2px solid rgba(232, 255, 107, 0.3);
+  border-left: 2px solid rgba(242, 168, 60, 0.3);
   padding: 0.5rem 0 0.5rem 0.875rem;
   max-width: 480px;
 }
@@ -241,7 +244,7 @@
 
 .my-review footer {
   font-size: 0.7rem;
-  color: #555;
+  color: #786a83;
   margin-top: 0.35rem;
   font-style: normal;
 }
@@ -263,9 +266,10 @@
   border-bottom: 1px solid var(--border);
   margin-bottom: 0.25rem;
   color: var(--text-muted);
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
@@ -306,7 +310,8 @@
 }
 
 .track-num {
-  font-size: 0.8rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
   color: var(--text-muted);
   text-align: center;
   transition: opacity 0.12s;
@@ -331,7 +336,8 @@
 }
 
 .track-name {
-  font-size: 0.875rem;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
   font-weight: 500;
   color: var(--text);
   white-space: nowrap;
@@ -358,7 +364,8 @@
   display: inline-flex;
   align-items: center;
   gap: 0.2rem;
-  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
   font-weight: 600;
   color: var(--text-muted);
   white-space: nowrap;
@@ -370,7 +377,8 @@
 }
 
 .track-duration {
-  font-size: 0.8rem;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
   color: var(--text-muted);
   font-variant-numeric: tabular-nums;
   text-align: right;
@@ -386,7 +394,7 @@
 
 .track-moment-btn {
   background: transparent;
-  border: 1px solid #2a2a2a;
+  border: 1px solid #332b3d;
   border-radius: 20px;
   color: var(--text-muted);
   font-size: 0.7rem;
@@ -399,8 +407,8 @@
 }
 
 .track-moment-btn:hover {
-  border-color: #a855f7;
-  color: #c084fc;
+  border-color: #9b7bf5;
+  color: #c4aefc;
 }
 
 .track-moments {
@@ -416,23 +424,24 @@
   align-items: center;
   gap: 0.35rem;
   max-width: 100%;
-  background: rgba(168, 85, 247, 0.12);
-  border: 1px solid rgba(168, 85, 247, 0.35);
-  color: #d9b8ff;
+  background: rgba(155, 123, 245, 0.12);
+  border: 1px solid rgba(155, 123, 245, 0.35);
+  color: #e2d6ff;
   border-radius: 20px;
   padding: 0.3rem 0.7rem;
   font-size: 0.75rem;
 }
 
 .moment-timestamp {
-  font-weight: 700;
-  color: #c084fc;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: #c4aefc;
   font-variant-numeric: tabular-nums;
   flex-shrink: 0;
 }
 
 .moment-sep {
-  color: rgba(216, 184, 255, 0.4);
+  color: rgba(226, 214, 255, 0.4);
   flex-shrink: 0;
 }
 
@@ -443,7 +452,7 @@
 }
 
 .moment-author {
-  color: #b78ef0;
+  color: #b494f5;
   font-weight: 600;
   flex-shrink: 0;
   white-space: nowrap;
@@ -451,13 +460,13 @@
 }
 
 a.moment-author:hover {
-  color: #d9b8ff;
+  color: #e2d6ff;
 }
 
 .moment-delete {
   background: none;
   border: none;
-  color: rgba(216, 184, 255, 0.6);
+  color: rgba(226, 214, 255, 0.6);
   cursor: pointer;
   font-size: 0.9rem;
   line-height: 1;
@@ -480,7 +489,7 @@ a.moment-author:hover {
 
 .moment-form-timestamp,
 .moment-form-comment {
-  background: #0d0d0d;
+  background: #161119;
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 0.4rem 0.6rem;
@@ -494,6 +503,7 @@ a.moment-author:hover {
 .moment-form-timestamp {
   width: 4.5rem;
   flex-shrink: 0;
+  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
 }
 
@@ -504,12 +514,12 @@ a.moment-author:hover {
 
 .moment-form-timestamp:focus,
 .moment-form-comment:focus {
-  border-color: #a855f7;
+  border-color: #9b7bf5;
 }
 
 .moment-form-save {
   flex-shrink: 0;
-  background: #a855f7;
+  background: #9b7bf5;
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -546,12 +556,12 @@ a.moment-author:hover {
 
 .moment-form-cancel:hover {
   color: var(--text);
-  border-color: #555;
+  border-color: #786a83;
 }
 
 .moment-error {
   font-size: 0.75rem;
-  color: #ff6b6b;
+  color: #ff6a56;
 }
 
 /* ── Community reviews ─────────────────────────────────── */
@@ -567,8 +577,9 @@ a.moment-author:hover {
 }
 
 .community-reviews-heading {
-  font-size: 0.75rem;
-  font-weight: 700;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -605,7 +616,7 @@ a.moment-author:hover {
   justify-content: center;
   font-size: 0.78rem;
   font-weight: 800;
-  color: #0d0d0d;
+  color: #161119;
 }
 
 .community-review-body {
@@ -632,8 +643,9 @@ a.community-review-name:hover {
 }
 
 .community-review-date {
-  font-size: 0.72rem;
-  color: #555;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: #786a83;
 }
 
 .community-review-header .follow-btn {

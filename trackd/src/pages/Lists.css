@@ -31,7 +31,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
-  background: #141414;
+  background: #1e1823;
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 1.1rem 1.2rem;
@@ -42,15 +42,16 @@
 
 .list-card:hover {
   transform: translateY(-3px);
-  border-color: #3a3a3a;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+  border-color: #453a52;
+  box-shadow: var(--shadow-card);
 }
 
 .list-card-title {
-  font-size: 1rem;
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 600;
   color: var(--text);
-  letter-spacing: -0.01em;
+  letter-spacing: -0.005em;
 }
 
 .list-card-desc {
@@ -68,7 +69,7 @@
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #666;
+  color: #8a7c93;
   margin-top: 0.25rem;
 }
 

@@ -2,7 +2,7 @@
   display: inline-flex;
   align-items: center;
   background: transparent;
-  border: 1px solid #3a3a3a;
+  border: 1px solid #453a52;
   color: var(--text-muted);
   border-radius: 6px;
   padding: 0.3rem 0.7rem;
@@ -19,15 +19,15 @@
 }
 
 .follow-btn.following {
-  background: rgba(232, 255, 107, 0.07);
-  border-color: rgba(232, 255, 107, 0.25);
+  background: rgba(242, 168, 60, 0.07);
+  border-color: rgba(242, 168, 60, 0.25);
   color: var(--accent);
 }
 
 .follow-btn.following:hover:not(:disabled) {
-  background: rgba(255, 107, 107, 0.08);
-  border-color: rgba(255, 107, 107, 0.35);
-  color: #ff6b6b;
+  background: rgba(255, 106, 86, 0.08);
+  border-color: rgba(255, 106, 86, 0.35);
+  color: #ff6a56;
 }
 
 .follow-btn:disabled {
