@@ -6,6 +6,7 @@ import { supabase } from '../lib/supabase'
 import { ratingsApi, type Rating } from '../lib/ratingsApi'
 import { formatDuration } from '../lib/format'
 import RatingModal from '../components/RatingModal'
+import Seo from '../components/Seo'
 import './Home.css'
 
 type Tab = 'songs' | 'albums'
@@ -319,6 +320,8 @@ export default function Home() {
 
   return (
     <div className="home">
+      <Seo />
+
       {user && !welcomeDismissed && (
         <div className="welcome-banner">
           <div className="welcome-banner-body">

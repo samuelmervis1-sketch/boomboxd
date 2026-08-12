@@ -11,6 +11,22 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="boomboxd" />
+
+    <!-- Static Open Graph / Twitter Card fallback for crawlers that don't run JS
+         (Facebook, iMessage, WhatsApp, etc.). Pages set their own dynamic tags via
+         react-helmet-async at runtime, which strips these data-seo-default tags on
+         mount so JS-executing clients never see both sets at once. -->
+    <meta data-seo-default name="description" content="Rate songs and albums. Share your taste." />
+    <meta data-seo-default property="og:type" content="website" />
+    <meta data-seo-default property="og:site_name" content="boomboxd" />
+    <meta data-seo-default property="og:title" content="boomboxd" />
+    <meta data-seo-default property="og:description" content="Rate songs and albums. Share your taste." />
+    <meta data-seo-default property="og:image" content="/icon-512.png" />
+    <meta data-seo-default name="twitter:card" content="summary_large_image" />
+    <meta data-seo-default name="twitter:title" content="boomboxd" />
+    <meta data-seo-default name="twitter:description" content="Rate songs and albums. Share your taste." />
+    <meta data-seo-default name="twitter:image" content="/icon-512.png" />
+
     <style>body { background: #0d0d0d; }</style>
   </head>
   <body style="background:#0d0d0d;">

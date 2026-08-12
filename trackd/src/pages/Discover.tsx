@@ -9,6 +9,7 @@ import type { Rating } from '../lib/ratingsApi'
 import { StarGlyph } from '../components/RatingModal'
 import LikeButton from '../components/LikeButton'
 import EmptyState, { CompassIcon } from '../components/EmptyState'
+import Seo from '../components/Seo'
 import './Discover.css'
 
 function MusicIcon() {
@@ -120,6 +121,7 @@ export default function Discover() {
 
   return (
     <div className="page discover-page">
+      <Seo title="Discover" />
       <h1 className="page-title">Discover</h1>
       <p className="page-subtitle">Find new music through what other listeners are rating.</p>
 

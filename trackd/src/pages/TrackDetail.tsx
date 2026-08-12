@@ -15,6 +15,8 @@ import RatingModal, { StarGlyph } from '../components/RatingModal'
 import FollowButton from '../components/FollowButton'
 import AddToListButton from '../components/AddToListButton'
 import LikeButton from '../components/LikeButton'
+import Seo from '../components/Seo'
+import { useDominantColor } from '../lib/useDominantColor'
 import './TrackDetail.css'
 
 // ── Helpers ────────────────────────────────────────────────
@@ -247,6 +249,9 @@ export default function TrackDetail() {
     }
   }
 
+  // Hooks must run unconditionally, ahead of the loading/error early returns below.
+  const dominantColor = useDominantColor(track?.album?.images[0]?.url)
+
   if (loading) return <div className="track-detail-status"><div className="spinner" /></div>
   if (error || !track) return <div className="track-detail-status">{error ?? 'Song not found.'}</div>
 
@@ -263,13 +268,27 @@ export default function TrackDetail() {
     r => r.user_id !== user?.id && r.review && r.review.trim().length > 0
   )
 
+  const seoDescription = ratingCount > 0
+    ? `${track.name} by ${artists} — rated ${avgRating.toFixed(1)} stars on boomboxd`
+    : `${track.name} by ${artists} on boomboxd`
+
   return (
     <>
+      <Seo title={`${track.name} by ${artists}`} description={seoDescription} image={image} type="music.song" />
+
       <div className="track-detail">
         {/* ── Hero ── */}
         <div className="track-hero">
           {image && (
             <div className="track-hero-bg" style={{ backgroundImage: `url(${image})` }} />
+          )}
+          {dominantColor && (
+            <div
+              className="track-hero-tint"
+              style={{
+                background: `linear-gradient(to bottom, rgba(${dominantColor[0]}, ${dominantColor[1]}, ${dominantColor[2]}, 0.15) 0%, transparent 60%)`,
+              }}
+            />
           )}
           <div className="track-hero-content">
             <Link to="/" className="back-btn">

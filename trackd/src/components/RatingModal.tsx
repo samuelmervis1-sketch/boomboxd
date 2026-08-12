@@ -1,7 +1,21 @@
 import { useState } from 'react'
+import confetti from 'canvas-confetti'
 import type { SpotifyAlbum, SpotifyTrack } from '../services/spotifyApi'
 import { ratingsApi, type Rating } from '../lib/ratingsApi'
 import './RatingModal.css'
+
+// ── Five-star celebration ──────────────────────────────────
+
+function celebrateFiveStars() {
+  confetti({
+    particleCount: 90,
+    spread: 70,
+    startVelocity: 35,
+    ticks: 110,
+    origin: { y: 0.4 },
+    colors: ['#f2a83c', '#9b7bf5', '#f4ede0'],
+  })
+}
 
 // ── Star glyph (read-only visual) ──────────────────────────
 
@@ -85,6 +99,7 @@ export default function RatingModal({ album, track, existing, onClose, onSaved }
             rating,
             review: review.trim() || null,
           })
+      if (!existing && rating === 5) celebrateFiveStars()
       onSaved(saved)
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Failed to save. Are you signed in?')
