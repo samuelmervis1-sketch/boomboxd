@@ -17,7 +17,7 @@
 .spinner {
   width: 24px;
   height: 24px;
-  border: 2px solid #333;
+  border: 2px solid #4a3f56;
   border-top-color: var(--accent);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
@@ -85,14 +85,15 @@
   aspect-ratio: 1;
   border-radius: 8px;
   overflow: hidden;
-  background: #1e1e1e;
+  background: #2b2335;
   border: 1px solid transparent;
   transition: border-color 0.18s ease, transform 0.18s ease;
 }
 
 .discover-card:hover .discover-card-art {
-  border-color: #2e2e2e;
+  border-color: #4a3f59;
   transform: translateY(-2px);
+  box-shadow: var(--shadow-card);
 }
 
 .discover-card-art img {
@@ -113,7 +114,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #333;
+  color: #4a3f56;
 }
 
 .discover-card-art-placeholder svg {
@@ -164,6 +165,7 @@
 }
 
 .discover-rating-value {
+  font-family: var(--font-mono);
   color: var(--text);
 }
 

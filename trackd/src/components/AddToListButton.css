@@ -10,10 +10,10 @@
   z-index: 50;
   min-width: 220px;
   max-width: 280px;
-  background: #1a1a1a;
-  border: 1px solid #2e2e2e;
+  background: #241d2b;
+  border: 1px solid #4a3f59;
   border-radius: 10px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+  box-shadow: var(--shadow-pop);
   padding: 0.4rem;
   display: flex;
   flex-direction: column;
@@ -58,7 +58,7 @@
 }
 
 .add-to-list-item:hover:not(:disabled) {
-  background: #242424;
+  background: #2f2738;
 }
 
 .add-to-list-item:disabled {
@@ -76,7 +76,7 @@
 .add-to-list-new {
   background: none;
   border: none;
-  border-top: 1px solid #262626;
+  border-top: 1px solid #332b3d;
   border-radius: 0 0 6px 6px;
   margin-top: 0.15rem;
   padding: 0.55rem 0.6rem 0.35rem;
