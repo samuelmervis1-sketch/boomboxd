@@ -5,8 +5,10 @@ import type { User } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
 import { followsApi, type Follow } from '../lib/followsApi'
 import { profilesApi, type Profile } from '../lib/profilesApi'
+import { reviewLikesApi, type LikeInfo } from '../lib/reviewLikesApi'
 import type { Rating } from '../lib/ratingsApi'
 import { StarGlyph } from '../components/RatingModal'
+import LikeButton from '../components/LikeButton'
 import EmptyState, { HeadphonesIcon } from '../components/EmptyState'
 import './Feed.css'
 
@@ -22,6 +24,7 @@ export default function Feed() {
   const [following, setFollowing] = useState<Follow[]>([])
   const [ratings, setRatings] = useState<Rating[]>([])
   const [profiles, setProfiles] = useState<Record<string, Profile>>({})
+  const [likes, setLikes] = useState<Record<string, LikeInfo>>({})
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -63,6 +66,15 @@ export default function Feed() {
       .then(data => setProfiles(Object.fromEntries(data.map(p => [p.id, p]))))
       .catch(() => setProfiles({}))
   }, [ratings])
+
+  useEffect(() => {
+    if (!user) { setLikes({}); return }
+    const ids = ratings.map(r => r.id)
+    if (ids.length === 0) { setLikes({}); return }
+    reviewLikesApi.getLikesForRatings(ids)
+      .then(setLikes)
+      .catch(() => setLikes({}))
+  }, [ratings, user?.id])
 
   const header = (
     <>
@@ -173,6 +185,18 @@ export default function Feed() {
                   {[1, 2, 3, 4, 5].map(n => <StarGlyph key={n} value={r.rating} pos={n} />)}
                 </span>
                 {r.review && <p className="feed-item-review">{r.review}</p>}
+                {user && (
+                  <div className="feed-item-footer">
+                    <LikeButton
+                      ratingId={r.id}
+                      count={likes[r.id]?.count ?? 0}
+                      liked={likes[r.id]?.liked ?? false}
+                      onChange={(liked, count) =>
+                        setLikes(prev => ({ ...prev, [r.id]: { liked, count } }))
+                      }
+                    />
+                  </div>
+                )}
               </div>
             </div>
           )

@@ -7,9 +7,11 @@ import { profilesApi, type Profile } from '../lib/profilesApi'
 import { ratingsApi, type Rating } from '../lib/ratingsApi'
 import { followsApi } from '../lib/followsApi'
 import { listsApi, type List } from '../lib/listsApi'
+import { reviewLikesApi, type LikeInfo } from '../lib/reviewLikesApi'
 import { reviewerColor, reviewerInitial } from '../lib/reviewerDisplay'
 import { StarGlyph } from '../components/RatingModal'
 import FollowButton from '../components/FollowButton'
+import LikeButton from '../components/LikeButton'
 import './UserProfile.css'
 
 interface PublicList extends List {
@@ -26,6 +28,7 @@ export default function UserProfile() {
 
   const [ratings, setRatings] = useState<Rating[]>([])
   const [ratingsLoading, setRatingsLoading] = useState(true)
+  const [likes, setLikes] = useState<Record<string, LikeInfo>>({})
 
   const [followerCount, setFollowerCount] = useState(0)
   const [followingCount, setFollowingCount] = useState(0)
@@ -112,6 +115,17 @@ export default function UserProfile() {
       .finally(() => { if (!cancelled) setListsLoading(false) })
     return () => { cancelled = true }
   }, [profile])
+
+  // Load like counts + whether I've liked each of this user's ratings
+  // (skipped entirely on your own profile — you can't like your own reviews)
+  useEffect(() => {
+    if (!profile || !viewer || viewer.id === profile.id) { setLikes({}); return }
+    const ids = ratings.slice(0, 20).map(r => r.id)
+    if (ids.length === 0) { setLikes({}); return }
+    reviewLikesApi.getLikesForRatings(ids)
+      .then(setLikes)
+      .catch(() => setLikes({}))
+  }, [ratings, profile, viewer?.id])
 
   function handleFollowChange(following: boolean) {
     setIsFollowing(following)
@@ -219,19 +233,33 @@ export default function UserProfile() {
               const title = isTrack ? r.track_name : r.album_name
               const subtitle = isTrack ? r.album_name : r.album_artist
               return (
-                <Link key={r.id} to={href} className="user-rating-item">
-                  {r.album_image
-                    ? <img className="user-rating-art" src={r.album_image} alt={title ?? ''} />
-                    : <div className="user-rating-art-placeholder" />}
-                  <div className="user-rating-body">
-                    <p className="user-rating-title">{title}</p>
-                    <p className="user-rating-subtitle">{subtitle}</p>
-                    <span className="user-rating-stars">
-                      {[1, 2, 3, 4, 5].map(n => <StarGlyph key={n} value={r.rating} pos={n} />)}
-                    </span>
-                    {r.review && <p className="user-rating-review">{r.review}</p>}
-                  </div>
-                </Link>
+                <div key={r.id} className="user-rating-item">
+                  <Link to={href} className="user-rating-item-link">
+                    {r.album_image
+                      ? <img className="user-rating-art" src={r.album_image} alt={title ?? ''} />
+                      : <div className="user-rating-art-placeholder" />}
+                    <div className="user-rating-body">
+                      <p className="user-rating-title">{title}</p>
+                      <p className="user-rating-subtitle">{subtitle}</p>
+                      <span className="user-rating-stars">
+                        {[1, 2, 3, 4, 5].map(n => <StarGlyph key={n} value={r.rating} pos={n} />)}
+                      </span>
+                      {r.review && <p className="user-rating-review">{r.review}</p>}
+                    </div>
+                  </Link>
+                  {viewer && !isOwnProfile && (
+                    <div className="user-rating-item-actions">
+                      <LikeButton
+                        ratingId={r.id}
+                        count={likes[r.id]?.count ?? 0}
+                        liked={likes[r.id]?.liked ?? false}
+                        onChange={(liked, count) =>
+                          setLikes(prev => ({ ...prev, [r.id]: { liked, count } }))
+                        }
+                      />
+                    </div>
+                  )}
+                </div>
               )
             })}
           </div>

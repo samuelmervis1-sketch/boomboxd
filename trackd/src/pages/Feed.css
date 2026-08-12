@@ -131,6 +131,10 @@ a.feed-item-reviewer:hover {
   margin-top: 0.3rem;
 }
 
+.feed-item-footer {
+  margin-top: 0.3rem;
+}
+
 /* ── Responsive ────────────────────────────────────────── */
 
 @media (max-width: 480px) {

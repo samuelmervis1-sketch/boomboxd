@@ -510,6 +510,10 @@ a.community-review-name:hover {
   margin-left: auto;
 }
 
+.community-review-footer {
+  margin-top: 0.4rem;
+}
+
 .community-review-text {
   font-size: 0.85rem;
   color: var(--text-muted);
