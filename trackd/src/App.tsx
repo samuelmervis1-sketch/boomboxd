@@ -8,6 +8,7 @@ import Profile from './pages/Profile'
 import UserProfile from './pages/UserProfile'
 import AlbumDetail from './pages/AlbumDetail'
 import TrackDetail from './pages/TrackDetail'
+import NotificationBell from './components/NotificationBell'
 import './App.css'
 
 // ── Nav icons ──────────────────────────────────────────────
@@ -86,6 +87,7 @@ function Nav() {
         <NavLink to="/lists">
           <ListIcon /><span className="nav-label">Lists</span>
         </NavLink>
+        <NotificationBell />
         <NavLink to="/profile">
           <UserIcon /><span className="nav-label">Profile</span>
         </NavLink>
