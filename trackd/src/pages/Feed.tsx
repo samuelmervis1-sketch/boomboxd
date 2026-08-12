@@ -10,6 +10,7 @@ import type { Rating } from '../lib/ratingsApi'
 import { StarGlyph } from '../components/RatingModal'
 import LikeButton from '../components/LikeButton'
 import EmptyState, { HeadphonesIcon } from '../components/EmptyState'
+import Seo from '../components/Seo'
 import './Feed.css'
 
 function reviewerName(profile: Profile | undefined): string {
@@ -78,6 +79,7 @@ export default function Feed() {
 
   const header = (
     <>
+      <Seo title="Feed" />
       <h1 className="page-title">Feed</h1>
       <p className="page-subtitle">Ratings and reviews from the people you follow.</p>
     </>

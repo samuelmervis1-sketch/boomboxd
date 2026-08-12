@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase'
 import { listsApi, type List } from '../lib/listsApi'
 import CreateListModal from '../components/CreateListModal'
 import EmptyState, { ListPlusIcon } from '../components/EmptyState'
+import Seo from '../components/Seo'
 import './Lists.css'
 
 export default function Lists() {
@@ -41,6 +42,7 @@ export default function Lists() {
 
   return (
     <div className="page lists-page">
+      <Seo title="Lists" />
       <div className="lists-header">
         <div className="lists-header-text">
           <h1 className="page-title">Lists</h1>

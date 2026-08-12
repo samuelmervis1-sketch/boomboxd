@@ -16,6 +16,8 @@ import ShareCardModal from '../components/ShareCardModal'
 import FollowButton from '../components/FollowButton'
 import AddToListButton from '../components/AddToListButton'
 import LikeButton from '../components/LikeButton'
+import Seo from '../components/Seo'
+import { useDominantColor } from '../lib/useDominantColor'
 import './AlbumDetail.css'
 
 // ── Helpers ────────────────────────────────────────────────
@@ -258,6 +260,9 @@ export default function AlbumDetail() {
     setRatingTarget(null)
   }
 
+  // Hooks must run unconditionally, ahead of the loading/error early returns below.
+  const dominantColor = useDominantColor(album?.images[0]?.url)
+
   if (loading) return <div className="album-detail-status"><div className="spinner" /></div>
   if (error || !album) return <div className="album-detail-status">{error ?? 'Album not found.'}</div>
 
@@ -344,13 +349,27 @@ export default function AlbumDetail() {
     }
   }
 
+  const seoDescription = ratingCount > 0
+    ? `${album.name} by ${artists} — rated ${avgRating.toFixed(1)} stars on boomboxd`
+    : `${album.name} by ${artists} on boomboxd`
+
   return (
     <>
+      <Seo title={`${album.name} by ${artists}`} description={seoDescription} image={image} type="music.album" />
+
       <div className="album-detail">
         {/* ── Hero ── */}
         <div className="album-hero">
           {image && (
             <div className="album-hero-bg" style={{ backgroundImage: `url(${image})` }} />
+          )}
+          {dominantColor && (
+            <div
+              className="album-hero-tint"
+              style={{
+                background: `linear-gradient(to bottom, rgba(${dominantColor[0]}, ${dominantColor[1]}, ${dominantColor[2]}, 0.15) 0%, transparent 60%)`,
+              }}
+            />
           )}
           <div className="album-hero-content">
             <Link to="/" className="back-btn">

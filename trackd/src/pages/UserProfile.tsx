@@ -12,6 +12,7 @@ import { reviewerColor, reviewerInitial } from '../lib/reviewerDisplay'
 import { StarGlyph } from '../components/RatingModal'
 import FollowButton from '../components/FollowButton'
 import LikeButton from '../components/LikeButton'
+import Seo from '../components/Seo'
 import './UserProfile.css'
 
 interface PublicList extends List {
@@ -155,8 +156,12 @@ export default function UserProfile() {
   const totalReviews = ratings.filter(r => r.review && r.review.trim().length > 0).length
   const recentRatings = ratings.slice(0, 20)
 
+  const seoDescription = `@${profile.username} · ${totalRatings} ${totalRatings === 1 ? 'rating' : 'ratings'} · ${followerCount} ${followerCount === 1 ? 'follower' : 'followers'} on boomboxd`
+
   return (
     <div className="user-profile-page">
+      <Seo title={`${displayName} (@${profile.username})`} description={seoDescription} image={profile.avatar_url} type="profile" />
+
       {/* Header */}
       <div className="user-profile-header">
         {profile.avatar_url

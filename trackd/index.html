@@ -6,20 +6,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>boomboxd</title>
     <link rel="manifest" href="/manifest.json" />
-    <meta name="theme-color" content="#161119" />
+    <meta name="theme-color" content="#0d0d0d" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="boomboxd" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,500;1,9..144,600&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <style>body { background: #161119; }</style>
+
+    <!-- Static Open Graph / Twitter Card fallback for crawlers that don't run JS
+         (Facebook, iMessage, WhatsApp, etc.). Pages set their own dynamic tags via
+         react-helmet-async at runtime, which strips these data-seo-default tags on
+         mount so JS-executing clients never see both sets at once. -->
+    <meta data-seo-default name="description" content="Rate songs and albums. Share your taste." />
+    <meta data-seo-default property="og:type" content="website" />
+    <meta data-seo-default property="og:site_name" content="boomboxd" />
+    <meta data-seo-default property="og:title" content="boomboxd" />
+    <meta data-seo-default property="og:description" content="Rate songs and albums. Share your taste." />
+    <meta data-seo-default property="og:image" content="/icon-512.png" />
+    <meta data-seo-default name="twitter:card" content="summary_large_image" />
+    <meta data-seo-default name="twitter:title" content="boomboxd" />
+    <meta data-seo-default name="twitter:description" content="Rate songs and albums. Share your taste." />
+    <meta data-seo-default name="twitter:image" content="/icon-512.png" />
+
+    <style>body { background: #0d0d0d; }</style>
   </head>
-  <body style="background:#161119;">
+  <body style="background:#0d0d0d;">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
