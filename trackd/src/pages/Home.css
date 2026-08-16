@@ -430,19 +430,6 @@
   font-size: 0.9rem;
 }
 
-.spinner {
-  width: 24px;
-  height: 24px;
-  border: 2px solid #333;
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
 .results-meta {
   font-size: 0.8rem;
   color: var(--text-muted);

@@ -8,6 +8,7 @@ import { discoverApi, type TrendingItem } from '../lib/discoverApi'
 import { formatDuration } from '../lib/format'
 import RatingModal from '../components/RatingModal'
 import Seo from '../components/Seo'
+import LoadingScreen from '../components/LoadingScreen'
 import './Home.css'
 
 type Tab = 'songs' | 'albums'
@@ -445,11 +446,7 @@ export default function Home() {
         </div>
       )}
 
-      {loading && (
-        <div className="search-status">
-          <div className="spinner" />
-        </div>
-      )}
+      {loading && <LoadingScreen fullScreen={false} />}
 
       {error && (
         <div className="search-status">{error}</div>
@@ -479,7 +476,7 @@ export default function Home() {
         <div className="trending-section">
           <p className="section-heading">Trending on boomboxd</p>
           {trendingLoading ? (
-            <div className="search-status"><div className="spinner" /></div>
+            <LoadingScreen fullScreen={false} />
           ) : (
             <div className="trending-scroll">
               {trending.map(item => (

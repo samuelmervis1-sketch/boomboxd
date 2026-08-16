@@ -6,6 +6,7 @@ import { listsApi, type List } from '../lib/listsApi'
 import CreateListModal from '../components/CreateListModal'
 import EmptyState, { ListPlusIcon } from '../components/EmptyState'
 import Seo from '../components/Seo'
+import LoadingScreen from '../components/LoadingScreen'
 import './Lists.css'
 
 export default function Lists() {
@@ -59,7 +60,7 @@ export default function Lists() {
       </div>
 
       {!authChecked || (user && loading) ? (
-        <div className="search-status"><div className="spinner" /></div>
+        <LoadingScreen fullScreen={false} />
       ) : !user ? (
         <EmptyState
           icon={<ListPlusIcon />}

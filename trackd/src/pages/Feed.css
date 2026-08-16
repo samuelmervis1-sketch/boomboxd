@@ -1,27 +1,5 @@
 /* Heading styles come from .page-title / .page-subtitle in App.css */
 
-/* ── Status / spinner ──────────────────────────────────── */
-
-.feed-status {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 240px;
-}
-
-.spinner {
-  width: 26px;
-  height: 26px;
-  border: 2px solid #2a2a2a;
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
 /* Empty states now use the shared .empty-state styles in App.css */
 
 /* ── Feed list ─────────────────────────────────────────── */

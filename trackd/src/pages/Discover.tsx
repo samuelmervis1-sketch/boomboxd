@@ -10,6 +10,7 @@ import { StarGlyph } from '../components/RatingModal'
 import LikeButton from '../components/LikeButton'
 import EmptyState, { CompassIcon } from '../components/EmptyState'
 import Seo from '../components/Seo'
+import LoadingScreen from '../components/LoadingScreen'
 import './Discover.css'
 
 function MusicIcon() {
@@ -138,7 +139,7 @@ export default function Discover() {
       <p className="page-subtitle">Find new music through what other listeners are rating.</p>
 
       {loading ? (
-        <div className="discover-status"><div className="spinner" /></div>
+        <LoadingScreen fullScreen={false} />
       ) : error ? (
         <div className="discover-status">Couldn't load Discover right now. Try again shortly.</div>
       ) : nothingToShow ? (
