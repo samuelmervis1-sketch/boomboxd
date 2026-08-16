@@ -14,6 +14,7 @@ import FollowButton from '../components/FollowButton'
 import LikeButton from '../components/LikeButton'
 import Seo from '../components/Seo'
 import LoadingScreen from '../components/LoadingScreen'
+import { SkeletonList, SkeletonFeedItem, SkeletonBox } from '../components/Skeleton'
 import './UserProfile.css'
 
 interface PublicList extends List {
@@ -226,7 +227,9 @@ export default function UserProfile() {
       <div className="user-profile-section">
         <p className="section-heading">Recent Ratings</p>
         {ratingsLoading ? (
-          <LoadingScreen fullScreen={false} />
+          <div className="user-rating-list">
+            <SkeletonList count={4}>{i => <SkeletonFeedItem key={i} />}</SkeletonList>
+          </div>
         ) : recentRatings.length === 0 ? (
           <p className="user-profile-empty-text">
             {isOwnProfile ? "You haven't rated anything yet." : `@${profile.username} hasn't rated anything yet.`}
@@ -278,7 +281,15 @@ export default function UserProfile() {
           {isOwnProfile ? 'Your Public Lists' : `${displayName}'s Public Lists`}
         </p>
         {listsLoading ? (
-          <LoadingScreen fullScreen={false} />
+          <div className="user-list-grid">
+            <SkeletonList count={2}>{i => (
+              <div className="user-list-card" key={i} aria-hidden="true">
+                <SkeletonBox height="15px" width="62%" radius="4px" />
+                <SkeletonBox height="12px" width="86%" radius="4px" />
+                <SkeletonBox height="10px" width="40%" radius="4px" />
+              </div>
+            )}</SkeletonList>
+          </div>
         ) : publicLists.length === 0 ? (
           <p className="user-profile-empty-text">
             {isOwnProfile ? "You don't have any public lists yet." : `@${profile.username} doesn't have any public lists yet.`}

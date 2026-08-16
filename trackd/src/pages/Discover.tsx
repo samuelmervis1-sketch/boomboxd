@@ -10,7 +10,7 @@ import { StarGlyph } from '../components/RatingModal'
 import LikeButton from '../components/LikeButton'
 import EmptyState, { CompassIcon } from '../components/EmptyState'
 import Seo from '../components/Seo'
-import LoadingScreen from '../components/LoadingScreen'
+import { SkeletonList, SkeletonDiscoverCard, SkeletonBox } from '../components/Skeleton'
 import './Discover.css'
 
 function MusicIcon() {
@@ -139,7 +139,20 @@ export default function Discover() {
       <p className="page-subtitle">Find new music through what other listeners are rating.</p>
 
       {loading ? (
-        <LoadingScreen fullScreen={false} />
+        /* Page heading is already rendered, so fill the rows with skeletons
+           shaped like the real cards rather than a second full loader. */
+        <div className="discover-sections">
+          {['a', 'b', 'c'].map(key => (
+            <div className="discover-row" key={key}>
+              <p className="section-heading skeleton-heading" aria-hidden="true">
+                <SkeletonBox width="140px" height="10px" radius="3px" />
+              </p>
+              <div className="discover-scroll">
+                <SkeletonList count={6}>{i => <SkeletonDiscoverCard key={i} />}</SkeletonList>
+              </div>
+            </div>
+          ))}
+        </div>
       ) : error ? (
         <div className="discover-status">Couldn't load Discover right now. Try again shortly.</div>
       ) : nothingToShow ? (

@@ -42,6 +42,26 @@
 
   --radius: 8px;
   --radius-lg: 12px;
+
+  /* Elevation. Dark UI reads depth from a lifted hairline + a deep shadow,
+     not from lightening the surface. */
+  --hairline: rgba(255, 255, 255, 0.06);
+  --hairline-strong: rgba(255, 255, 255, 0.1);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-lift: 0 12px 28px rgba(0, 0, 0, 0.55);
+  --shadow-modal: 0 24px 64px rgba(0, 0, 0, 0.7);
+
+  /* The accent behaves like an LED on a stereo component: it glows rather
+     than just filling. These are the only places it's allowed to bloom. */
+  --led-glow: 0 0 12px rgba(232, 255, 107, 0.45);
+  --focus-ring: 0 0 0 2px rgba(232, 255, 107, 0.4);
+
+  /* Tracking. Uppercase utility labels get opened up for an editorial,
+     liner-notes feel; display type gets tightened. */
+  --track-label: 0.12em;
+  --track-tight: -0.03em;
+
+  --ease-out: cubic-bezier(0.2, 0.8, 0.3, 1);
 }
 
 html, body, #root {
@@ -50,6 +70,95 @@ html, body, #root {
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+/* ── Scrollbars ──────────────────────────────────────────── */
+/* Thin and nearly invisible until the accent catches it on hover. */
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(232, 255, 107, 0.22) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(232, 255, 107, 0.18);
+  border-radius: 999px;
+  /* Inset the thumb so it reads as a thin rail, not a chunky bar */
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(232, 255, 107, 0.34);
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* ── Focus ───────────────────────────────────────────────── */
+/* Keyboard-only: pointer users never see a ring, keyboard users always do. */
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius);
+}
+
+/* Links and buttons keep their own radius so the ring hugs the shape */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+[role='button']:focus-visible,
+[role='link']:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* ── Page transitions ────────────────────────────────────── */
+/* Enter only — no exit — so navigation never feels like it's waiting. */
+
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.page-enter {
+  animation: page-enter 200ms var(--ease-out) both;
+}
+
+/* ── Press feedback ──────────────────────────────────────── */
+/* One rule covers every control; components only override when they need
+   to combine press with an existing transform. */
+
+button:not(:disabled):active,
+a:active,
+[role='button']:not([aria-disabled='true']):active,
+[role='link']:active {
+  transform: scale(0.97);
+}
+
+/* Cards manage their own hover lift, so the press must compose with it */
+.album-card:active,
+.track-card:active,
+.discover-card:active,
+.feed-item:active,
+.list-card:active,
+.user-list-card:active,
+.user-rating-item:active,
+.activity-item:active {
+  transform: scale(0.985);
 }
 
 /* ── Nav ─────────────────────────────────────────────────── */
@@ -72,10 +181,16 @@ html, body, #root {
 .nav-logo {
   font-size: var(--fs-lg);
   font-weight: var(--fw-display);
-  letter-spacing: -0.03em;
+  /* Slight negative tracking so the wordmark reads as one solid block */
+  letter-spacing: var(--track-tight);
   color: var(--accent);
   text-decoration: none;
   flex-shrink: 0;
+  transition: text-shadow 0.2s var(--ease-out);
+}
+
+.nav-logo:hover {
+  text-shadow: var(--led-glow);
 }
 
 .nav-links {
@@ -108,13 +223,9 @@ html, body, #root {
   background: rgba(255, 255, 255, 0.05);
 }
 
-/* Active page: accent text + tinted pill + underline bar */
-.nav-links a.active {
-  color: var(--accent);
-  background: rgba(232, 255, 107, 0.1);
-}
-
-.nav-links a.active::after {
+/* Underline is always in the DOM but collapsed to the left edge, so hover
+   and the active state both wipe it in rather than popping it on. */
+.nav-links a::after {
   content: '';
   position: absolute;
   left: 0.7rem;
@@ -123,6 +234,30 @@ html, body, #root {
   height: 2px;
   border-radius: 2px;
   background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.22s var(--ease-out);
+}
+
+.nav-links a:hover::after,
+.nav-links a.active::after {
+  transform: scaleX(1);
+}
+
+/* Active page: accent text + tinted pill + the lit underline */
+.nav-links a.active {
+  color: var(--accent);
+  background: rgba(232, 255, 107, 0.1);
+}
+
+.nav-links a.active::after {
+  box-shadow: var(--led-glow);
+}
+
+/* The sign-in CTA is a filled button — an underline under it reads as an
+   artifact, so it opts out. */
+.nav-links a.nav-sign-in-btn::after {
+  display: none;
 }
 
 .nav-label {
@@ -174,15 +309,47 @@ html, body, #root {
   margin-bottom: var(--sp-5);
 }
 
-/* Section label used above content blocks */
+/* Section label used above content blocks. The small lime square reads as a
+   power/signal LED on a stereo component — it's the one recurring mark that
+   ties the app back to the boombox. */
 .section-heading {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
   font-size: var(--fs-xs);
   font-weight: var(--fw-bold);
-  letter-spacing: 0.1em;
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
   color: var(--text-muted);
   padding-bottom: var(--sp-3);
   border-bottom: 1px solid var(--border);
+}
+
+.section-heading::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  flex-shrink: 0;
+  border-radius: 1px;
+  background: var(--accent);
+  box-shadow: var(--led-glow);
+}
+
+/* Metadata: timestamps, counts, "3 tracks · 42 min". Clearly secondary but
+   never so dim it stops being readable. */
+.meta-text {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-body);
+  color: var(--text-dim);
+  letter-spacing: 0.01em;
+}
+
+/* Numerals that are the point of the element (stats, scores) — tabular so
+   they don't jitter, tight so they read as a readout. */
+.numeral {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--track-tight);
+  font-weight: var(--fw-display);
 }
 
 /* ── Shared action buttons ───────────────────────────────── */
@@ -308,21 +475,36 @@ html, body, #root {
   border-radius: var(--radius-lg);
 }
 
-.empty-state-icon {
-  width: 44px;
-  height: 44px;
+/* Each empty state draws its own small scene (a stereo, a spindle, a tuner)
+   rather than sharing one glyph, so a blank page still tells you where you
+   are. The art sits on a faint vignette so it doesn't float. */
+.empty-state-art {
+  width: 132px;
+  height: 99px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  background: rgba(232, 255, 107, 0.1);
-  color: var(--accent);
-  margin-bottom: var(--sp-1);
+  margin-bottom: var(--sp-2);
+  position: relative;
 }
 
-.empty-state-icon svg {
-  width: 22px;
-  height: 22px;
+.empty-state-art::before {
+  content: '';
+  position: absolute;
+  inset: -14% -8%;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(232, 255, 107, 0.07),
+    transparent 68%
+  );
+}
+
+.empty-state-art .empty-art {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
 }
 
 .empty-state-title {
@@ -411,4 +593,228 @@ html, body, #root {
   .nav-logo {
     font-size: var(--fs-md);
   }
+}
+
+/* Deliberately NOT setting `overflow-x: hidden` on html/body as an overflow
+   backstop: per spec, overflow-x:hidden forces overflow-y to compute to auto,
+   which turns the root into a scroll container and breaks full-page height.
+   Horizontal overflow is instead prevented at the source in each layout. */
+
+/* ── Reduced motion ──────────────────────────────────────── */
+/* Honour the OS setting globally: keep state changes, drop the movement. */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Transforms are the motion here, so neutralise them outright rather than
+     just speeding them up. */
+  .page-enter {
+    animation: none;
+  }
+
+  button:not(:disabled):active,
+  a:active,
+  [role='button']:active,
+  [role='link']:active {
+    transform: none;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   CARD SYSTEM
+   One definition of "what a card is" for the whole app. Page CSS keeps
+   its own layout (grid position, sizing); this owns the shared surface
+   treatment so a card never looks different depending on which page
+   it landed on. Loaded after page CSS, so it wins on equal specificity.
+   ══════════════════════════════════════════════════════════ */
+
+.album-card,
+.track-card,
+.discover-card,
+.feed-item,
+.list-card,
+.user-list-card,
+.user-rating-item,
+.activity-item,
+.trending-card {
+  transition:
+    transform 0.15s var(--ease-out),
+    border-color 0.15s var(--ease-out),
+    background-color 0.15s var(--ease-out),
+    box-shadow 0.15s var(--ease-out);
+  /* Keeps the lift from blurring text mid-transform */
+  will-change: transform;
+}
+
+/* Hover: lift off the page. Cards that already sit on a surface get the
+   border warmed too; bare cards (trending/discover) rely on art + shadow. */
+.album-card:hover,
+.track-card:hover,
+.discover-card:hover,
+.feed-item:hover,
+.list-card:hover,
+.user-list-card:hover,
+.user-rating-item:hover,
+.activity-item:hover,
+.trending-card:hover {
+  transform: scale(1.02);
+  box-shadow: var(--shadow-lift);
+}
+
+/* Surfaced cards also pick up a brighter edge on hover */
+.feed-item:hover,
+.list-card:hover,
+.user-list-card:hover,
+.user-rating-item:hover,
+.activity-item:hover,
+.track-card:hover {
+  border-color: var(--border-strong);
+  background-color: var(--bg-surface);
+}
+
+/* ── Album art ───────────────────────────────────────────── */
+/* A hairline so dark covers don't dissolve into a dark page, plus an inset
+   ring that reads like the lip of a record sleeve. */
+
+.album-card-art,
+.track-card-art,
+.trending-card-art,
+.discover-card-art,
+.feed-item-art,
+.user-rating-art,
+.activity-art,
+.ranked-item-art,
+.album-cover,
+.track-cover,
+.favorites-album img {
+  border: 1px solid var(--hairline);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35);
+  background-color: #1e1e1e;
+}
+
+/* The hero art is the star of the detail pages — give it real depth */
+.album-cover,
+.track-cover {
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.35),
+    0 24px 60px rgba(0, 0, 0, 0.75);
+}
+
+/* Art scales inside its frame rather than the frame growing */
+.album-card-art,
+.discover-card-art,
+.trending-card-art {
+  overflow: hidden;
+}
+
+.album-card-art img,
+.discover-card-art img,
+.trending-card-art img {
+  transition: transform 0.35s var(--ease-out);
+}
+
+.album-card:hover .album-card-art img,
+.discover-card:hover .discover-card-art img,
+.trending-card:hover .trending-card-art img {
+  transform: scale(1.06);
+}
+
+/* The trending card previously moved its own art on hover; the card now
+   handles the lift, so cancel the inner nudge to avoid double motion. */
+.trending-card:hover .trending-card-art,
+.discover-card:hover .discover-card-art {
+  transform: none;
+  border-color: var(--hairline-strong);
+}
+
+/* ══════════════════════════════════════════════════════════
+   MICRO-INTERACTIONS
+   ══════════════════════════════════════════════════════════ */
+
+/* Usernames warm to the accent wherever they appear */
+a.community-review-name,
+a.feed-item-reviewer,
+a.discover-card-reviewer-name,
+a.list-detail-owner,
+a.moment-author {
+  transition: color 0.15s var(--ease-out);
+}
+
+a.community-review-name:hover,
+a.feed-item-reviewer:hover,
+a.discover-card-reviewer-name:hover,
+a.list-detail-owner:hover {
+  color: var(--accent);
+}
+
+/* Stars catch the light when you're about to rate */
+.track-card:hover .star-glyph.star-full,
+.album-card:hover .star-glyph.star-full,
+.btn-rated:hover .star-glyph.star-full {
+  filter: drop-shadow(0 0 5px rgba(232, 255, 107, 0.55));
+}
+
+.inline-stars .star-glyph,
+.star-glyph {
+  transition: filter 0.15s var(--ease-out);
+}
+
+/* Every button gets a hover, not just the ones that had bespoke rules */
+button,
+.btn-edit-profile,
+.btn-signout {
+  transition:
+    background-color 0.15s var(--ease-out),
+    border-color 0.15s var(--ease-out),
+    color 0.15s var(--ease-out),
+    transform 0.15s var(--ease-out),
+    box-shadow 0.15s var(--ease-out);
+}
+
+/* The primary CTA glows like a lit button on a deck */
+.btn-rate:hover {
+  box-shadow: 0 4px 22px rgba(232, 255, 107, 0.32);
+}
+
+/* ══════════════════════════════════════════════════════════
+   TYPOGRAPHY
+   ══════════════════════════════════════════════════════════ */
+
+/* Review and bio prose needs room to breathe */
+.community-review-text,
+.feed-item-review,
+.user-rating-review,
+.activity-review,
+.user-profile-bio,
+.empty-state-text,
+.page-subtitle {
+  line-height: 1.6;
+}
+
+/* Timestamps and counts: secondary, never invisible */
+.community-review-date,
+.feed-item-date,
+.list-card-meta,
+.user-list-card-meta,
+.list-detail-meta {
+  color: var(--text-dim);
+  letter-spacing: 0.02em;
+}
+
+/* Stat readouts */
+.stat-value {
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-label,
+.list-card-meta,
+.user-list-card-meta {
+  letter-spacing: var(--track-label);
 }

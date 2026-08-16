@@ -787,3 +787,19 @@
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* Peek the next card so the row visibly continues past the fold */
+@media (max-width: 720px) {
+  .trending-scroll {
+    padding-right: 2.5rem;
+  }
+}
+
+/* type="search" ships a browser-native clear button that renders as a blue
+   glyph on WebKit — off-palette and unstyleable beyond this. Hide it; the
+   field already has its own clear control. */
+.search-input::-webkit-search-cancel-button,
+.search-input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}

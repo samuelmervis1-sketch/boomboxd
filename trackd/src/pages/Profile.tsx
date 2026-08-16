@@ -7,6 +7,7 @@ import { ratingsApi, type Rating } from '../lib/ratingsApi'
 import { profilesApi, type Profile } from '../lib/profilesApi'
 import { StarGlyph } from '../components/RatingModal'
 import LoadingScreen from '../components/LoadingScreen'
+import { SkeletonList, SkeletonFeedItem } from '../components/Skeleton'
 import './Profile.css'
 
 // ── Helpers ────────────────────────────────────────────────
@@ -361,7 +362,9 @@ function ProfileView({ user }: { user: User }) {
       <div className="profile-section">
         <p className="profile-section-heading">Recent Activity</p>
         {ratingsLoading ? (
-          <LoadingScreen fullScreen={false} />
+          <div className="activity-list">
+            <SkeletonList count={4}>{i => <SkeletonFeedItem key={i} />}</SkeletonList>
+          </div>
         ) : recentRatings.length === 0 ? (
           <div className="activity-empty">
             <div className="activity-empty-icon">🎵</div>

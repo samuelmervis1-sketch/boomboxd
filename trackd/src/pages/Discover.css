@@ -204,3 +204,10 @@ a.discover-card-reviewer-name:hover {
     width: 132px;
   }
 }
+
+/* Peek the next card so the row visibly continues past the fold */
+@media (max-width: 720px) {
+  .discover-scroll {
+    padding-right: 2.5rem;
+  }
+}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { BrowserRouter, Routes, Route, NavLink, Link } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, NavLink, Link, useLocation } from 'react-router-dom'
 import type { User } from '@supabase/supabase-js'
 import { supabase } from './lib/supabase'
 import Home from './pages/Home'
@@ -115,12 +115,14 @@ function Nav() {
   )
 }
 
-export default function App() {
+// Re-keying on pathname remounts the wrapper on every navigation, which
+// restarts the enter animation. Purely visual — routing is untouched.
+function RoutedPages() {
+  const location = useLocation()
   return (
-    <BrowserRouter>
-      <Nav />
-      <main className="main">
-        <Routes>
+    <main className="main">
+      <div className="page-enter" key={location.pathname}>
+        <Routes location={location}>
           <Route path="/" element={<Home />} />
           <Route path="/discover" element={<Discover />} />
           <Route path="/feed" element={<Feed />} />
@@ -131,7 +133,16 @@ export default function App() {
           <Route path="/album/:id" element={<AlbumDetail />} />
           <Route path="/track/:id" element={<TrackDetail />} />
         </Routes>
-      </main>
+      </div>
+    </main>
+  )
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Nav />
+      <RoutedPages />
     </BrowserRouter>
   )
 }
