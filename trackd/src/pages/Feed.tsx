@@ -11,6 +11,7 @@ import { StarGlyph } from '../components/RatingModal'
 import LikeButton from '../components/LikeButton'
 import EmptyState, { HeadphonesIcon } from '../components/EmptyState'
 import Seo from '../components/Seo'
+import { SkeletonList, SkeletonFeedItem } from '../components/Skeleton'
 import './Feed.css'
 
 function reviewerName(profile: Profile | undefined): string {
@@ -89,7 +90,9 @@ export default function Feed() {
     return (
       <div className="feed-page">
         {header}
-        <div className="feed-status"><div className="spinner" /></div>
+        <div className="feed-list">
+          <SkeletonList count={5}>{i => <SkeletonFeedItem key={i} />}</SkeletonList>
+        </div>
       </div>
     )
   }

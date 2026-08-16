@@ -375,3 +375,48 @@
     flex: 1;
   }
 }
+
+/* ══════════════════════════════════════════════════════════
+   MOBILE SHEET — drag handle + star feedback
+   ══════════════════════════════════════════════════════════ */
+
+@media (max-width: 560px) {
+  /* Grab handle: the standard signal that a sheet is dismissible */
+  .modal::before {
+    content: '';
+    display: block;
+    width: 36px;
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.22);
+    margin: 0.6rem auto 0.1rem;
+    flex-shrink: 0;
+  }
+
+  .modal {
+    box-shadow: var(--shadow-modal);
+  }
+}
+
+/* Each star bounces as it's picked — confirms the tap landed on that star
+   and not its neighbour, which is the whole risk with half-star targets. */
+@keyframes star-pick {
+  0%   { transform: scale(1); }
+  45%  { transform: scale(1.32); }
+  100% { transform: scale(1); }
+}
+
+.star-cell:has(.star-hit:active) .star-glyph {
+  animation: star-pick 0.28s var(--ease-out);
+}
+
+.star-glyph.star-full,
+.star-glyph.star-half {
+  filter: drop-shadow(0 0 6px rgba(232, 255, 107, 0.3));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .star-cell:has(.star-hit:active) .star-glyph {
+    animation: none;
+  }
+}

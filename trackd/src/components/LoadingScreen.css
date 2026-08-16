@@ -1,0 +1,296 @@
+.loading-screen {
+  --bb-mode-scale: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  width: 100%;
+  animation: bb-fade-in 0.25s ease both;
+}
+
+.loading-screen-full {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: var(--bg, #0d0d0d);
+}
+
+.loading-screen-inline {
+  --bb-mode-scale: 0.72;
+  min-height: 220px;
+  padding: 28px 16px;
+}
+
+@keyframes bb-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ── Stage / bob ────────────────────────────────────────────── */
+
+.boombox-stage {
+  transform: scale(var(--bb-mode-scale));
+}
+
+.boombox-wrap {
+  position: relative;
+  animation: bb-bob 2.2s ease-in-out infinite;
+}
+
+@keyframes bb-bob {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25%      { transform: translateY(-3px) rotate(-0.6deg); }
+  50%      { transform: translateY(0) rotate(0deg); }
+  75%      { transform: translateY(-2px) rotate(0.6deg); }
+}
+
+/* ── Body ───────────────────────────────────────────────────── */
+
+.boombox {
+  position: relative;
+  width: 220px;
+  height: 122px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 12px;
+  background: linear-gradient(180deg, #3a3a3a 0%, #262626 55%, #1a1a1a 100%);
+  border: 1px solid var(--border-strong, #3a3a3a);
+  border-radius: 16px;
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.bb-handle {
+  position: absolute;
+  top: -17px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 92px;
+  height: 20px;
+  border: 6px solid #2b2b2b;
+  border-bottom: none;
+  border-radius: 60px 60px 0 0;
+}
+
+.bb-antenna {
+  position: absolute;
+  top: -32px;
+  right: 30px;
+  width: 2px;
+  height: 32px;
+  background: #555;
+  transform: rotate(16deg);
+  transform-origin: bottom center;
+}
+
+.bb-antenna::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: -2.5px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent, #e8ff6b);
+  box-shadow: 0 0 6px var(--accent, #e8ff6b);
+}
+
+/* ── Speakers ───────────────────────────────────────────────── */
+
+.bb-speaker {
+  position: relative;
+  flex: 0 0 auto;
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 35% 32%, #333 0%, #161616 72%);
+  border: 2px solid var(--border-strong, #3a3a3a);
+}
+
+.bb-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid var(--accent, #e8ff6b);
+  opacity: 0;
+  animation: bb-pulse-ring 1.15s ease-out infinite;
+}
+
+.bb-ring-2 { animation-delay: 0.4s; }
+.bb-speaker-right .bb-ring-1 { animation-delay: 0.18s; }
+.bb-speaker-right .bb-ring-2 { animation-delay: 0.55s; }
+
+@keyframes bb-pulse-ring {
+  0%   { transform: scale(0.68); opacity: 0.55; }
+  100% { transform: scale(1.35); opacity: 0; }
+}
+
+.bb-cone {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 38%, #474747 0%, #101010 78%);
+  border: 1px solid #4a4a4a;
+  animation: bb-thump 1.1s ease-in-out infinite;
+}
+
+.bb-speaker-right .bb-cone { animation-delay: 0.15s; }
+
+@keyframes bb-thump {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.16); }
+}
+
+/* ── Cassette deck ──────────────────────────────────────────── */
+
+.bb-deck {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+}
+
+.bb-window {
+  width: 60px;
+  height: 30px;
+  background: #101010;
+  border: 1px solid var(--border-strong, #3a3a3a);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+}
+
+.bb-reel {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #555;
+  border-top-color: var(--accent, #e8ff6b);
+  animation: bb-spin 1.6s linear infinite;
+}
+
+.bb-reel-2 { animation-direction: reverse; }
+
+@keyframes bb-spin {
+  to { transform: rotate(360deg); }
+}
+
+.bb-eq {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 20px;
+}
+
+.bb-eq span {
+  width: 4px;
+  height: 25%;
+  background: var(--accent, #e8ff6b);
+  border-radius: 2px;
+  animation: bb-eq-bar 0.9s ease-in-out infinite;
+}
+
+.bb-eq span:nth-child(1) { animation-delay: 0s; }
+.bb-eq span:nth-child(2) { animation-delay: 0.12s; }
+.bb-eq span:nth-child(3) { animation-delay: 0.24s; }
+.bb-eq span:nth-child(4) { animation-delay: 0.36s; }
+.bb-eq span:nth-child(5) { animation-delay: 0.48s; }
+
+@keyframes bb-eq-bar {
+  0%, 100% { height: 25%; }
+  50%      { height: 100%; }
+}
+
+.bb-buttons {
+  display: flex;
+  gap: 5px;
+}
+
+.bb-buttons span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #4a4a4a;
+}
+
+.bb-buttons span:first-child {
+  background: var(--accent, #e8ff6b);
+}
+
+/* ── Floating notes ─────────────────────────────────────────── */
+
+.bb-notes {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.bb-note {
+  position: absolute;
+  top: 0;
+  color: var(--accent, #e8ff6b);
+  opacity: 0;
+  animation: bb-note-float ease-in infinite;
+}
+
+.n1 { left: 14%; font-size: 14px; --bb-drift: -22px; animation-duration: 2.3s; animation-delay: 0s; }
+.n2 { left: 34%; font-size: 21px; --bb-drift: 16px;  animation-duration: 2.9s; animation-delay: 0.55s; }
+.n3 { left: 52%; font-size: 12px; --bb-drift: -12px; animation-duration: 2.1s; animation-delay: 1.05s; }
+.n4 { left: 68%; font-size: 18px; --bb-drift: 26px;  animation-duration: 3.1s; animation-delay: 1.5s; }
+.n5 { left: 84%; font-size: 15px; --bb-drift: -18px; animation-duration: 2.5s; animation-delay: 0.85s; }
+
+@keyframes bb-note-float {
+  0%   { opacity: 0; transform: translate(0, 0) scale(0.8) rotate(0deg); }
+  15%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--bb-drift, 15px), -78px) scale(1.15) rotate(8deg); }
+}
+
+/* ── Label ──────────────────────────────────────────────────── */
+
+.loading-screen-label {
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.09em;
+  color: var(--text, #f0f0f0);
+  opacity: 0;
+  animation: bb-label-fade 0.7s ease 0.35s forwards;
+}
+
+.loading-screen-inline .loading-screen-label {
+  font-size: 0.82rem;
+}
+
+@keyframes bb-label-fade {
+  to { opacity: 0.82; }
+}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+
+@media (max-width: 480px) {
+  .loading-screen-full { --bb-mode-scale: 0.78; }
+  .loading-screen-inline { --bb-mode-scale: 0.58; }
+}
+
+/* ── Reduced motion ─────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .boombox-wrap,
+  .bb-cone,
+  .bb-ring,
+  .bb-reel,
+  .bb-eq span,
+  .bb-note {
+    animation: none !important;
+  }
+  .bb-note { opacity: 0.5; }
+}

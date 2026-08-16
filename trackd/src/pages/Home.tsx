@@ -8,6 +8,12 @@ import { discoverApi, type TrendingItem } from '../lib/discoverApi'
 import { formatDuration } from '../lib/format'
 import RatingModal from '../components/RatingModal'
 import Seo from '../components/Seo'
+import {
+  SkeletonList,
+  SkeletonTrackRow,
+  SkeletonAlbumCard,
+  SkeletonDiscoverCard,
+} from '../components/Skeleton'
 import './Home.css'
 
 type Tab = 'songs' | 'albums'
@@ -445,10 +451,18 @@ export default function Home() {
         </div>
       )}
 
+      {/* Results load into a shell that's already on screen, so skeletons
+          sized to the real rows keep the layout from jumping. */}
       {loading && (
-        <div className="search-status">
-          <div className="spinner" />
-        </div>
+        tab === 'songs' ? (
+          <div className="track-list">
+            <SkeletonList count={6}>{i => <SkeletonTrackRow key={i} />}</SkeletonList>
+          </div>
+        ) : (
+          <div className="album-grid">
+            <SkeletonList count={10}>{i => <SkeletonAlbumCard key={i} />}</SkeletonList>
+          </div>
+        )
       )}
 
       {error && (
@@ -479,7 +493,9 @@ export default function Home() {
         <div className="trending-section">
           <p className="section-heading">Trending on boomboxd</p>
           {trendingLoading ? (
-            <div className="search-status"><div className="spinner" /></div>
+            <div className="trending-scroll">
+              <SkeletonList count={6}>{i => <SkeletonDiscoverCard key={i} />}</SkeletonList>
+            </div>
           ) : (
             <div className="trending-scroll">
               {trending.map(item => (

@@ -4,6 +4,7 @@ import type { User } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
 import { listsApi, type List, type ListItem } from '../lib/listsApi'
 import { profilesApi, type Profile } from '../lib/profilesApi'
+import LoadingScreen from '../components/LoadingScreen'
 import './ListDetail.css'
 
 // ── Rank arrow ─────────────────────────────────────────────
@@ -125,7 +126,7 @@ export default function ListDetail() {
     }
   }
 
-  if (loading) return <div className="list-detail-status"><div className="spinner" /></div>
+  if (loading) return <LoadingScreen />
   if (error || !list) return <div className="list-detail-status">{error ?? 'List not found.'}</div>
 
   return (

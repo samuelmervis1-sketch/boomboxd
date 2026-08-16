@@ -16,6 +16,7 @@ import FollowButton from '../components/FollowButton'
 import AddToListButton from '../components/AddToListButton'
 import LikeButton from '../components/LikeButton'
 import Seo from '../components/Seo'
+import LoadingScreen from '../components/LoadingScreen'
 import { useDominantColor } from '../lib/useDominantColor'
 import './TrackDetail.css'
 
@@ -252,7 +253,7 @@ export default function TrackDetail() {
   // Hooks must run unconditionally, ahead of the loading/error early returns below.
   const dominantColor = useDominantColor(track?.album?.images[0]?.url)
 
-  if (loading) return <div className="track-detail-status"><div className="spinner" /></div>
+  if (loading) return <LoadingScreen />
   if (error || !track) return <div className="track-detail-status">{error ?? 'Song not found.'}</div>
 
   const album = track.album

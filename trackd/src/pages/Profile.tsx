@@ -6,6 +6,8 @@ import { supabase } from '../lib/supabase'
 import { ratingsApi, type Rating } from '../lib/ratingsApi'
 import { profilesApi, type Profile } from '../lib/profilesApi'
 import { StarGlyph } from '../components/RatingModal'
+import LoadingScreen from '../components/LoadingScreen'
+import { SkeletonList, SkeletonFeedItem } from '../components/Skeleton'
 import './Profile.css'
 
 // ── Helpers ────────────────────────────────────────────────
@@ -360,9 +362,8 @@ function ProfileView({ user }: { user: User }) {
       <div className="profile-section">
         <p className="profile-section-heading">Recent Activity</p>
         {ratingsLoading ? (
-          <div className="activity-empty">
-            <div className="activity-empty-icon">🎵</div>
-            <p>Loading your activity…</p>
+          <div className="activity-list">
+            <SkeletonList count={4}>{i => <SkeletonFeedItem key={i} />}</SkeletonList>
           </div>
         ) : recentRatings.length === 0 ? (
           <div className="activity-empty">
@@ -412,7 +413,7 @@ export default function Profile() {
     return () => subscription.unsubscribe()
   }, [])
 
-  if (loading) return null
+  if (loading) return <LoadingScreen />
 
   return user ? <ProfileView user={user} /> : <AuthForm />
 }

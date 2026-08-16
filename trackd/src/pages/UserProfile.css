@@ -29,26 +29,6 @@
   opacity: 0.85;
 }
 
-.user-profile-substatus {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--sp-6) 0;
-}
-
-.spinner {
-  width: 24px;
-  height: 24px;
-  border: 2px solid #2a2a2a;
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
 /* ── Page ──────────────────────────────────────────────── */
 
 .user-profile-page {
@@ -400,5 +380,77 @@
 
   .stat-value {
     font-size: 1.2rem;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   STATS — a readout, not four numbers in boxes
+   ══════════════════════════════════════════════════════════ */
+
+.user-profile-stats {
+  border-radius: var(--radius-lg);
+}
+
+.user-profile-stat {
+  padding: var(--sp-5) var(--sp-2);
+  transition: background-color 0.15s var(--ease-out);
+}
+
+.user-profile-stat:hover {
+  background: var(--bg-surface);
+}
+
+.user-profile-stats .stat-value {
+  font-size: 2rem;
+  font-weight: var(--fw-display);
+  letter-spacing: var(--track-tight);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.user-profile-stats .stat-label {
+  font-size: var(--fs-xs);
+  letter-spacing: var(--track-label);
+  color: var(--text-dim);
+}
+
+/* ── Avatar ──────────────────────────────────────────────── */
+/* The per-user colour still drives the hue; the gradient and inner ring
+   turn it from a flat blob into an object with a light source. */
+
+.user-profile-avatar-initials {
+  position: relative;
+  background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.28), rgba(0, 0, 0, 0.3));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.user-profile-avatar,
+.user-profile-avatar-initials {
+  border: 1px solid var(--hairline-strong);
+}
+
+/* ── Rating history reads as a feed ──────────────────────── */
+
+.user-rating-item {
+  border-radius: var(--radius-lg);
+}
+
+.user-rating-title {
+  font-size: 0.95rem;
+}
+
+.user-list-card {
+  border-radius: var(--radius-lg);
+}
+
+@media (max-width: 720px) {
+  .user-profile-stats .stat-value {
+    font-size: 1.5rem;
+  }
+
+  .user-profile-stat {
+    padding: var(--sp-4) var(--sp-1);
   }
 }

@@ -6,6 +6,7 @@ import { listsApi, type List } from '../lib/listsApi'
 import CreateListModal from '../components/CreateListModal'
 import EmptyState, { ListPlusIcon } from '../components/EmptyState'
 import Seo from '../components/Seo'
+import { SkeletonList, SkeletonBox } from '../components/Skeleton'
 import './Lists.css'
 
 export default function Lists() {
@@ -59,7 +60,15 @@ export default function Lists() {
       </div>
 
       {!authChecked || (user && loading) ? (
-        <div className="search-status"><div className="spinner" /></div>
+        <div className="lists-grid">
+          <SkeletonList count={4}>{i => (
+            <div className="list-card" key={i} aria-hidden="true">
+              <SkeletonBox height="15px" width="58%" radius="4px" />
+              <SkeletonBox height="12px" width="88%" radius="4px" />
+              <SkeletonBox height="10px" width="36%" radius="4px" />
+            </div>
+          )}</SkeletonList>
+        </div>
       ) : !user ? (
         <EmptyState
           icon={<ListPlusIcon />}

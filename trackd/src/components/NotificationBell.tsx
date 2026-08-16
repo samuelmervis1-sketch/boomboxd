@@ -111,9 +111,9 @@ export default function NotificationBell() {
     <div className="notif-bell-container" ref={containerRef}>
       <button
         type="button"
-        className="notif-bell-btn"
+        className={`notif-bell-btn${unreadCount > 0 ? ' has-unread' : ''}`}
         onClick={toggleOpen}
-        aria-label="Notifications"
+        aria-label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : 'Notifications'}
         aria-expanded={open}
       >
         <BellIcon />

@@ -14,19 +14,6 @@
   font-size: var(--fs-base);
 }
 
-.spinner {
-  width: 24px;
-  height: 24px;
-  border: 2px solid #333;
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
 /* ── Sections ──────────────────────────────────────────── */
 
 .discover-sections {
@@ -215,5 +202,12 @@ a.discover-card-reviewer-name:hover {
 
   .discover-card {
     width: 132px;
+  }
+}
+
+/* Peek the next card so the row visibly continues past the fold */
+@media (max-width: 720px) {
+  .discover-scroll {
+    padding-right: 2.5rem;
   }
 }
