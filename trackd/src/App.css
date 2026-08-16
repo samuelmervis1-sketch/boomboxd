@@ -818,3 +818,198 @@ button,
 .user-list-card-meta {
   letter-spacing: var(--track-label);
 }
+
+/* ══════════════════════════════════════════════════════════
+   GRAIN
+   A fixed film-grain plate over the whole page. Kills the flat vector
+   look that dark UIs fall into. Inline SVG turbulence so there's no
+   image request; pointer-events off so it never intercepts a click.
+   ══════════════════════════════════════════════════════════ */
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.028;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
+/* ══════════════════════════════════════════════════════════
+   GLASS SURFACES
+   Cards sit slightly forward of the page: translucent fill, a lit top
+   edge, a hairline border. Blur is deliberately small — enough to read
+   as glass, not enough to smear the content behind it.
+   ══════════════════════════════════════════════════════════ */
+
+.track-card,
+.feed-item,
+.list-card,
+.user-list-card,
+.user-rating-item,
+.activity-item,
+.album-card,
+.community-review,
+.how-it-works-step,
+.empty-state,
+.home-stat-card,
+.home-review-card,
+.ranked-row {
+  position: relative;
+  background-color: rgba(26, 26, 32, 0.55);
+  backdrop-filter: blur(10px) saturate(1.15);
+  -webkit-backdrop-filter: blur(10px) saturate(1.15);
+  border: 1px solid var(--hairline);
+  box-shadow: var(--shadow-card);
+}
+
+/* A single lit pixel-row along the top edge — the standard trick for
+   making a translucent panel read as a physical surface. */
+.track-card::after,
+.feed-item::after,
+.list-card::after,
+.user-list-card::after,
+.user-rating-item::after,
+.activity-item::after,
+.community-review::after,
+.how-it-works-step::after,
+.home-stat-card::after,
+.home-review-card::after {
+  content: '';
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  top: 0;
+  height: 1px;
+  border-radius: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.14),
+    transparent
+  );
+  pointer-events: none;
+}
+
+.track-card:hover,
+.feed-item:hover,
+.list-card:hover,
+.user-list-card:hover,
+.user-rating-item:hover,
+.activity-item:hover {
+  background-color: rgba(34, 34, 42, 0.68);
+  border-color: var(--hairline-strong);
+}
+
+/* ══════════════════════════════════════════════════════════
+   ALBUM ART GLOW
+   A blurred copy of the cover bleeds out from behind it, so the art
+   throws its own colour onto the page instead of sitting on a dead
+   rectangle. Driven by a --art custom property set inline where the
+   image URL is known; degrades to nothing when it isn't.
+   ══════════════════════════════════════════════════════════ */
+
+.art-glow {
+  position: relative;
+  isolation: isolate;
+}
+
+.art-glow::before {
+  content: '';
+  position: absolute;
+  inset: 8%;
+  z-index: -1;
+  background-image: var(--art);
+  background-size: cover;
+  background-position: center;
+  filter: blur(22px) saturate(1.8);
+  opacity: 0.5;
+  border-radius: inherit;
+  pointer-events: none;
+  transition: opacity 0.25s var(--ease-out);
+}
+
+.art-glow:hover::before {
+  opacity: 0.72;
+}
+
+/* ══════════════════════════════════════════════════════════
+   SECTION DIVIDERS
+   The rule under a section label fades out at both ends and warms
+   through the accent in the middle, instead of a hard 1px line.
+   ══════════════════════════════════════════════════════════ */
+
+.section-heading,
+.profile-section-heading,
+.moments-heading,
+.community-reviews-heading {
+  border-bottom: none;
+  position: relative;
+  padding-bottom: var(--sp-3);
+}
+
+.section-heading::after,
+.profile-section-heading::after,
+.moments-heading::after,
+.community-reviews-heading::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(232, 255, 107, 0.28) 18%,
+    rgba(232, 255, 107, 0.14) 45%,
+    var(--border) 75%,
+    transparent
+  );
+}
+
+/* ══════════════════════════════════════════════════════════
+   NAV
+   ══════════════════════════════════════════════════════════ */
+
+.nav-logo {
+  font-size: 1.4rem;
+  font-weight: 900;
+}
+
+/* Frosted only once you've scrolled — flat at the top of the page so the
+   hero meets the nav cleanly. `.nav.scrolled` is toggled in App.tsx. */
+.nav {
+  transition: background-color 0.25s var(--ease-out),
+              box-shadow 0.25s var(--ease-out),
+              backdrop-filter 0.25s var(--ease-out);
+}
+
+.nav.scrolled {
+  background: rgba(13, 13, 13, 0.62);
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+}
+
+/* Active item glows from behind rather than just tinting */
+.nav-links a.active {
+  box-shadow:
+    inset 0 0 0 1px rgba(232, 255, 107, 0.22),
+    0 0 18px rgba(232, 255, 107, 0.14);
+}
+
+@media (max-width: 720px) {
+  .nav-logo {
+    font-size: 1.15rem;
+  }
+}
+
+/* Grain and blur are expensive and can read as visual noise for anyone who
+   has asked for less motion/effects — drop them together. */
+@media (prefers-reduced-motion: reduce) {
+  body::before { display: none; }
+  .art-glow::before { filter: none; opacity: 0.25; }
+}

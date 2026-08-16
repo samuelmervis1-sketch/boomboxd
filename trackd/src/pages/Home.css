@@ -803,3 +803,502 @@
   -webkit-appearance: none;
   appearance: none;
 }
+
+/* ══════════════════════════════════════════════════════════
+   HERO BACKDROP
+   The top-rated album, blurred to a colour field. Sits behind the
+   heading and fades out before it reaches the search box so it never
+   competes with the input.
+   ══════════════════════════════════════════════════════════ */
+
+.search-wrap {
+  position: relative;
+  isolation: isolate;
+}
+
+.search-hero-bg {
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  top: -14%;
+  transform: translateX(-50%);
+  width: min(1100px, 130%);
+  /* Never wider than the column it sits in — at 375px the 130% would push
+     the document ~35px past the viewport and create a horizontal scroll. */
+  max-width: 100%;
+  height: 132%;
+  background-size: cover;
+  background-position: center;
+  filter: blur(78px) saturate(1.7);
+  opacity: 0.14;
+  pointer-events: none;
+  /* Fade to nothing at the edges so there's no visible rectangle */
+  -webkit-mask-image: radial-gradient(ellipse 62% 58% at 50% 38%, #000 32%, transparent 78%);
+  mask-image: radial-gradient(ellipse 62% 58% at 50% 38%, #000 32%, transparent 78%);
+}
+
+/* ══════════════════════════════════════════════════════════
+   HOME SECTIONS
+   ══════════════════════════════════════════════════════════ */
+
+.home-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  max-width: 940px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.section-heading-flame .flame-icon {
+  width: 14px;
+  height: 14px;
+  color: var(--accent);
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 6px rgba(232, 255, 107, 0.55));
+}
+
+/* The flame replaces the LED dot on this one heading */
+.section-heading-flame::before {
+  display: none;
+}
+
+/* ── Trending: bigger art, rating pill ───────────────────── */
+
+.trending-card {
+  width: 160px;
+}
+
+.trending-card-art {
+  border-radius: 10px;
+}
+
+.trending-card-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.3rem;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trending-card-pill-star {
+  color: var(--accent);
+  font-size: 0.66rem;
+}
+
+/* ── Recently reviewed ───────────────────────────────────── */
+
+.home-review-scroll {
+  display: flex;
+  gap: var(--sp-4);
+  overflow-x: auto;
+  padding-bottom: var(--sp-2);
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+}
+
+.home-review-card {
+  flex: 0 0 auto;
+  width: 288px;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.15s var(--ease-out), border-color 0.15s var(--ease-out),
+    box-shadow 0.15s var(--ease-out);
+}
+
+.home-review-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--hairline-strong);
+  box-shadow: var(--shadow-lift);
+}
+
+.home-review-card-head {
+  display: flex;
+  gap: var(--sp-3);
+  align-items: flex-start;
+}
+
+.home-review-art,
+.home-review-art-placeholder {
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: #1e1e1e;
+}
+
+.home-review-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.home-review-art-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #333;
+}
+
+.home-review-art-placeholder svg {
+  width: 22px;
+  height: 22px;
+}
+
+.home-review-titles {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.home-review-name {
+  font-size: var(--fs-base);
+  font-weight: var(--fw-bold);
+  color: var(--text);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.home-review-artist {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.home-review-stars {
+  display: inline-flex;
+  gap: 1px;
+  margin-top: 0.1rem;
+}
+
+.home-review-stars .star-glyph {
+  font-size: 0.78rem;
+}
+
+/* Pulled-quote treatment so a review reads as writing, not metadata */
+.home-review-text {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  line-height: 1.6;
+  border-left: 2px solid rgba(232, 255, 107, 0.28);
+  padding-left: var(--sp-3);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.home-review-by {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  color: var(--text-dim);
+  letter-spacing: 0.02em;
+  margin-top: auto;
+}
+
+/* ── Top rated this month ────────────────────────────────── */
+
+.ranked-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  list-style: none;
+  counter-reset: rank;
+}
+
+.ranked-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.15s var(--ease-out), border-color 0.15s var(--ease-out),
+    background-color 0.15s var(--ease-out);
+}
+
+.ranked-row:hover {
+  transform: translateX(3px);
+  border-color: var(--hairline-strong);
+  background-color: rgba(34, 34, 42, 0.7);
+}
+
+/* Chart position, set like a chart position */
+.ranked-num {
+  font-size: 1.5rem;
+  font-weight: var(--fw-display);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--track-tight);
+  color: var(--text-dim);
+  width: 1.6rem;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.ranked-row:hover .ranked-num {
+  color: var(--accent);
+}
+
+.ranked-art,
+.ranked-art-placeholder {
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #1e1e1e;
+}
+
+.ranked-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.ranked-art-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #333;
+}
+
+.ranked-art-placeholder svg {
+  width: 20px;
+  height: 20px;
+}
+
+.ranked-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.ranked-name {
+  font-size: var(--fs-base);
+  font-weight: var(--fw-bold);
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ranked-artist {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ranked-score {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+  flex-shrink: 0;
+}
+
+.ranked-stars {
+  display: inline-flex;
+  gap: 1px;
+}
+
+.ranked-stars .star-glyph {
+  font-size: 0.8rem;
+}
+
+.ranked-count {
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ── Your stats ──────────────────────────────────────────── */
+
+.home-stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  padding: var(--sp-5);
+  border-radius: var(--radius-lg);
+}
+
+.home-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-4);
+}
+
+.home-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.home-stat-wide {
+  grid-column: span 2;
+}
+
+.home-stat-value {
+  font-size: 1.75rem;
+  font-weight: var(--fw-display);
+  letter-spacing: var(--track-tight);
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  line-height: 1;
+}
+
+/* An artist name can't be set at numeral size and still fit */
+.home-stat-text {
+  font-size: var(--fs-md);
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+
+.home-stat-label {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.home-stat-best {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--border);
+  text-decoration: none;
+  color: inherit;
+}
+
+.home-stat-best-art,
+.home-stat-best-placeholder {
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #1e1e1e;
+}
+
+.home-stat-best-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.home-stat-best-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #333;
+}
+
+.home-stat-best-body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.home-stat-best-name {
+  font-size: var(--fs-md);
+  font-weight: var(--fw-bold);
+  color: var(--text);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.home-stat-best-score .star-glyph {
+  font-size: 0.85rem;
+}
+
+/* ── Mobile ──────────────────────────────────────────────── */
+
+@media (max-width: 720px) {
+  .trending-card {
+    width: 132px;
+  }
+
+  .home-review-card {
+    width: 252px;
+  }
+
+  .home-review-scroll {
+    margin: 0 calc(var(--sp-4) * -1);
+    padding-left: var(--sp-4);
+    padding-right: 2.5rem;
+    scroll-snap-type: x mandatory;
+  }
+
+  .home-stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .home-stat-wide {
+    grid-column: span 2;
+  }
+
+  .home-stat-value {
+    font-size: 1.4rem;
+  }
+
+  .ranked-row {
+    gap: var(--sp-3);
+    padding: var(--sp-3);
+  }
+
+  .ranked-num {
+    font-size: 1.15rem;
+    width: 1.2rem;
+  }
+
+  .ranked-art,
+  .ranked-art-placeholder {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* The star row doesn't fit beside the title on a narrow screen */
+  .ranked-stars {
+    display: none;
+  }
+
+  .search-hero-bg {
+    filter: blur(56px) saturate(1.7);
+    opacity: 0.16;
+  }
+}

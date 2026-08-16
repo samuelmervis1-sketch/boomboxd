@@ -66,6 +66,7 @@ export default function Discover() {
   const [topAlbums, setTopAlbums] = useState<TopRatedAlbum[]>([])
   const [recentAlbums, setRecentAlbums] = useState<Rating[]>([])
   const [topSongs, setTopSongs] = useState<TopRatedTrack[]>([])
+  const [staffPicks, setStaffPicks] = useState<TopRatedAlbum[]>([])
   const [recommended, setRecommended] = useState<RecommendedItem[]>([])
   const [profiles, setProfiles] = useState<Record<string, Profile>>({})
   const [likes, setLikes] = useState<Record<string, LikeInfo>>({})
@@ -90,12 +91,14 @@ export default function Discover() {
       discoverApi.getTopRatedAlbums(10, 2),
       discoverApi.getRecentlyRatedAlbums(10),
       discoverApi.getTopRatedSongs(10, 2),
+      discoverApi.getStaffPicks(6, 2).catch(() => []),
     ])
-      .then(([albums, recent, songs]) => {
+      .then(([albums, recent, songs, picks]) => {
         if (cancelled) return
         setTopAlbums(albums)
         setRecentAlbums(recent)
         setTopSongs(songs)
+        setStaffPicks(picks)
       })
       .catch(() => { if (!cancelled) setError(true) })
       .finally(() => { if (!cancelled) setLoading(false) })
@@ -130,7 +133,7 @@ export default function Discover() {
       .catch(() => setLikes({}))
   }, [recentAlbums, user?.id])
 
-  const nothingToShow = topAlbums.length === 0 && recentAlbums.length === 0 && topSongs.length === 0
+  const nothingToShow = topAlbums.length === 0 && recentAlbums.length === 0 && topSongs.length === 0 && staffPicks.length === 0
 
   return (
     <div className="page discover-page">
@@ -165,6 +168,35 @@ export default function Discover() {
         />
       ) : (
         <div className="discover-sections">
+          {staffPicks.length > 0 && (
+            <div className="discover-row discover-row-featured">
+              <p className="section-heading">Editor's choice</p>
+              <p className="discover-row-note">
+                Albums the community has rated a near-perfect five.
+              </p>
+              <div className="discover-scroll">
+                {staffPicks.map(a => (
+                  <Link key={a.albumId} to={`/album/${a.albumId}`} className="discover-card discover-card-featured">
+                    <div
+                      className="discover-card-art art-glow"
+                      style={a.albumImage ? ({ '--art': `url(${a.albumImage})` } as React.CSSProperties) : undefined}
+                    >
+                      {a.albumImage
+                        ? <img src={a.albumImage} alt={a.albumName} loading="lazy" />
+                        : <div className="discover-card-art-placeholder"><MusicIcon /></div>}
+                      <span className="discover-badge">Editor's choice</span>
+                    </div>
+                    <div className="discover-card-info">
+                      <p className="discover-card-title" title={a.albumName}>{a.albumName}</p>
+                      <p className="discover-card-artist" title={a.albumArtist}>{a.albumArtist}</p>
+                      <RatingPill avg={a.avgRating} count={a.ratingCount} />
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
           {topAlbums.length > 0 && (
             <Row heading="Top Rated on boomboxd">
               {topAlbums.map(a => (
