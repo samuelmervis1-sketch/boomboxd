@@ -40,6 +40,28 @@ export interface RecommendedItem {
   image: string | null
 }
 
+export interface RankedItem {
+  type: 'album' | 'track'
+  id: string
+  albumId: string
+  name: string
+  artist: string
+  image: string | null
+  avgRating: number
+  ratingCount: number
+}
+
+export interface UserStats {
+  totalRatings: number
+  avgRating: number
+  topArtist: string | null
+  topArtistCount: number
+  bestAlbumName: string | null
+  bestAlbumId: string | null
+  bestAlbumImage: string | null
+  bestAlbumRating: number
+}
+
 // Supabase JS can't do GROUP BY server-side without a view/RPC, so these
 // pull the raw rating rows and aggregate client-side. Fine at this app's
 // scale; the `select()` calls are narrowed to only the columns each
@@ -257,5 +279,134 @@ export const discoverApi = {
       .sort((a, b) => b.score - a.score)
       .slice(0, limit)
       .map(({ score: _score, ...rest }) => rest)
+  },
+
+  // ── Home page sections ───────────────────────────────────
+
+  // The single best-rated album with enough ratings to mean something.
+  // Used purely as the hero backdrop image, so it returns null rather than
+  // throwing when there isn't enough data yet.
+  async getFeaturedAlbum(minRatings = 2): Promise<TopRatedAlbum | null> {
+    const albums = await discoverApi.getTopRatedAlbums(1, minRatings)
+    return albums[0] ?? null
+  },
+
+  // Latest ratings that actually have review text, newest first, one per
+  // album so the row doesn't repeat the same record.
+  async getRecentlyReviewed(limit = 6): Promise<Rating[]> {
+    const { data, error } = await supabase
+      .from('ratings')
+      .select()
+      .not('review', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(limit * 4)
+
+    if (error) throw error
+
+    const seen = new Set<string>()
+    const out: Rating[] = []
+    for (const r of data ?? []) {
+      if (!r.review || r.review.trim().length === 0) continue
+      const key = r.spotify_track_id ? `track:${r.spotify_track_id}` : `album:${r.album_id}`
+      if (seen.has(key)) continue
+      seen.add(key)
+      out.push(r)
+      if (out.length >= limit) break
+    }
+    return out
+  },
+
+  // Highest average rating among things rated *this calendar month*.
+  // Albums and tracks compete in one ranked list.
+  async getTopRatedThisMonth(limit = 5, minRatings = 2): Promise<RankedItem[]> {
+    const now = new Date()
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+
+    const { data, error } = await supabase
+      .from('ratings')
+      .select('album_id, album_name, album_artist, album_image, spotify_track_id, track_name, rating')
+      .gte('created_at', monthStart)
+
+    if (error) throw error
+
+    const byItem = new Map<string, RankedItem & { sum: number }>()
+    for (const r of data ?? []) {
+      const isTrack = !!r.spotify_track_id
+      const key = isTrack ? `track:${r.spotify_track_id}` : `album:${r.album_id}`
+      const cur = byItem.get(key) ?? {
+        type: isTrack ? 'track' as const : 'album' as const,
+        id: isTrack ? r.spotify_track_id! : r.album_id,
+        albumId: r.album_id,
+        name: isTrack ? (r.track_name ?? '') : r.album_name,
+        artist: r.album_artist,
+        image: r.album_image,
+        sum: 0,
+        avgRating: 0,
+        ratingCount: 0,
+      }
+      cur.sum += r.rating
+      cur.ratingCount += 1
+      byItem.set(key, cur)
+    }
+
+    return [...byItem.values()]
+      .filter(i => i.ratingCount >= minRatings)
+      .map(i => ({ ...i, avgRating: i.sum / i.ratingCount }))
+      .sort((a, b) => b.avgRating - a.avgRating || b.ratingCount - a.ratingCount)
+      .slice(0, limit)
+      .map(({ sum: _sum, ...rest }) => rest)
+  },
+
+  // Everything the "Your stats" card needs, from one read of the user's
+  // own ratings. Returns zeroed stats rather than null so the card can
+  // render a sensible empty state.
+  async getUserStats(userId: string): Promise<UserStats> {
+    const { data, error } = await supabase
+      .from('ratings')
+      .select('album_id, album_name, album_artist, album_image, spotify_track_id, rating')
+      .eq('user_id', userId)
+
+    if (error) throw error
+    const rows = data ?? []
+
+    const empty: UserStats = {
+      totalRatings: 0, avgRating: 0, topArtist: null, topArtistCount: 0,
+      bestAlbumName: null, bestAlbumId: null, bestAlbumImage: null, bestAlbumRating: 0,
+    }
+    if (rows.length === 0) return empty
+
+    const artistCounts = new Map<string, number>()
+    let best: typeof rows[number] | null = null
+    let sum = 0
+
+    for (const r of rows) {
+      sum += r.rating
+      artistCounts.set(r.album_artist, (artistCounts.get(r.album_artist) ?? 0) + 1)
+      // Prefer albums for "highest rated"; a track only wins if nothing else has
+      if (!best || r.rating > best.rating) best = r
+    }
+
+    let topArtist: string | null = null
+    let topArtistCount = 0
+    for (const [artist, count] of artistCounts) {
+      if (count > topArtistCount) { topArtist = artist; topArtistCount = count }
+    }
+
+    return {
+      totalRatings: rows.length,
+      avgRating: sum / rows.length,
+      topArtist,
+      topArtistCount,
+      bestAlbumName: best?.album_name ?? null,
+      bestAlbumId: best?.album_id ?? null,
+      bestAlbumImage: best?.album_image ?? null,
+      bestAlbumRating: best?.rating ?? 0,
+    }
+  },
+
+  // Albums averaging a full 5 — the rare stuff worth calling out.
+  async getStaffPicks(limit = 6, minRatings = 2): Promise<TopRatedAlbum[]> {
+    const all = await discoverApi.getTopRatedAlbums(50, minRatings)
+    return all.filter(a => a.avgRating >= 4.75).slice(0, limit)
   },
 }

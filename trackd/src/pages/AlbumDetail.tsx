@@ -378,10 +378,17 @@ export default function AlbumDetail() {
             </Link>
 
             <div className="album-hero-body">
-              {image
-                ? <img className="album-cover" src={image} alt={album.name} />
-                : <div className="album-cover-placeholder" />
-              }
+              {/* The sleeve sits on a record that slides out to the right —
+                  the signature element of the page. Disc is pure CSS. */}
+              <div className="album-cover-stage">
+                <span className="album-vinyl" aria-hidden="true">
+                  <span className="album-vinyl-label" />
+                </span>
+                {image
+                  ? <img className="album-cover" src={image} alt={album.name} />
+                  : <div className="album-cover-placeholder" />
+                }
+              </div>
 
               <div className="album-info">
                 <p className="album-type-label">Album</p>

@@ -4,7 +4,15 @@ import type { User } from '@supabase/supabase-js'
 import { spotifyApi, type SpotifyAlbum, type SpotifyTrack } from '../services/spotifyApi'
 import { supabase } from '../lib/supabase'
 import { ratingsApi, type Rating } from '../lib/ratingsApi'
-import { discoverApi, type TrendingItem } from '../lib/discoverApi'
+import { profilesApi, type Profile } from '../lib/profilesApi'
+import { StarGlyph } from '../components/RatingModal'
+import {
+  discoverApi,
+  type TrendingItem,
+  type TopRatedAlbum,
+  type RankedItem,
+  type UserStats,
+} from '../lib/discoverApi'
 import { formatDuration } from '../lib/format'
 import RatingModal from '../components/RatingModal'
 import Seo from '../components/Seo'
@@ -36,6 +44,14 @@ function MusicIcon() {
       <path d="M9 18V5l12-2v13" />
       <circle cx="6" cy="18" r="3" />
       <circle cx="18" cy="16" r="3" />
+    </svg>
+  )
+}
+
+function FlameIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className="flame-icon" aria-hidden="true">
+      <path d="M13.4 2.2c.3 2.6-.7 4.3-2.2 5.8-1.6 1.6-3.7 3-4.9 5.6a7.5 7.5 0 0 0 3.4 9.6 5.6 5.6 0 0 1-1-5.3c.6-1.8 2-2.9 2.9-4.4.5 1 .5 2 .4 3 1.3-.9 2.2-2.3 2.5-3.9 1.6 1.7 2.6 3.6 2.6 5.6a7 7 0 0 1-2.3 5.1 7.6 7.6 0 0 0 4.6-7c0-4.6-3.4-8.2-6-10.1z" />
     </svg>
   )
 }
@@ -202,6 +218,14 @@ export default function Home() {
   const [trending, setTrending] = useState<TrendingItem[]>([])
   const [trendingLoading, setTrendingLoading] = useState(false)
 
+  // Home-page editorial sections. All derived from the ratings table.
+  const [featured, setFeatured] = useState<TopRatedAlbum | null>(null)
+  const [recentReviews, setRecentReviews] = useState<Rating[]>([])
+  const [reviewerProfiles, setReviewerProfiles] = useState<Record<string, Profile>>({})
+  const [monthTop, setMonthTop] = useState<RankedItem[]>([])
+  const [stats, setStats] = useState<UserStats | null>(null)
+  const [sectionsLoading, setSectionsLoading] = useState(false)
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null))
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
@@ -222,6 +246,38 @@ export default function Home() {
       .finally(() => { if (!cancelled) setTrendingLoading(false) })
     return () => { cancelled = true }
   }, [user, query])
+
+  // Everything below the search box. Loads once per signed-in visit while
+  // the query is empty; a search replaces the whole area anyway.
+  useEffect(() => {
+    if (!user || query.trim().length >= 2) return
+    let cancelled = false
+    setSectionsLoading(true)
+    Promise.all([
+      discoverApi.getFeaturedAlbum(2).catch(() => null),
+      discoverApi.getRecentlyReviewed(6).catch(() => []),
+      discoverApi.getTopRatedThisMonth(5, 2).catch(() => []),
+      discoverApi.getUserStats(user.id).catch(() => null),
+    ])
+      .then(([feat, reviews, month, userStats]) => {
+        if (cancelled) return
+        setFeatured(feat)
+        setRecentReviews(reviews)
+        setMonthTop(month)
+        setStats(userStats)
+      })
+      .finally(() => { if (!cancelled) setSectionsLoading(false) })
+    return () => { cancelled = true }
+  }, [user, query])
+
+  // Names for the Recently Reviewed cards
+  useEffect(() => {
+    const ids = [...new Set(recentReviews.map(r => r.user_id))]
+    if (ids.length === 0) { setReviewerProfiles({}); return }
+    profilesApi.getProfiles(ids)
+      .then(ps => setReviewerProfiles(Object.fromEntries(ps.map(p => [p.id, p]))))
+      .catch(() => setReviewerProfiles({}))
+  }, [recentReviews])
 
   function dismissWelcome() {
     localStorage.setItem(WELCOME_DISMISSED_KEY, '1')
@@ -366,6 +422,15 @@ export default function Home() {
       )}
 
       <div className="search-wrap">
+        {/* The community's best-rated album, blurred way back, gives the hero
+            depth and quietly shows the app has content in it. Decorative. */}
+        {featured?.albumImage && (
+          <div
+            className="search-hero-bg"
+            style={{ backgroundImage: `url(${featured.albumImage})` }}
+            aria-hidden="true"
+          />
+        )}
         <span className="search-eyebrow">boomboxd</span>
         <h1 className="search-heading">What are you listening to?</h1>
         <p className="search-tagline">Rate songs and albums. Share your taste.</p>
@@ -490,8 +555,10 @@ export default function Home() {
       )}
 
       {showPrompt && user && (trendingLoading || trending.length > 0) && (
-        <div className="trending-section">
-          <p className="section-heading">Trending on boomboxd</p>
+        <div className="home-section">
+          <p className="section-heading section-heading-flame">
+            <FlameIcon /> Trending on boomboxd
+          </p>
           {trendingLoading ? (
             <div className="trending-scroll">
               <SkeletonList count={6}>{i => <SkeletonDiscoverCard key={i} />}</SkeletonList>
@@ -504,7 +571,10 @@ export default function Home() {
                   to={item.type === 'album' ? `/album/${item.id}` : `/track/${item.id}`}
                   className="trending-card"
                 >
-                  <div className="trending-card-art">
+                  <div
+                    className="trending-card-art art-glow"
+                    style={item.image ? ({ '--art': `url(${item.image})` } as React.CSSProperties) : undefined}
+                  >
                     {item.image ? (
                       <img src={item.image} alt={item.name} loading="lazy" />
                     ) : (
@@ -516,11 +586,151 @@ export default function Home() {
                   <div className="trending-card-info">
                     <p className="trending-card-title" title={item.name}>{item.name}</p>
                     <p className="trending-card-artist" title={item.artist}>{item.artist}</p>
+                    <span className="trending-card-pill">
+                      <span className="trending-card-pill-star">★</span>
+                      {item.ratingCount} {item.ratingCount === 1 ? 'rating' : 'ratings'} this week
+                    </span>
                   </div>
                 </Link>
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* ── Recently reviewed ── */}
+      {showPrompt && user && (sectionsLoading || recentReviews.length > 0) && (
+        <div className="home-section">
+          <p className="section-heading">Recently reviewed</p>
+          {sectionsLoading ? (
+            <div className="home-review-scroll">
+              <SkeletonList count={4}>{i => <SkeletonDiscoverCard key={i} />}</SkeletonList>
+            </div>
+          ) : (
+            <div className="home-review-scroll">
+              {recentReviews.map(r => {
+                const p = reviewerProfiles[r.user_id]
+                const isTrack = !!r.spotify_track_id
+                return (
+                  <Link
+                    key={r.id}
+                    to={isTrack ? `/track/${r.spotify_track_id}` : `/album/${r.album_id}`}
+                    className="home-review-card"
+                  >
+                    <div className="home-review-card-head">
+                      <div
+                        className="home-review-art art-glow"
+                        style={r.album_image ? ({ '--art': `url(${r.album_image})` } as React.CSSProperties) : undefined}
+                      >
+                        {r.album_image
+                          ? <img src={r.album_image} alt={r.album_name} loading="lazy" />
+                          : <div className="home-review-art-placeholder"><MusicIcon /></div>}
+                      </div>
+                      <div className="home-review-titles">
+                        <p className="home-review-name" title={isTrack ? (r.track_name ?? '') : r.album_name}>
+                          {isTrack ? r.track_name : r.album_name}
+                        </p>
+                        <p className="home-review-artist" title={r.album_artist}>{r.album_artist}</p>
+                        <span className="home-review-stars">
+                          {[1, 2, 3, 4, 5].map(n => <StarGlyph key={n} value={r.rating} pos={n} />)}
+                        </span>
+                      </div>
+                    </div>
+                    <p className="home-review-text">{r.review}</p>
+                    <p className="home-review-by">
+                      {p?.username ? `@${p.username}` : 'a boomboxd fan'}
+                    </p>
+                  </Link>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Top rated this month ── */}
+      {showPrompt && user && monthTop.length > 0 && (
+        <div className="home-section">
+          <p className="section-heading">Top rated this month</p>
+          <ol className="ranked-list">
+            {monthTop.map((item, i) => (
+              <li key={`${item.type}:${item.id}`}>
+                <Link
+                  to={item.type === 'album' ? `/album/${item.id}` : `/track/${item.id}`}
+                  className="ranked-row"
+                >
+                  <span className="ranked-num">{i + 1}</span>
+                  <div
+                    className="ranked-art art-glow"
+                    style={item.image ? ({ '--art': `url(${item.image})` } as React.CSSProperties) : undefined}
+                  >
+                    {item.image
+                      ? <img src={item.image} alt={item.name} loading="lazy" />
+                      : <div className="ranked-art-placeholder"><MusicIcon /></div>}
+                  </div>
+                  <div className="ranked-body">
+                    <p className="ranked-name" title={item.name}>{item.name}</p>
+                    <p className="ranked-artist" title={item.artist}>{item.artist}</p>
+                  </div>
+                  <div className="ranked-score">
+                    <span className="ranked-stars">
+                      {[1, 2, 3, 4, 5].map(n => <StarGlyph key={n} value={item.avgRating} pos={n} />)}
+                    </span>
+                    <span className="ranked-count">
+                      {item.avgRating.toFixed(1)} · {item.ratingCount} {item.ratingCount === 1 ? 'rating' : 'ratings'}
+                    </span>
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
+
+      {/* ── Your stats ── */}
+      {showPrompt && user && stats && stats.totalRatings > 0 && (
+        <div className="home-section">
+          <p className="section-heading">Your stats</p>
+          <div className="home-stat-card">
+            <div className="home-stat-grid">
+              <div className="home-stat">
+                <span className="home-stat-value">{stats.totalRatings}</span>
+                <span className="home-stat-label">Ratings</span>
+              </div>
+              <div className="home-stat">
+                <span className="home-stat-value">{stats.avgRating.toFixed(1)}</span>
+                <span className="home-stat-label">Avg rating</span>
+              </div>
+              <div className="home-stat home-stat-wide">
+                <span className="home-stat-value home-stat-text" title={stats.topArtist ?? ''}>
+                  {stats.topArtist ?? '—'}
+                </span>
+                <span className="home-stat-label">
+                  Most rated{stats.topArtistCount > 0 ? ` · ${stats.topArtistCount}` : ''}
+                </span>
+              </div>
+            </div>
+
+            {stats.bestAlbumId && (
+              <Link to={`/album/${stats.bestAlbumId}`} className="home-stat-best">
+                <div
+                  className="home-stat-best-art art-glow"
+                  style={stats.bestAlbumImage ? ({ '--art': `url(${stats.bestAlbumImage})` } as React.CSSProperties) : undefined}
+                >
+                  {stats.bestAlbumImage
+                    ? <img src={stats.bestAlbumImage} alt={stats.bestAlbumName ?? ''} loading="lazy" />
+                    : <div className="home-stat-best-placeholder"><MusicIcon /></div>}
+                </div>
+                <div className="home-stat-best-body">
+                  <span className="home-stat-label">Your highest rated</span>
+                  <p className="home-stat-best-name">{stats.bestAlbumName}</p>
+                  <span className="home-stat-best-score">
+                    {[1, 2, 3, 4, 5].map(n => <StarGlyph key={n} value={stats.bestAlbumRating} pos={n} />)}
+                  </span>
+                </div>
+              </Link>
+            )}
+          </div>
         </div>
       )}
 

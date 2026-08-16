@@ -211,3 +211,60 @@ a.discover-card-reviewer-name:hover {
     padding-right: 2.5rem;
   }
 }
+
+/* ══════════════════════════════════════════════════════════
+   LARGER CARDS + EDITOR'S CHOICE
+   ══════════════════════════════════════════════════════════ */
+
+.discover-card {
+  width: 184px;
+}
+
+.discover-card-art {
+  border-radius: 10px;
+}
+
+.discover-row-note {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  margin-top: calc(var(--sp-2) * -1);
+  line-height: 1.5;
+}
+
+/* The featured row runs bigger than the rest — it's the one place on the
+   page making an editorial claim, so it gets the space to make it. */
+.discover-card-featured {
+  width: 224px;
+}
+
+.discover-card-featured .discover-card-title {
+  font-size: var(--fs-base);
+}
+
+.discover-badge {
+  position: absolute;
+  left: var(--sp-2);
+  bottom: var(--sp-2);
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 0.62rem;
+  font-weight: var(--fw-display);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow: 0 2px 12px rgba(232, 255, 107, 0.4);
+}
+
+@media (max-width: 720px) {
+  .discover-card {
+    width: 148px;
+  }
+
+  .discover-card-featured {
+    width: 176px;
+  }
+}

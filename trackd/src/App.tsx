@@ -75,6 +75,9 @@ function UserIcon() {
 
 function Nav() {
   const [user, setUser] = useState<User | null>(null)
+  // Frost the bar only once content scrolls under it, so a hero meets a flat
+  // nav at rest. Passive listener, purely visual.
+  const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null))
@@ -84,8 +87,15 @@ function Nav() {
     return () => subscription.unsubscribe()
   }, [])
 
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
   return (
-    <nav className="nav">
+    <nav className={`nav${scrolled ? ' scrolled' : ''}`}>
       <Link to="/" className="nav-logo">boomboxd</Link>
       <div className="nav-links">
         <NavLink to="/" end>
