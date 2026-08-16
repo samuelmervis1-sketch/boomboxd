@@ -98,21 +98,11 @@
 }
 
 /* ── Cover art ─────────────────────────────────────────── */
-
-.album-cover {
-  width: 264px;
-  height: 264px;
-  border-radius: 10px;
-  object-fit: cover;
-  flex-shrink: 0;
-}
+/* Sizing lives with `.cover-stage` in App.css, shared with the track
+   page; only the placeholder's fill is page-level. */
 
 .album-cover-placeholder {
-  width: 264px;
-  height: 264px;
-  border-radius: 10px;
   background: #1e1e1e;
-  flex-shrink: 0;
 }
 
 /* ── Album info ────────────────────────────────────────── */
@@ -407,149 +397,6 @@
   padding: 0 0.5rem 0.75rem 3rem;
 }
 
-.moment-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  max-width: 100%;
-  background: rgba(168, 85, 247, 0.12);
-  border: 1px solid rgba(168, 85, 247, 0.35);
-  color: #d9b8ff;
-  border-radius: 20px;
-  padding: 0.3rem 0.7rem;
-  font-size: 0.75rem;
-}
-
-.moment-timestamp {
-  font-weight: 700;
-  color: #c084fc;
-  font-variant-numeric: tabular-nums;
-  flex-shrink: 0;
-}
-
-.moment-sep {
-  color: rgba(216, 184, 255, 0.4);
-  flex-shrink: 0;
-}
-
-.moment-comment {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.moment-author {
-  color: #b78ef0;
-  font-weight: 600;
-  flex-shrink: 0;
-  white-space: nowrap;
-  text-decoration: none;
-}
-
-a.moment-author:hover {
-  color: #d9b8ff;
-}
-
-.moment-delete {
-  background: none;
-  border: none;
-  color: rgba(216, 184, 255, 0.6);
-  cursor: pointer;
-  font-size: 0.9rem;
-  line-height: 1;
-  padding: 0 0.15rem;
-  flex-shrink: 0;
-  font-family: inherit;
-}
-
-.moment-delete:hover {
-  color: #fff;
-}
-
-.moment-form {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  width: 100%;
-  max-width: 480px;
-}
-
-.moment-form-timestamp,
-.moment-form-comment {
-  background: #0d0d0d;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 0.4rem 0.6rem;
-  font-size: 0.8rem;
-  color: var(--text);
-  font-family: inherit;
-  outline: none;
-  transition: border-color 0.15s;
-}
-
-.moment-form-timestamp {
-  width: 4.5rem;
-  flex-shrink: 0;
-  font-variant-numeric: tabular-nums;
-}
-
-.moment-form-comment {
-  flex: 1;
-  min-width: 0;
-}
-
-.moment-form-timestamp:focus,
-.moment-form-comment:focus {
-  border-color: #a855f7;
-}
-
-.moment-form-save {
-  flex-shrink: 0;
-  background: #a855f7;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  padding: 0.4rem 0.7rem;
-  font-size: 0.8rem;
-  font-weight: 700;
-  cursor: pointer;
-  font-family: inherit;
-  transition: opacity 0.15s;
-}
-
-.moment-form-save:hover {
-  opacity: 0.88;
-}
-
-.moment-form-save:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.moment-form-cancel {
-  flex-shrink: 0;
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 0.4rem 0.7rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  cursor: pointer;
-  font-family: inherit;
-  transition: border-color 0.15s, color 0.15s;
-}
-
-.moment-form-cancel:hover {
-  color: var(--text);
-  border-color: #555;
-}
-
-.moment-error {
-  font-size: 0.75rem;
-  color: #ff6b6b;
-}
-
 /* ── Community reviews ─────────────────────────────────── */
 
 .community-reviews {
@@ -572,80 +419,8 @@ a.moment-author:hover {
   border-bottom: 1px solid var(--border);
 }
 
-.community-reviews-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.9rem;
-}
-
-.community-review {
-  display: flex;
-  gap: 0.75rem;
-}
-
-/* The avatar may be wrapped in a <Link> to the reviewer's public profile —
-   keep it sized/positioned exactly like the plain div was before. */
-.community-review > a {
-  flex-shrink: 0;
-  display: flex;
-  text-decoration: none;
-}
-
-.community-review-avatar {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.78rem;
-  font-weight: 800;
-  color: #0d0d0d;
-}
-
-.community-review-body {
-  flex: 1;
-  min-width: 0;
-}
-
-.community-review-header {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  flex-wrap: wrap;
-}
-
-.community-review-name {
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--text);
-  text-decoration: none;
-}
-
-a.community-review-name:hover {
-  color: var(--accent);
-}
-
-.community-review-date {
-  font-size: 0.72rem;
-  color: #555;
-}
-
-.community-review-header .follow-btn {
-  margin-left: auto;
-}
-
-.community-review-text {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  line-height: 1.55;
-  margin-top: 0.35rem;
-}
-
-.community-review-footer {
-  margin-top: 0.4rem;
-}
+/* The review card itself is defined once, in App.css, so a review looks
+   identical on the album page, the track page and anywhere else. */
 
 /* ── Responsive ────────────────────────────────────────── */
 
@@ -664,12 +439,6 @@ a.community-review-name:hover {
     flex-direction: column;
     align-items: flex-start;
     gap: 1.25rem;
-  }
-
-  .album-cover,
-  .album-cover-placeholder {
-    width: 150px;
-    height: 150px;
   }
 
   /* Primary CTA goes full width; secondary actions share the next row */
@@ -706,35 +475,8 @@ a.community-review-name:hover {
     padding-left: 2.4rem;
   }
 
-  .moment-pill {
-    /* Long comments wrap instead of being clipped to one line */
-    flex-wrap: wrap;
-  }
-
-  .moment-comment {
-    white-space: normal;
-  }
-
-  .moment-form {
-    flex-wrap: wrap;
-  }
-
-  .moment-form-comment {
-    /* Take the full second row rather than squeezing beside the timestamp */
-    flex-basis: 100%;
-    order: 3;
-  }
-
   .community-reviews {
     padding: 0 1rem 3rem;
-  }
-}
-
-@media (max-width: 400px) {
-  .album-cover,
-  .album-cover-placeholder {
-    width: 128px;
-    height: 128px;
   }
 }
 
@@ -801,130 +543,6 @@ a.community-review-name:hover {
 }
 
 /* ══════════════════════════════════════════════════════════
-   REVIEWS — each one a discrete card, not floating text
-   ══════════════════════════════════════════════════════════ */
-
-.community-reviews-list {
-  gap: var(--sp-3);
-}
-
-.community-review {
-  padding: var(--sp-4);
-  background: var(--bg-raised);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  transition: border-color 0.15s var(--ease-out);
-}
-
-.community-review:hover {
-  border-color: var(--border-strong);
-}
-
-.community-review-text {
-  font-size: 0.9rem;
-  color: var(--text);
-  opacity: 0.86;
-}
-
-/* ══════════════════════════════════════════════════════════
-   VINYL
-   The record peeking out from behind the sleeve. Grooves are
-   repeating-conic + repeating-radial gradients — no images. It slides
-   further out on hover, like pulling the disc from the jacket.
-   ══════════════════════════════════════════════════════════ */
-
-.album-cover-stage {
-  position: relative;
-  flex-shrink: 0;
-  width: 288px;
-  height: 288px;
-  /* Room for the disc to sit proud of the sleeve without clipping */
-  padding-right: 76px;
-  box-sizing: content-box;
-}
-
-.album-cover-stage .album-cover,
-.album-cover-stage .album-cover-placeholder {
-  position: relative;
-  z-index: 1;
-  width: 288px;
-  height: 288px;
-}
-
-.album-vinyl {
-  position: absolute;
-  z-index: 0;
-  top: 50%;
-  /* Anchored to the right edge of the reserved padding, not to a percentage
-     of the stage — a percentage let the disc run into the title column. At
-     rest it peeks 30px; the hover slide takes it to exactly the 76px of
-     padding and no further. */
-  right: 46px;
-  width: 268px;
-  height: 268px;
-  margin-top: -134px;
-  border-radius: 50%;
-  background:
-    /* sheen sweeping across the disc */
-    repeating-conic-gradient(
-      from 0deg,
-      rgba(255, 255, 255, 0.05) 0deg 6deg,
-      rgba(255, 255, 255, 0) 6deg 22deg
-    ),
-    /* grooves */
-    repeating-radial-gradient(
-      circle at 50% 50%,
-      #101014 0px,
-      #101014 2px,
-      #191920 2px,
-      #191920 4px
-    ),
-    #0c0c10;
-  box-shadow:
-    0 18px 44px rgba(0, 0, 0, 0.7),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-  transition: transform 0.45s var(--ease-out);
-  transform: translateX(0);
-}
-
-/* Pull the record out when you're looking at the sleeve */
-.album-hero-body:hover .album-vinyl {
-  transform: translateX(46px) rotate(12deg);
-}
-
-/* The stage is positioned, so without this the disc paints over the title,
-   which is static. */
-.album-info {
-  position: relative;
-  z-index: 2;
-}
-
-.album-vinyl-label {
-  position: absolute;
-  inset: 36%;
-  border-radius: 50%;
-  background: radial-gradient(circle at 38% 34%, #e8ff6b, #9fb43f 68%, #6f7f2c);
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.4);
-}
-
-/* Spindle hole */
-.album-vinyl-label::after {
-  content: '';
-  position: absolute;
-  inset: 43%;
-  border-radius: 50%;
-  background: var(--bg);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .album-vinyl,
-  .album-hero-body:hover .album-vinyl {
-    transition: none;
-    transform: translateX(38px);
-  }
-}
-
-/* ══════════════════════════════════════════════════════════
    TRACKLIST NUMERALS
    Monospaced so the column is a true column.
    ══════════════════════════════════════════════════════════ */
@@ -937,31 +555,4 @@ a.community-review-name:hover {
 
 .tracklist-header span:first-child {
   font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
-}
-
-/* ── Mobile: the disc would overflow, so tuck it behind ──── */
-
-@media (max-width: 720px) {
-  .album-cover-stage {
-    width: 208px;
-    height: 208px;
-    padding-right: 42px;
-  }
-
-  .album-cover-stage .album-cover,
-  .album-cover-stage .album-cover-placeholder {
-    width: 208px;
-    height: 208px;
-  }
-
-  .album-vinyl {
-    width: 192px;
-    height: 192px;
-    margin-top: -96px;
-    right: 30px;
-  }
-
-  .album-hero-body:hover .album-vinyl {
-    transform: translateX(30px) rotate(10deg);
-  }
 }

@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { format } from 'date-fns'
 import type { User } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
-import { listsApi, type List } from '../lib/listsApi'
+import { listsApi, type List, type ListSummary } from '../lib/listsApi'
 import CreateListModal from '../components/CreateListModal'
+import CoverStack from '../components/CoverStack'
 import EmptyState, { ListPlusIcon } from '../components/EmptyState'
 import Seo from '../components/Seo'
 import { SkeletonList, SkeletonBox } from '../components/Skeleton'
@@ -13,6 +15,7 @@ export default function Lists() {
   const [user, setUser] = useState<User | null>(null)
   const [authChecked, setAuthChecked] = useState(false)
   const [lists, setLists] = useState<List[]>([])
+  const [summaries, setSummaries] = useState<Record<string, ListSummary>>({})
   const [loading, setLoading] = useState(true)
   const [createOpen, setCreateOpen] = useState(false)
 
@@ -35,6 +38,17 @@ export default function Lists() {
       .catch(() => setLists([]))
       .finally(() => setLoading(false))
   }, [user?.id])
+
+  // Counts and preview covers for the cards. Kept separate from the lists
+  // themselves so a slow or failed summary query still renders the page.
+  useEffect(() => {
+    if (lists.length === 0) { setSummaries({}); return }
+    let cancelled = false
+    listsApi.getListSummaries(lists.map(l => l.id))
+      .then(data => { if (!cancelled) setSummaries(data) })
+      .catch(() => { if (!cancelled) setSummaries({}) })
+    return () => { cancelled = true }
+  }, [lists])
 
   function handleCreated(list: List) {
     setLists(prev => [list, ...prev])
@@ -63,9 +77,14 @@ export default function Lists() {
         <div className="lists-grid">
           <SkeletonList count={4}>{i => (
             <div className="list-card" key={i} aria-hidden="true">
-              <SkeletonBox height="15px" width="58%" radius="4px" />
-              <SkeletonBox height="12px" width="88%" radius="4px" />
-              <SkeletonBox height="10px" width="36%" radius="4px" />
+              <SkeletonBox height="56px" width="78px" radius="var(--radius)" />
+              <div className="list-card-text">
+                <SkeletonBox height="15px" width="58%" radius="4px" />
+                <SkeletonBox height="12px" width="88%" radius="4px" />
+              </div>
+              <div className="list-card-meta">
+                <SkeletonBox height="10px" width="36%" radius="4px" />
+              </div>
             </div>
           )}</SkeletonList>
         </div>
@@ -87,13 +106,26 @@ export default function Lists() {
         />
       ) : (
         <div className="lists-grid">
-          {lists.map(list => (
-            <Link key={list.id} to={`/list/${list.id}`} className="list-card">
-              <p className="list-card-title">{list.title}</p>
-              {list.description && <p className="list-card-desc">{list.description}</p>}
-              <p className="list-card-meta">{list.is_public ? 'Public' : 'Private'}</p>
-            </Link>
-          ))}
+          {lists.map(list => {
+            const summary = summaries[list.id]
+            const count = summary?.count ?? 0
+            return (
+              <Link key={list.id} to={`/list/${list.id}`} className="list-card">
+                <CoverStack images={summary?.images ?? []} />
+                <div className="list-card-text">
+                  <p className="list-card-title">{list.title}</p>
+                  {list.description && <p className="list-card-desc">{list.description}</p>}
+                </div>
+                <div className="list-card-meta">
+                  <span className={`list-card-badge${list.is_public ? '' : ' list-card-badge-private'}`}>
+                    {list.is_public ? 'Public' : 'Private'}
+                  </span>
+                  <span className="list-card-count">{count} {count === 1 ? 'item' : 'items'}</span>
+                  <span className="list-card-date">{format(new Date(list.created_at), 'MMM yyyy')}</span>
+                </div>
+              </Link>
+            )
+          })}
         </div>
       )}
 

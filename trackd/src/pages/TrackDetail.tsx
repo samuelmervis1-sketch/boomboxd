@@ -297,10 +297,26 @@ export default function TrackDetail() {
             </Link>
 
             <div className="track-hero-body">
-              {image
-                ? <img className="track-cover" src={image} alt={track.name} />
-                : <div className="track-cover-placeholder" />
-              }
+              {/* Same sleeve-on-a-record treatment as the album page —
+                  --art / --glow drive the bloom the cover throws behind
+                  itself; both degrade to nothing before they resolve. */}
+              <div
+                className="cover-stage"
+                style={{
+                  ...(image ? { '--art': `url(${image})` } : {}),
+                  ...(dominantColor
+                    ? { '--glow': `rgba(${dominantColor[0]}, ${dominantColor[1]}, ${dominantColor[2]}, 0.55)` }
+                    : {}),
+                } as React.CSSProperties}
+              >
+                <span className="vinyl" aria-hidden="true">
+                  <span className="vinyl-label" />
+                </span>
+                {image
+                  ? <img className="track-cover" src={image} alt={track.name} />
+                  : <div className="track-cover-placeholder" />
+                }
+              </div>
 
               <div className="track-info">
                 <p className="track-type-label">Song</p>
@@ -473,40 +489,40 @@ export default function TrackDetail() {
                 )
                 return (
                   <div key={r.id} className="community-review">
-                    {profile?.username
-                      ? <Link to={`/user/${profile.username}`}>{avatar}</Link>
-                      : avatar}
-                    <div className="community-review-body">
-                      <div className="community-review-header">
+                    <div className="community-review-header">
+                      {profile?.username
+                        ? <Link to={`/user/${profile.username}`} className="community-review-avatar-link">{avatar}</Link>
+                        : avatar}
+                      <div className="community-review-byline">
                         {profile?.username
                           ? <Link to={`/user/${profile.username}`} className="community-review-name">{reviewerName(profile)}</Link>
                           : <span className="community-review-name">{reviewerName(profile)}</span>}
-                        <InlineStars rating={r.rating} />
                         <span className="community-review-date">
                           {format(new Date(r.created_at), 'MMM d, yyyy')}
                         </span>
-                        <FollowButton
-                          targetUserId={r.user_id}
-                          isFollowing={followingIds.has(r.user_id)}
-                          signedIn={!!user}
-                          onChange={following => handleFollowChange(r.user_id, following)}
-                          onRequireSignIn={() => setSignInPrompt(true)}
+                      </div>
+                      <InlineStars rating={r.rating} />
+                      <FollowButton
+                        targetUserId={r.user_id}
+                        isFollowing={followingIds.has(r.user_id)}
+                        signedIn={!!user}
+                        onChange={following => handleFollowChange(r.user_id, following)}
+                        onRequireSignIn={() => setSignInPrompt(true)}
+                      />
+                    </div>
+                    <p className="community-review-text">{r.review}</p>
+                    {user && (
+                      <div className="community-review-footer">
+                        <LikeButton
+                          ratingId={r.id}
+                          count={likes[r.id]?.count ?? 0}
+                          liked={likes[r.id]?.liked ?? false}
+                          onChange={(liked, count) =>
+                            setLikes(prev => ({ ...prev, [r.id]: { liked, count } }))
+                          }
                         />
                       </div>
-                      <p className="community-review-text">{r.review}</p>
-                      {user && (
-                        <div className="community-review-footer">
-                          <LikeButton
-                            ratingId={r.id}
-                            count={likes[r.id]?.count ?? 0}
-                            liked={likes[r.id]?.liked ?? false}
-                            onChange={(liked, count) =>
-                              setLikes(prev => ({ ...prev, [r.id]: { liked, count } }))
-                            }
-                          />
-                        </div>
-                      )}
-                    </div>
+                    )}
                   </div>
                 )
               })}

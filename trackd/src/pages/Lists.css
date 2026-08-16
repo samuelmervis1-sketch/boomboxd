@@ -27,49 +27,87 @@
   gap: 1rem;
 }
 
+/* Sleeves on top, then the writing, then the meta strip pinned to the
+   bottom edge so a row of cards keeps one baseline no matter how long
+   each description runs. The surface itself comes from the card + glass
+   blocks in App.css. */
 .list-card {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  background: #141414;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 1.1rem 1.2rem;
+  gap: var(--sp-3);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-4);
   text-decoration: none;
   color: inherit;
-  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
-.list-card:hover {
-  transform: translateY(-3px);
-  border-color: #3a3a3a;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+.list-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  /* Takes up the slack so .list-card-meta sits on the bottom edge */
+  flex: 1;
+  min-width: 0;
 }
 
 .list-card-title {
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: var(--fs-md);
+  font-weight: var(--fw-bold);
   color: var(--text);
   letter-spacing: -0.01em;
+  line-height: 1.3;
 }
 
 .list-card-desc {
-  font-size: 0.82rem;
+  font-size: var(--fs-sm);
   color: var(--text-muted);
-  line-height: 1.4;
+  line-height: 1.5;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
+/* ── Meta strip ─────────────────────────────────────────── */
+/* Public/private, how many items, when it was made — separated by a
+   hairline so it reads as a caption under the card rather than a third
+   paragraph. Colour and tracking come from the typography block. */
+
 .list-card-meta {
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
   text-transform: uppercase;
-  color: #666;
-  margin-top: 0.25rem;
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--hairline);
+}
+
+/* The badge is the one lit thing in the strip — public lists are the
+   point of making one, so they carry the accent. */
+.list-card-badge {
+  padding: 0.16rem 0.45rem;
+  border-radius: 4px;
+  color: var(--accent);
+  background: rgba(232, 255, 107, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(232, 255, 107, 0.22);
+}
+
+.list-card-badge-private {
+  color: var(--text-dim);
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+}
+
+.list-card-count {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Pushed to the far edge so count and date never collide mid-strip */
+.list-card-date {
+  margin-left: auto;
 }
 
 /* ── Mobile ─────────────────────────────────────────────── */

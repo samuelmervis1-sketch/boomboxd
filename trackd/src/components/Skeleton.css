@@ -110,11 +110,11 @@
 .skeleton-feed-item {
   display: flex;
   align-items: flex-start;
-  gap: 1rem;
-  padding: 1rem;
+  gap: var(--sp-4);
+  padding: var(--sp-4);
   background: var(--bg-raised);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
 }
 
 .skeleton-feed-item-body {

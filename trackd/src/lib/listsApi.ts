@@ -23,6 +23,16 @@ export interface ListItem {
   created_at: string
 }
 
+/** What a list card shows without opening the list. */
+export interface ListSummary {
+  count: number
+  /** First few covers, in list order, for the stacked preview. */
+  images: string[]
+}
+
+/** How many sleeves the preview stack shows. */
+export const COVER_STACK_SIZE = 4
+
 export interface AddListItemParams {
   albumId: string
   albumName: string
@@ -71,15 +81,33 @@ export const listsApi = {
     return data ?? []
   },
 
-  // Lightweight item count for a list card — a head request with no rows.
-  async getListItemCount(listId: string): Promise<number> {
-    const { count, error } = await supabase
+  // Everything a list card needs to render — the item count and the first
+  // few covers for the stacked preview — for a whole page of lists in one
+  // round trip, rather than a count query per card.
+  async getListSummaries(listIds: string[]): Promise<Record<string, ListSummary>> {
+    const summaries: Record<string, ListSummary> = Object.fromEntries(
+      listIds.map(id => [id, { count: 0, images: [] as string[] }])
+    )
+    if (listIds.length === 0) return summaries
+
+    const { data, error } = await supabase
       .from('list_items')
-      .select('*', { count: 'exact', head: true })
-      .eq('list_id', listId)
+      .select('list_id, album_image, position')
+      .in('list_id', listIds)
+      .order('position', { ascending: true })
 
     if (error) throw error
-    return count ?? 0
+
+    for (const row of data ?? []) {
+      const summary = summaries[row.list_id]
+      if (!summary) continue
+      summary.count += 1
+      // The stack only ever shows four sleeves, but every row still counts.
+      if (row.album_image && summary.images.length < COVER_STACK_SIZE) {
+        summary.images.push(row.album_image)
+      }
+    }
+    return summaries
   },
 
   async getList(listId: string): Promise<List | null> {
