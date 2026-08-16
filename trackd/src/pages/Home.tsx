@@ -4,6 +4,7 @@ import type { User } from '@supabase/supabase-js'
 import { spotifyApi, type SpotifyAlbum, type SpotifyTrack } from '../services/spotifyApi'
 import { supabase } from '../lib/supabase'
 import { ratingsApi, type Rating } from '../lib/ratingsApi'
+import { discoverApi, type TrendingItem } from '../lib/discoverApi'
 import { formatDuration } from '../lib/format'
 import RatingModal from '../components/RatingModal'
 import Seo from '../components/Seo'
@@ -188,9 +189,12 @@ export default function Home() {
   const [myTrackRatings, setMyTrackRatings] = useState<Record<string, Rating>>({})
   const [myAlbumRatings, setMyAlbumRatings] = useState<Record<string, Rating>>({})
   const [signInPrompt, setSignInPrompt] = useState(false)
+  const [signInGate, setSignInGate] = useState(false)
   const [welcomeDismissed, setWelcomeDismissed] = useState(
     () => localStorage.getItem(WELCOME_DISMISSED_KEY) === '1'
   )
+  const [trending, setTrending] = useState<TrendingItem[]>([])
+  const [trendingLoading, setTrendingLoading] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null))
@@ -199,6 +203,19 @@ export default function Home() {
     })
     return () => subscription.unsubscribe()
   }, [])
+
+  // Trending row only makes sense before a search is typed, and only for
+  // signed-in users (signed-out users can't search at all yet).
+  useEffect(() => {
+    if (!user || query.trim().length >= 2) return
+    let cancelled = false
+    setTrendingLoading(true)
+    discoverApi.getTrending(12, 7)
+      .then(items => { if (!cancelled) setTrending(items) })
+      .catch(() => { if (!cancelled) setTrending([]) })
+      .finally(() => { if (!cancelled) setTrendingLoading(false) })
+    return () => { cancelled = true }
+  }, [user, query])
 
   function dismissWelcome() {
     localStorage.setItem(WELCOME_DISMISSED_KEY, '1')
@@ -368,18 +385,27 @@ export default function Home() {
           </button>
         </div>
 
-        <form className="search-form" onSubmit={handleSubmit}>
+        <form className={`search-form${user ? '' : ' search-form-disabled'}`} onSubmit={user ? handleSubmit : e => e.preventDefault()}>
           <input
-            className="search-input"
+            className={`search-input${user ? '' : ' search-input-disabled'}`}
             type="search"
-            placeholder={tab === 'songs' ? 'Search songs, artists…' : 'Search albums, artists…'}
+            placeholder={user ? (tab === 'songs' ? 'Search songs, artists…' : 'Search albums, artists…') : 'Sign in to search songs...'}
             value={query}
-            onChange={e => setQuery(e.target.value)}
-            autoFocus
+            onChange={e => { if (user) setQuery(e.target.value) }}
+            onMouseDown={e => { if (!user) { e.preventDefault(); setSignInGate(true) } }}
+            onFocus={e => { if (!user) { e.target.blur(); setSignInGate(true) } }}
+            readOnly={!user}
+            tabIndex={user ? 0 : -1}
+            autoFocus={!!user}
             autoComplete="off"
             spellCheck={false}
           />
-          <button className="search-btn" type="submit" aria-label="Search">
+          <button
+            className="search-btn"
+            type={user ? 'submit' : 'button'}
+            aria-label="Search"
+            onClick={() => { if (!user) setSignInGate(true) }}
+          >
             <SearchIcon />
           </button>
         </form>
@@ -392,7 +418,7 @@ export default function Home() {
               <button
                 type="button"
                 className="search-hint-example"
-                onClick={() => setQuery(example)}
+                onClick={() => { if (user) setQuery(example); else setSignInGate(true) }}
               >
                 {example}
               </button>
@@ -407,6 +433,18 @@ export default function Home() {
         )}
       </div>
 
+      {signInGate && (
+        <div className="modal-overlay" onClick={e => { if (e.target === e.currentTarget) setSignInGate(false) }}>
+          <div className="modal sign-in-gate" role="dialog" aria-modal="true" aria-label="Sign in required">
+            <button className="modal-close sign-in-gate-close" onClick={() => setSignInGate(false)} aria-label="Close">×</button>
+            <p className="sign-in-gate-text">Sign in to search and rate music</p>
+            <Link to="/profile" className="btn-rate sign-in-gate-btn" onClick={() => setSignInGate(false)}>
+              Sign in
+            </Link>
+          </div>
+        </div>
+      )}
+
       {loading && (
         <div className="search-status">
           <div className="spinner" />
@@ -417,7 +455,7 @@ export default function Home() {
         <div className="search-status">{error}</div>
       )}
 
-      {showPrompt && (
+      {showPrompt && !user && (
         <div className="how-it-works">
           <div className="how-it-works-step">
             <span className="how-it-works-num">1</span>
@@ -434,6 +472,39 @@ export default function Home() {
             <p className="how-it-works-title">Share your taste</p>
             <p className="how-it-works-text">Build lists, follow friends, and compare ratings.</p>
           </div>
+        </div>
+      )}
+
+      {showPrompt && user && (trendingLoading || trending.length > 0) && (
+        <div className="trending-section">
+          <p className="section-heading">Trending on boomboxd</p>
+          {trendingLoading ? (
+            <div className="search-status"><div className="spinner" /></div>
+          ) : (
+            <div className="trending-scroll">
+              {trending.map(item => (
+                <Link
+                  key={`${item.type}:${item.id}`}
+                  to={item.type === 'album' ? `/album/${item.id}` : `/track/${item.id}`}
+                  className="trending-card"
+                >
+                  <div className="trending-card-art">
+                    {item.image ? (
+                      <img src={item.image} alt={item.name} loading="lazy" />
+                    ) : (
+                      <div className="trending-card-art-placeholder">
+                        <MusicIcon />
+                      </div>
+                    )}
+                  </div>
+                  <div className="trending-card-info">
+                    <p className="trending-card-title" title={item.name}>{item.name}</p>
+                    <p className="trending-card-artist" title={item.artist}>{item.artist}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

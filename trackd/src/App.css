@@ -129,6 +129,26 @@ html, body, #root {
   display: inline;
 }
 
+/* Sign-in CTA replaces the Profile link when signed out — needs to stand
+   out from the rest of nav, which is all muted/secondary. */
+.nav-links a.nav-sign-in-btn {
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: var(--fw-bold);
+  padding: 0.45rem 0.9rem;
+}
+
+.nav-links a.nav-sign-in-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.nav-links a.nav-sign-in-btn:hover {
+  background: #f2ff8f;
+  color: var(--accent-ink);
+  transform: translateY(-1px);
+}
+
 .main {
   max-width: 1200px;
   margin: 0 auto;

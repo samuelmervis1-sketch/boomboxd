@@ -1,4 +1,7 @@
+import { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, NavLink, Link } from 'react-router-dom'
+import type { User } from '@supabase/supabase-js'
+import { supabase } from './lib/supabase'
 import Home from './pages/Home'
 import Discover from './pages/Discover'
 import Feed from './pages/Feed'
@@ -71,6 +74,16 @@ function UserIcon() {
 }
 
 function Nav() {
+  const [user, setUser] = useState<User | null>(null)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null))
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      setUser(session?.user ?? null)
+    })
+    return () => subscription.unsubscribe()
+  }, [])
+
   return (
     <nav className="nav">
       <Link to="/" className="nav-logo">boomboxd</Link>
@@ -88,9 +101,15 @@ function Nav() {
           <ListIcon /><span className="nav-label">Lists</span>
         </NavLink>
         <NotificationBell />
-        <NavLink to="/profile">
-          <UserIcon /><span className="nav-label">Profile</span>
-        </NavLink>
+        {user ? (
+          <NavLink to="/profile">
+            <UserIcon /><span className="nav-label">Profile</span>
+          </NavLink>
+        ) : (
+          <Link to="/profile" className="nav-sign-in-btn">
+            <UserIcon /><span className="nav-label">Sign in</span>
+          </Link>
+        )}
       </div>
     </nav>
   )

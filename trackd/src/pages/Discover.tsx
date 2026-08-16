@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import type { User } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
-import { discoverApi, type TopRatedAlbum, type TopRatedTrack } from '../lib/discoverApi'
+import { discoverApi, type TopRatedAlbum, type TopRatedTrack, type RecommendedItem } from '../lib/discoverApi'
 import { profilesApi, type Profile } from '../lib/profilesApi'
 import { reviewLikesApi, type LikeInfo } from '../lib/reviewLikesApi'
 import type { Rating } from '../lib/ratingsApi'
@@ -65,6 +65,7 @@ export default function Discover() {
   const [topAlbums, setTopAlbums] = useState<TopRatedAlbum[]>([])
   const [recentAlbums, setRecentAlbums] = useState<Rating[]>([])
   const [topSongs, setTopSongs] = useState<TopRatedTrack[]>([])
+  const [recommended, setRecommended] = useState<RecommendedItem[]>([])
   const [profiles, setProfiles] = useState<Record<string, Profile>>({})
   const [likes, setLikes] = useState<Record<string, LikeInfo>>({})
   const [loading, setLoading] = useState(true)
@@ -99,6 +100,17 @@ export default function Discover() {
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
   }, [])
+
+  // "You may also like" — driven by the current user's own high ratings, so
+  // it needs to (re)fetch whenever the signed-in user changes.
+  useEffect(() => {
+    if (!user) { setRecommended([]); return }
+    let cancelled = false
+    discoverApi.getRecommendations(user.id, 10)
+      .then(items => { if (!cancelled) setRecommended(items) })
+      .catch(() => { if (!cancelled) setRecommended([]) })
+    return () => { cancelled = true }
+  }, [user?.id])
 
   useEffect(() => {
     const ids = [...new Set(recentAlbums.map(r => r.user_id))]
@@ -223,6 +235,24 @@ export default function Discover() {
                     <p className="discover-card-title" title={t.trackName}>{t.trackName}</p>
                     <p className="discover-card-artist" title={t.albumArtist}>{t.albumArtist}</p>
                     <RatingPill avg={t.avgRating} count={t.ratingCount} />
+                  </div>
+                </Link>
+              ))}
+            </Row>
+          )}
+
+          {user && recommended.length > 0 && (
+            <Row heading="You may also like">
+              {recommended.map(item => (
+                <Link
+                  key={`${item.type}:${item.id}`}
+                  to={item.type === 'album' ? `/album/${item.id}` : `/track/${item.id}`}
+                  className="discover-card"
+                >
+                  <CardArt src={item.image} alt={item.name} />
+                  <div className="discover-card-info">
+                    <p className="discover-card-title" title={item.name}>{item.name}</p>
+                    <p className="discover-card-artist" title={item.artist}>{item.artist}</p>
                   </div>
                 </Link>
               ))}

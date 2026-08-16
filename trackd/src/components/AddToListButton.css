@@ -92,3 +92,111 @@
 .add-to-list-new:hover {
   opacity: 0.8;
 }
+
+/* ── Inline "Create new list" (top of dropdown) ────────────── */
+
+.add-to-list-create-toggle {
+  background: none;
+  border: none;
+  border-radius: 6px;
+  padding: 0.55rem 0.6rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+
+.add-to-list-create-toggle:hover {
+  background: #242424;
+}
+
+.add-to-list-create-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.3rem 0.6rem 0.6rem;
+  border-bottom: 1px solid #262626;
+  margin-bottom: 0.15rem;
+}
+
+.add-to-list-create-input,
+.add-to-list-create-textarea {
+  background: #111;
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  padding: 0.45rem 0.55rem;
+  font-size: 0.8rem;
+  font-family: inherit;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.add-to-list-create-textarea {
+  resize: vertical;
+  min-height: 44px;
+  line-height: 1.4;
+}
+
+.add-to-list-create-input:focus,
+.add-to-list-create-textarea:focus {
+  border-color: var(--accent);
+}
+
+.add-to-list-create-input::placeholder,
+.add-to-list-create-textarea::placeholder {
+  color: #555;
+}
+
+.add-to-list-create-error {
+  font-size: 0.72rem;
+  color: #ff6b6b;
+}
+
+.add-to-list-create-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.4rem;
+  margin-top: 0.1rem;
+}
+
+.add-to-list-create-cancel,
+.add-to-list-create-submit {
+  border-radius: 6px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  padding: 0.35rem 0.7rem;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.add-to-list-create-cancel {
+  background: none;
+  border: 1px solid #2a2a2a;
+  color: var(--text-muted);
+}
+
+.add-to-list-create-cancel:hover:not(:disabled) {
+  color: var(--text);
+  border-color: #444;
+}
+
+.add-to-list-create-submit {
+  background: var(--accent);
+  border: none;
+  color: #0d0d0d;
+}
+
+.add-to-list-create-submit:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+.add-to-list-create-cancel:disabled,
+.add-to-list-create-submit:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
