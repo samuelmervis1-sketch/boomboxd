@@ -76,12 +76,31 @@ function AuthForm() {
     setMessage(null)
 
     if (mode === 'signin') {
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
-      if (error) setError(error.message)
+      try {
+        const { error } = await supabase.auth.signInWithPassword({ email, password })
+        if (error) {
+          const msg = error.message && error.message !== '{}'
+            ? error.message
+            : 'Unable to sign in. Please check your email and password.'
+          setError(msg)
+        }
+      } catch (err: any) {
+        setError(err?.message || 'Something went wrong. Please try again.')
+      }
     } else {
-      const { error } = await supabase.auth.signUp({ email, password })
-      if (error) setError(error.message)
-      else setMessage('Check your email for a confirmation link.')
+      try {
+        const { error } = await supabase.auth.signUp({ email, password })
+        if (error) {
+          const msg = error.message && error.message !== '{}'
+            ? error.message
+            : 'Unable to create account. This email may already be registered.'
+          setError(msg)
+        } else {
+          setMessage('Check your email for a confirmation link.')
+        }
+      } catch (err: any) {
+        setError(err?.message || 'Something went wrong. Please try again.')
+      }
     }
     setLoading(false)
   }
