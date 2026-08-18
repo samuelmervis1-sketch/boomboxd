@@ -1,0 +1,66 @@
+/* ── Cover stack ─────────────────────────────────────────── */
+/* Overlapping sleeves that fan apart when the card they sit on is
+   hovered, the way you'd thumb through a crate. */
+
+.cover-stack {
+  display: flex;
+  align-items: center;
+  height: 56px;
+}
+
+.cover-stack-item {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  border-radius: var(--radius);
+  object-fit: cover;
+  background-color: #1e1e1e;
+  border: 1px solid var(--hairline);
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.35),
+    0 4px 14px rgba(0, 0, 0, 0.5);
+  transition: transform 0.22s var(--ease-out), margin-left 0.22s var(--ease-out);
+}
+
+.cover-stack-item + .cover-stack-item {
+  margin-left: -34px;
+}
+
+/* Fan out on hover. The first sleeve holds its place and the rest slide
+   right, so the stack grows from a fixed left edge. */
+.list-card:hover .cover-stack-item + .cover-stack-item,
+.user-list-card:hover .cover-stack-item + .cover-stack-item {
+  margin-left: -22px;
+}
+
+.list-card:hover .cover-stack-item,
+.user-list-card:hover .cover-stack-item {
+  transform: translateY(-2px);
+}
+
+/* Nothing in the list yet — three empty slots, so the card keeps its
+   shape instead of collapsing to text. */
+.cover-stack-empty span {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  border-radius: var(--radius);
+  border: 1px dashed var(--border-strong);
+}
+
+.cover-stack-empty span + span {
+  margin-left: -34px;
+  background: var(--bg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cover-stack-item {
+    transition: none;
+  }
+
+  .list-card:hover .cover-stack-item,
+  .user-list-card:hover .cover-stack-item {
+    transform: none;
+  }
+}

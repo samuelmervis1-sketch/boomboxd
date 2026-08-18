@@ -1013,3 +1013,625 @@ body::before {
   body::before { display: none; }
   .art-glow::before { filter: none; opacity: 0.25; }
 }
+
+/* ══════════════════════════════════════════════════════════
+   SECTION HEADINGS
+   The lime LED dot is the app's recurring mark. Every section label
+   carries it, not just the ones that happen to use .section-heading.
+   ══════════════════════════════════════════════════════════ */
+
+.community-reviews-heading,
+.moments-heading,
+.profile-section-heading {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.community-reviews-heading::before,
+.moments-heading::before,
+.profile-section-heading::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  flex-shrink: 0;
+  border-radius: 1px;
+  background: var(--accent);
+  box-shadow: var(--led-glow);
+}
+
+/* A one-line note under a section label, explaining what the row is */
+.section-note {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-body);
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin-top: calc(var(--sp-2) * -1);
+  max-width: 62ch;
+}
+
+/* ══════════════════════════════════════════════════════════
+   REVIEW CARD
+   One definition of a community review, shared by the album and track
+   pages. The glass surface comes from the block above; this owns the
+   internal layout, so the avatar, byline, stars, prose and like button
+   land in the same place wherever you meet a review.
+   ══════════════════════════════════════════════════════════ */
+
+.community-reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.community-review {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding: var(--sp-4) var(--sp-5);
+  border-radius: var(--radius-lg);
+  transition:
+    border-color 0.15s var(--ease-out),
+    background-color 0.15s var(--ease-out);
+}
+
+.community-review:hover {
+  border-color: var(--hairline-strong);
+  background-color: rgba(34, 34, 42, 0.68);
+}
+
+.community-review-header {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+}
+
+.community-review-avatar-link {
+  display: flex;
+  flex-shrink: 0;
+  border-radius: 50%;
+  text-decoration: none;
+}
+
+/* Same lit-object treatment as the profile avatar, so a person looks
+   like the same person on every page. */
+.community-review-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-display);
+  color: var(--accent-ink);
+  background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.28), rgba(0, 0, 0, 0.3));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 4px 12px rgba(0, 0, 0, 0.45);
+  transition: transform 0.15s var(--ease-out);
+}
+
+.community-review-avatar-link:hover .community-review-avatar {
+  transform: scale(1.06);
+}
+
+/* Name over date reads as one identity block; the auto margin pushes
+   the stars and follow button out to the right edge. */
+.community-review-byline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+  margin-right: auto;
+}
+
+.community-review-name {
+  font-size: var(--fs-base);
+  font-weight: var(--fw-bold);
+  color: var(--text);
+  letter-spacing: -0.01em;
+  text-decoration: none;
+}
+
+.community-review-date {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-body);
+  color: var(--text-dim);
+  letter-spacing: 0.02em;
+}
+
+.community-review-header .inline-stars .star-glyph {
+  font-size: 0.95rem;
+}
+
+.community-review-header .follow-btn {
+  flex-shrink: 0;
+}
+
+/* The writing is the point of the card — full-strength text, set as a
+   pulled quote against an accent rule rather than dimmed metadata. */
+.community-review-text {
+  font-size: 0.9rem;
+  font-weight: var(--fw-body);
+  color: var(--text);
+  opacity: 0.88;
+  line-height: 1.6;
+  border-left: 2px solid rgba(232, 255, 107, 0.28);
+  padding-left: var(--sp-4);
+}
+
+.community-review-footer {
+  display: flex;
+  align-items: center;
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--hairline);
+}
+
+@media (max-width: 480px) {
+  .community-review {
+    padding: var(--sp-4);
+    gap: var(--sp-3);
+  }
+
+  .community-review-text {
+    padding-left: var(--sp-3);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   COVER STAGE
+   The sleeve, the record peeking out behind it, and the glow the art
+   throws onto the page. Shared by the album and track heroes so both
+   detail pages open exactly the same way.
+
+   The disc is pure CSS — repeating conic + radial gradients for the
+   sheen and the grooves, no image. It slides further out on hover,
+   like pulling the record from its jacket.
+   ══════════════════════════════════════════════════════════ */
+
+.cover-stage {
+  position: relative;
+  flex-shrink: 0;
+  width: 288px;
+  height: 288px;
+  /* Room for the disc to sit proud of the sleeve without clipping */
+  padding-right: 76px;
+  box-sizing: content-box;
+}
+
+/* The sleeve: an <img>, or the <div> placeholder when there's no art.
+   The disc is a <span>, so it keeps its own sizing below. */
+.cover-stage > img,
+.cover-stage > div {
+  position: relative;
+  z-index: 1;
+  width: 288px;
+  height: 288px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.vinyl {
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  /* Anchored to the right edge of the reserved padding, not to a
+     percentage of the stage — a percentage let the disc run into the
+     title column. At rest it peeks 30px; the hover slide takes it to
+     exactly the 76px of padding and no further. */
+  right: 46px;
+  width: 268px;
+  height: 268px;
+  margin-top: -134px;
+  border-radius: 50%;
+  background:
+    /* sheen sweeping across the disc */
+    repeating-conic-gradient(
+      from 0deg,
+      rgba(255, 255, 255, 0.05) 0deg 6deg,
+      rgba(255, 255, 255, 0) 6deg 22deg
+    ),
+    /* grooves */
+    repeating-radial-gradient(
+      circle at 50% 50%,
+      #101014 0px,
+      #101014 2px,
+      #191920 2px,
+      #191920 4px
+    ),
+    #0c0c10;
+  box-shadow:
+    0 18px 44px rgba(0, 0, 0, 0.7),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  transition: transform 0.45s var(--ease-out);
+  transform: translateX(0);
+}
+
+/* Pull the record out when you're looking at the sleeve */
+.album-hero-body:hover .vinyl,
+.track-hero-body:hover .vinyl {
+  transform: translateX(46px) rotate(12deg);
+}
+
+.vinyl-label {
+  position: absolute;
+  inset: 36%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 34%, #e8ff6b, #9fb43f 68%, #6f7f2c);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.4);
+}
+
+/* Spindle hole */
+.vinyl-label::after {
+  content: '';
+  position: absolute;
+  inset: 43%;
+  border-radius: 50%;
+  background: var(--bg);
+}
+
+/* The stage is positioned, so without this the disc paints over the
+   title, which is static. */
+.album-info,
+.track-info {
+  position: relative;
+  z-index: 2;
+}
+
+/* ── Cover glow ──────────────────────────────────────────── */
+/* A broad bloom in the art's dominant colour, plus a tighter bleed of
+   the cover itself. Both are driven by custom properties set inline
+   once the image and the sampled colour resolve — until then neither
+   pseudo-element paints anything. The right inset discounts the
+   padding the disc sits in, so the glow stays under the sleeve rather
+   than trailing off toward the title. */
+
+.cover-stage::before,
+.cover-stage::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.cover-stage::before {
+  inset: 6% calc(76px + 4%) 0 4%;
+  background: var(--glow, transparent);
+  filter: blur(58px);
+  opacity: 0.9;
+}
+
+.cover-stage::after {
+  inset: 12% calc(76px + 10%) 6% 10%;
+  background-image: var(--art);
+  background-size: cover;
+  background-position: center;
+  filter: blur(30px) saturate(1.7);
+  opacity: 0.45;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vinyl,
+  .album-hero-body:hover .vinyl,
+  .track-hero-body:hover .vinyl {
+    transition: none;
+    transform: translateX(38px);
+  }
+}
+
+/* The disc would overflow a narrow screen, so tuck it in behind */
+@media (max-width: 720px) {
+  .cover-stage {
+    width: 208px;
+    height: 208px;
+    padding-right: 42px;
+  }
+
+  .cover-stage > img,
+  .cover-stage > div {
+    width: 208px;
+    height: 208px;
+  }
+
+  .vinyl {
+    width: 192px;
+    height: 192px;
+    margin-top: -96px;
+    right: 30px;
+  }
+
+  .album-hero-body:hover .vinyl,
+  .track-hero-body:hover .vinyl {
+    transform: translateX(30px) rotate(10deg);
+  }
+
+  .cover-stage::before {
+    inset: 6% calc(42px + 4%) 0 4%;
+    filter: blur(42px);
+  }
+
+  .cover-stage::after {
+    inset: 12% calc(42px + 10%) 6% 10%;
+    filter: blur(22px) saturate(1.7);
+  }
+}
+
+@media (max-width: 400px) {
+  .cover-stage {
+    width: 172px;
+    height: 172px;
+    padding-right: 34px;
+  }
+
+  .cover-stage > img,
+  .cover-stage > div {
+    width: 172px;
+    height: 172px;
+  }
+
+  .vinyl {
+    width: 158px;
+    height: 158px;
+    margin-top: -79px;
+    right: 24px;
+  }
+
+  .album-hero-body:hover .vinyl,
+  .track-hero-body:hover .vinyl {
+    transform: translateX(24px) rotate(10deg);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   HERO ACTION ROW
+   The primary CTA leads; the secondary actions read as one quiet
+   cluster beside it rather than four loose outlines.
+   ══════════════════════════════════════════════════════════ */
+
+.album-actions,
+.track-actions {
+  gap: var(--sp-3);
+  row-gap: var(--sp-2);
+  margin-top: var(--sp-5);
+}
+
+.btn-spotify,
+.btn-share,
+.btn-moment,
+.btn-album-link,
+.btn-add-list {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: var(--hairline-strong);
+  font-weight: var(--fw-medium);
+}
+
+.btn-spotify:hover,
+.btn-share:hover,
+.btn-moment:hover,
+.btn-album-link:hover,
+.btn-add-list:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.22);
+  color: var(--text);
+  transform: translateY(-1px);
+}
+
+.community-reviews {
+  gap: var(--sp-4);
+}
+
+/* ══════════════════════════════════════════════════════════
+   MOMENTS
+   A timestamped note pinned to a point in a song. Defined once and
+   shared by the album and track pages. Purple is the one place the
+   app steps off its lime accent — moments are other people's marks on
+   a record, so they read as a different voice.
+   ══════════════════════════════════════════════════════════ */
+
+.moment-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  max-width: 100%;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  font-size: var(--fs-sm);
+  color: #dcc0ff;
+  background:
+    linear-gradient(180deg, rgba(168, 85, 247, 0.2), rgba(168, 85, 247, 0.1));
+  border: 1px solid rgba(168, 85, 247, 0.36);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  transition:
+    background 0.18s var(--ease-out),
+    border-color 0.18s var(--ease-out),
+    box-shadow 0.18s var(--ease-out),
+    transform 0.18s var(--ease-out);
+}
+
+.moment-pill:hover {
+  border-color: rgba(192, 132, 252, 0.62);
+  background:
+    linear-gradient(180deg, rgba(168, 85, 247, 0.3), rgba(168, 85, 247, 0.16));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 6px 20px rgba(168, 85, 247, 0.2);
+  transform: translateY(-1px);
+}
+
+/* The timestamp is the anchor — monospaced so a column of moments
+   lines up the way a cue sheet would. */
+.moment-timestamp {
+  flex-shrink: 0;
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.76rem;
+  font-weight: var(--fw-bold);
+  color: #c084fc;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
+
+.moment-sep {
+  flex-shrink: 0;
+  color: rgba(216, 184, 255, 0.35);
+}
+
+.moment-comment {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.moment-author {
+  flex-shrink: 0;
+  white-space: nowrap;
+  color: #b78ef0;
+  font-weight: var(--fw-medium);
+  text-decoration: none;
+  transition: color 0.15s var(--ease-out);
+}
+
+a.moment-author:hover {
+  color: #eddcff;
+}
+
+/* Hidden until you're on the pill that owns it — a delete button on
+   every moment turns the row into a wall of ×'s. */
+.moment-delete {
+  flex-shrink: 0;
+  padding: 0 0.15rem;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 0.9rem;
+  line-height: 1;
+  color: rgba(216, 184, 255, 0.6);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s var(--ease-out), color 0.15s var(--ease-out);
+}
+
+.moment-pill:hover .moment-delete,
+.moment-delete:focus-visible {
+  opacity: 1;
+}
+
+.moment-delete:hover {
+  color: #fff;
+}
+
+/* No hover on touch, so it stays visible there */
+@media (hover: none) {
+  .moment-delete {
+    opacity: 1;
+  }
+}
+
+/* ── Moment form ─────────────────────────────────────────── */
+
+.moment-form {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+  max-width: 480px;
+}
+
+.moment-form-timestamp,
+.moment-form-comment {
+  padding: 0.45rem 0.65rem;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s var(--ease-out), box-shadow 0.15s var(--ease-out);
+}
+
+.moment-form-timestamp {
+  width: 4.5rem;
+  flex-shrink: 0;
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.moment-form-comment {
+  flex: 1;
+  min-width: 0;
+}
+
+.moment-form-timestamp:focus,
+.moment-form-comment:focus {
+  border-color: #a855f7;
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.16);
+}
+
+.moment-form-save,
+.moment-form-cancel {
+  flex-shrink: 0;
+  padding: 0.45rem 0.8rem;
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  cursor: pointer;
+}
+
+.moment-form-save {
+  background: #a855f7;
+  color: #fff;
+  border: 1px solid #a855f7;
+}
+
+.moment-form-save:hover:not(:disabled) {
+  background: #b975f9;
+  border-color: #b975f9;
+}
+
+.moment-form-save:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.moment-form-cancel {
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--text-muted);
+  font-weight: var(--fw-medium);
+}
+
+.moment-form-cancel:hover {
+  color: var(--text);
+  border-color: var(--text-muted);
+}
+
+.moment-error {
+  font-size: var(--fs-xs);
+  color: #ff6b6b;
+}
+
+@media (max-width: 720px) {
+  /* Long comments wrap instead of being clipped to one line */
+  .moment-pill {
+    flex-wrap: wrap;
+  }
+
+  .moment-comment {
+    white-space: normal;
+  }
+
+  .moment-form {
+    flex-wrap: wrap;
+  }
+
+  .moment-form-comment {
+    /* Take the full second row rather than squeezing beside the timestamp */
+    flex-basis: 100%;
+    order: 3;
+  }
+}

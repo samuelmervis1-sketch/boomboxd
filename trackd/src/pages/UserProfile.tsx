@@ -10,6 +10,7 @@ import { listsApi, type List } from '../lib/listsApi'
 import { reviewLikesApi, type LikeInfo } from '../lib/reviewLikesApi'
 import { reviewerColor, reviewerInitial } from '../lib/reviewerDisplay'
 import { StarGlyph } from '../components/RatingModal'
+import CoverStack from '../components/CoverStack'
 import FollowButton from '../components/FollowButton'
 import LikeButton from '../components/LikeButton'
 import Seo from '../components/Seo'
@@ -19,6 +20,8 @@ import './UserProfile.css'
 
 interface PublicList extends List {
   itemCount: number
+  /** First few covers, for the stacked preview on the card. */
+  images: string[]
 }
 
 export default function UserProfile() {
@@ -103,16 +106,22 @@ export default function UserProfile() {
     return () => { cancelled = true }
   }, [profile, viewer?.id])
 
-  // Public lists, with an item count per list
+  // Public lists, with an item count and preview covers per list. The
+  // summaries come back in one round trip rather than a count query per
+  // card, so a user with a lot of lists still loads in two requests.
   useEffect(() => {
     if (!profile) { setPublicLists([]); return }
     let cancelled = false
     setListsLoading(true)
     listsApi.getPublicLists(profile.id)
       .then(async lists => {
-        const counts = await Promise.all(lists.map(l => listsApi.getListItemCount(l.id)))
+        const summaries = await listsApi.getListSummaries(lists.map(l => l.id))
         if (cancelled) return
-        setPublicLists(lists.map((l, i) => ({ ...l, itemCount: counts[i] })))
+        setPublicLists(lists.map(l => ({
+          ...l,
+          itemCount: summaries[l.id]?.count ?? 0,
+          images: summaries[l.id]?.images ?? [],
+        })))
       })
       .catch(() => { if (!cancelled) setPublicLists([]) })
       .finally(() => { if (!cancelled) setListsLoading(false) })
@@ -284,9 +293,14 @@ export default function UserProfile() {
           <div className="user-list-grid">
             <SkeletonList count={2}>{i => (
               <div className="user-list-card" key={i} aria-hidden="true">
-                <SkeletonBox height="15px" width="62%" radius="4px" />
-                <SkeletonBox height="12px" width="86%" radius="4px" />
-                <SkeletonBox height="10px" width="40%" radius="4px" />
+                <SkeletonBox height="56px" width="78px" radius="var(--radius)" />
+                <div className="user-list-card-text">
+                  <SkeletonBox height="15px" width="62%" radius="4px" />
+                  <SkeletonBox height="12px" width="86%" radius="4px" />
+                </div>
+                <div className="user-list-card-meta">
+                  <SkeletonBox height="10px" width="40%" radius="4px" />
+                </div>
               </div>
             )}</SkeletonList>
           </div>
@@ -298,9 +312,19 @@ export default function UserProfile() {
           <div className="user-list-grid">
             {publicLists.map(list => (
               <Link key={list.id} to={`/list/${list.id}`} className="user-list-card">
-                <p className="user-list-card-title">{list.title}</p>
-                {list.description && <p className="user-list-card-desc">{list.description}</p>}
-                <p className="user-list-card-meta">{list.itemCount} {list.itemCount === 1 ? 'item' : 'items'}</p>
+                <CoverStack images={list.images} />
+                <div className="user-list-card-text">
+                  <p className="user-list-card-title">{list.title}</p>
+                  {list.description && <p className="user-list-card-desc">{list.description}</p>}
+                </div>
+                <div className="user-list-card-meta">
+                  <span className="user-list-card-count">
+                    {list.itemCount} {list.itemCount === 1 ? 'item' : 'items'}
+                  </span>
+                  <span className="user-list-card-date">
+                    {format(new Date(list.created_at), 'MMM yyyy')}
+                  </span>
+                </div>
               </Link>
             ))}
           </div>

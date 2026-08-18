@@ -98,7 +98,7 @@ export function SkeletonDiscoverCard() {
 export function SkeletonFeedItem() {
   return (
     <div className="skeleton-feed-item" aria-hidden="true">
-      <SkeletonBox width="64px" height="64px" radius="6px" />
+      <SkeletonBox width="72px" height="72px" radius="8px" />
       <div className="skeleton-feed-item-body">
         <SkeletonBox height="12px" width="30%" radius="4px" />
         <SkeletonBox height="15px" width="60%" radius="4px" />

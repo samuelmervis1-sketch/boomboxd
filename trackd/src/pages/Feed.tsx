@@ -6,6 +6,7 @@ import { supabase } from '../lib/supabase'
 import { followsApi, type Follow } from '../lib/followsApi'
 import { profilesApi, type Profile } from '../lib/profilesApi'
 import { reviewLikesApi, type LikeInfo } from '../lib/reviewLikesApi'
+import { reviewerColor, reviewerInitial } from '../lib/reviewerDisplay'
 import type { Rating } from '../lib/ratingsApi'
 import { StarGlyph } from '../components/RatingModal'
 import LikeButton from '../components/LikeButton'
@@ -166,11 +167,23 @@ export default function Feed() {
                 }
               }}
             >
-              {r.album_image
-                ? <img className="feed-item-art" src={r.album_image} alt={r.album_name} />
-                : <div className="feed-item-art-placeholder" />}
+              <div
+                className="feed-item-art-frame art-glow"
+                style={r.album_image ? ({ '--art': `url(${r.album_image})` } as React.CSSProperties) : undefined}
+              >
+                {r.album_image
+                  ? <img className="feed-item-art" src={r.album_image} alt={r.album_name} />
+                  : <div className="feed-item-art-placeholder" />}
+              </div>
               <div className="feed-item-body">
                 <div className="feed-item-header">
+                  <div
+                    className="feed-item-avatar"
+                    style={{ background: reviewerColor(r.user_id) }}
+                    aria-hidden="true"
+                  >
+                    {reviewerInitial(profile)}
+                  </div>
                   {profile?.username ? (
                     <Link
                       to={`/user/${profile.username}`}
@@ -182,6 +195,7 @@ export default function Feed() {
                   ) : (
                     <span className="feed-item-reviewer">{reviewerName(profile)}</span>
                   )}
+                  <span className="feed-item-rated">rated</span>
                   <span className="feed-item-date">{format(new Date(r.created_at), 'MMM d, yyyy')}</span>
                 </div>
                 <p className="feed-item-album">{r.album_name}</p>
