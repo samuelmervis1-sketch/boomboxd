@@ -1,7 +1,7 @@
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-  const clientId = process.env.VITE_SPOTIFY_CLIENT_ID;
-  const clientSecret = process.env.VITE_SPOTIFY_CLIENT_SECRET;
+  const clientId = process.env.SPOTIFY_CLIENT_ID;
+  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
   if (!clientId || !clientSecret) return res.status(500).json({ error: 'Missing credentials' });
   try {
     const response = await fetch('https://accounts.spotify.com/api/token', {
