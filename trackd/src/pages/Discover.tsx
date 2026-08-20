@@ -8,20 +8,11 @@ import { reviewLikesApi, type LikeInfo } from '../lib/reviewLikesApi'
 import type { Rating } from '../lib/ratingsApi'
 import { StarGlyph } from '../components/RatingModal'
 import LikeButton from '../components/LikeButton'
+import AlbumArt from '../components/AlbumArt'
 import EmptyState, { CompassIcon } from '../components/EmptyState'
 import Seo from '../components/Seo'
 import { SkeletonList, SkeletonDiscoverCard, SkeletonBox } from '../components/Skeleton'
 import './Discover.css'
-
-function MusicIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M9 18V5l12-2v13" />
-      <circle cx="6" cy="18" r="3" />
-      <circle cx="18" cy="16" r="3" />
-    </svg>
-  )
-}
 
 function reviewerLabel(profile: Profile | undefined): string {
   return profile?.username ? `@${profile.username}` : 'a boomboxd fan'
@@ -40,13 +31,7 @@ function RatingPill({ avg, count }: { avg: number; count: number }) {
 function CardArt({ src, alt }: { src: string | null; alt: string }) {
   return (
     <div className="discover-card-art">
-      {src ? (
-        <img src={src} alt={alt} loading="lazy" />
-      ) : (
-        <div className="discover-card-art-placeholder">
-          <MusicIcon />
-        </div>
-      )}
+      <AlbumArt src={src} alt={alt} placeholderClassName="discover-card-art-placeholder" loading="lazy" />
     </div>
   )
 }
@@ -181,9 +166,7 @@ export default function Discover() {
                       className="discover-card-art art-glow"
                       style={a.albumImage ? ({ '--art': `url(${a.albumImage})` } as React.CSSProperties) : undefined}
                     >
-                      {a.albumImage
-                        ? <img src={a.albumImage} alt={a.albumName} loading="lazy" />
-                        : <div className="discover-card-art-placeholder"><MusicIcon /></div>}
+                      <AlbumArt src={a.albumImage} alt={a.albumName} placeholderClassName="discover-card-art-placeholder" loading="lazy" />
                       <span className="discover-badge">Editor's choice</span>
                     </div>
                     <div className="discover-card-info">

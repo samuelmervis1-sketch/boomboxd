@@ -10,6 +10,7 @@ import { listsApi, type List } from '../lib/listsApi'
 import { reviewLikesApi, type LikeInfo } from '../lib/reviewLikesApi'
 import { reviewerColor, reviewerInitial } from '../lib/reviewerDisplay'
 import { StarGlyph } from '../components/RatingModal'
+import AlbumArt from '../components/AlbumArt'
 import CoverStack from '../components/CoverStack'
 import FollowButton from '../components/FollowButton'
 import LikeButton from '../components/LikeButton'
@@ -253,9 +254,7 @@ export default function UserProfile() {
               return (
                 <div key={r.id} className="user-rating-item">
                   <Link to={href} className="user-rating-item-link">
-                    {r.album_image
-                      ? <img className="user-rating-art" src={r.album_image} alt={title ?? ''} />
-                      : <div className="user-rating-art-placeholder" />}
+                    <AlbumArt src={r.album_image} alt={title ?? ''} className="user-rating-art" placeholderClassName="user-rating-art-placeholder" />
                     <div className="user-rating-body">
                       <p className="user-rating-title">{title}</p>
                       <p className="user-rating-subtitle">{subtitle}</p>

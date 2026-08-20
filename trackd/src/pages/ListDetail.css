@@ -178,6 +178,18 @@
   background: #1e1e1e;
 }
 
+.ranked-item-art-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #333;
+}
+
+.ranked-item-art-placeholder svg {
+  width: 20px;
+  height: 20px;
+}
+
 .ranked-item-body {
   flex: 1;
   min-width: 0;

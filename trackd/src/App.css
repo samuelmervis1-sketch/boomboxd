@@ -1214,6 +1214,19 @@ body::before {
   object-fit: cover;
 }
 
+/* The placeholder div only — .album-cover-placeholder / .track-cover-placeholder */
+.cover-stage > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #333;
+}
+
+.cover-stage > div svg {
+  width: 56px;
+  height: 56px;
+}
+
 .vinyl {
   position: absolute;
   z-index: 0;

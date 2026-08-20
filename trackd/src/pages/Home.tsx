@@ -15,6 +15,7 @@ import {
 } from '../lib/discoverApi'
 import { formatDuration } from '../lib/format'
 import RatingModal from '../components/RatingModal'
+import AlbumArt from '../components/AlbumArt'
 import Seo from '../components/Seo'
 import {
   SkeletonList,
@@ -34,16 +35,6 @@ function SearchIcon() {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="11" cy="11" r="8" />
       <line x1="21" y1="21" x2="16.65" y2="16.65" />
-    </svg>
-  )
-}
-
-function MusicIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M9 18V5l12-2v13" />
-      <circle cx="6" cy="18" r="3" />
-      <circle cx="18" cy="16" r="3" />
     </svg>
   )
 }
@@ -114,13 +105,7 @@ function AlbumCard({
     <div className="album-card">
       <Link to={`/album/${album.id}`} className="album-card-link">
         <div className="album-card-art">
-          {image ? (
-            <img src={image} alt={album.name} loading="lazy" />
-          ) : (
-            <div className="album-card-art-placeholder">
-              <MusicIcon />
-            </div>
-          )}
+          <AlbumArt src={image} alt={album.name} placeholderClassName="album-card-art-placeholder" loading="lazy" />
         </div>
         <div className="album-card-info">
           <div className="album-card-title" title={album.name}>{album.name}</div>
@@ -165,13 +150,7 @@ function TrackCard({
     <div className="track-card">
       <Link to={`/track/${track.id}`} className="track-card-link">
         <div className="track-card-art">
-          {image ? (
-            <img src={image} alt={track.name} loading="lazy" />
-          ) : (
-            <div className="track-card-art-placeholder">
-              <MusicIcon />
-            </div>
-          )}
+          <AlbumArt src={image} alt={track.name} placeholderClassName="track-card-art-placeholder" loading="lazy" />
         </div>
         <div className="track-card-info">
           <div className="track-card-title" title={track.name}>{track.name}</div>
@@ -575,13 +554,7 @@ export default function Home() {
                     className="trending-card-art art-glow"
                     style={item.image ? ({ '--art': `url(${item.image})` } as React.CSSProperties) : undefined}
                   >
-                    {item.image ? (
-                      <img src={item.image} alt={item.name} loading="lazy" />
-                    ) : (
-                      <div className="trending-card-art-placeholder">
-                        <MusicIcon />
-                      </div>
-                    )}
+                    <AlbumArt src={item.image} alt={item.name} placeholderClassName="trending-card-art-placeholder" loading="lazy" />
                   </div>
                   <div className="trending-card-info">
                     <p className="trending-card-title" title={item.name}>{item.name}</p>
@@ -622,9 +595,7 @@ export default function Home() {
                         className="home-review-art art-glow"
                         style={r.album_image ? ({ '--art': `url(${r.album_image})` } as React.CSSProperties) : undefined}
                       >
-                        {r.album_image
-                          ? <img src={r.album_image} alt={r.album_name} loading="lazy" />
-                          : <div className="home-review-art-placeholder"><MusicIcon /></div>}
+                        <AlbumArt src={r.album_image} alt={r.album_name} placeholderClassName="home-review-art-placeholder" loading="lazy" />
                       </div>
                       <div className="home-review-titles">
                         <p className="home-review-name" title={isTrack ? (r.track_name ?? '') : r.album_name}>
@@ -664,9 +635,7 @@ export default function Home() {
                     className="ranked-art art-glow"
                     style={item.image ? ({ '--art': `url(${item.image})` } as React.CSSProperties) : undefined}
                   >
-                    {item.image
-                      ? <img src={item.image} alt={item.name} loading="lazy" />
-                      : <div className="ranked-art-placeholder"><MusicIcon /></div>}
+                    <AlbumArt src={item.image} alt={item.name} placeholderClassName="ranked-art-placeholder" loading="lazy" />
                   </div>
                   <div className="ranked-body">
                     <p className="ranked-name" title={item.name}>{item.name}</p>
@@ -717,9 +686,7 @@ export default function Home() {
                   className="home-stat-best-art art-glow"
                   style={stats.bestAlbumImage ? ({ '--art': `url(${stats.bestAlbumImage})` } as React.CSSProperties) : undefined}
                 >
-                  {stats.bestAlbumImage
-                    ? <img src={stats.bestAlbumImage} alt={stats.bestAlbumName ?? ''} loading="lazy" />
-                    : <div className="home-stat-best-placeholder"><MusicIcon /></div>}
+                  <AlbumArt src={stats.bestAlbumImage} alt={stats.bestAlbumName ?? ''} placeholderClassName="home-stat-best-placeholder" loading="lazy" />
                 </div>
                 <div className="home-stat-best-body">
                   <span className="home-stat-label">Your highest rated</span>

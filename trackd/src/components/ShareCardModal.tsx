@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from 'react'
 import { toPng } from 'html-to-image'
 import type { SpotifyAlbum } from '../services/spotifyApi'
 import type { Rating } from '../lib/ratingsApi'
+import { MusicIcon } from './AlbumArt'
 import './ShareCardModal.css'
 
 // ── Fetch external image as data URL to sidestep CORS ─────
@@ -10,10 +11,15 @@ async function fetchAsDataUrl(url: string): Promise<string> {
   try {
     const res = await fetch(url)
     const blob = await res.blob()
-    return new Promise((resolve, reject) => {
+    return await new Promise<string>((resolve) => {
       const reader = new FileReader()
       reader.onloadend = () => resolve(reader.result as string)
-      reader.onerror = reject
+      // A FileReader failure here is async, so it wouldn't be caught by the
+      // surrounding try/catch if it rejected — resolve to the plain URL
+      // instead, matching the network-failure fallback below. The <img>
+      // that eventually renders it has its own onError handling for a URL
+      // that turns out to be genuinely broken.
+      reader.onerror = () => resolve(url)
       reader.readAsDataURL(blob)
     })
   } catch {
@@ -100,6 +106,9 @@ interface CardProps {
 }
 
 function ShareCard({ album, rating, review, color, artDataUrl, cardRef }: CardProps) {
+  const [artFailed, setArtFailed] = useState(false)
+  useEffect(() => setArtFailed(false), [artDataUrl])
+
   const [r, g, b] = color
   const artists = album.artists.map(a => a.name).join(', ')
   const truncated = review && review.length > 160 ? review.slice(0, 157) + '…' : review
@@ -141,10 +150,11 @@ function ShareCard({ album, rating, review, color, artDataUrl, cardRef }: CardPr
       }} />
 
       {/* Album art */}
-      {artDataUrl ? (
+      {artDataUrl && !artFailed ? (
         <img
           src={artDataUrl}
           alt={album.name}
+          onError={() => setArtFailed(true)}
           style={{
             width: 180,
             height: 180,
@@ -166,7 +176,13 @@ function ShareCard({ album, rating, review, color, artDataUrl, cardRef }: CardPr
           position: 'relative' as const,
           zIndex: 1,
           flexShrink: 0,
-        }} />
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: '#3a3a3a',
+        }}>
+          <MusicIcon size={34} />
+        </div>
       )}
 
       {/* Album name + artist */}

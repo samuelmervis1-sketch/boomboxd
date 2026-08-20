@@ -1,4 +1,5 @@
 import { COVER_STACK_SIZE } from '../lib/listsApi'
+import AlbumArt from './AlbumArt'
 import './CoverStack.css'
 
 // A list's first few sleeves, overlapping like records leaning in a crate.
@@ -21,11 +22,16 @@ export default function CoverStack({ images }: { images: string[] }) {
   return (
     <div className="cover-stack" aria-hidden="true">
       {covers.map((src, i) => (
-        <img
+        <AlbumArt
           key={`${src}-${i}`}
-          className="cover-stack-item"
           src={src}
           alt=""
+          className="cover-stack-item"
+          // Both the base sizing/margin behaviour AND the "no image" look
+          // come from cover-stack-item — the fallback icon centering rides
+          // on top of it as a second class, same pattern as the rest of
+          // the app's placeholders.
+          placeholderClassName="cover-stack-item cover-stack-item-fallback"
           loading="lazy"
           // First sleeve in front, the rest receding behind it
           style={{ zIndex: COVER_STACK_SIZE - i }}

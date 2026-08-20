@@ -12,6 +12,7 @@ import { reviewLikesApi, type LikeInfo } from '../lib/reviewLikesApi'
 import { formatDuration } from '../lib/format'
 import { reviewerColor, reviewerName, reviewerInitial } from '../lib/reviewerDisplay'
 import RatingModal, { StarGlyph } from '../components/RatingModal'
+import AlbumArt from '../components/AlbumArt'
 import FollowButton from '../components/FollowButton'
 import AddToListButton from '../components/AddToListButton'
 import LikeButton from '../components/LikeButton'
@@ -312,10 +313,7 @@ export default function TrackDetail() {
                 <span className="vinyl" aria-hidden="true">
                   <span className="vinyl-label" />
                 </span>
-                {image
-                  ? <img className="track-cover" src={image} alt={track.name} />
-                  : <div className="track-cover-placeholder" />
-                }
+                <AlbumArt src={image} alt={track.name} className="track-cover" placeholderClassName="track-cover-placeholder" />
               </div>
 
               <div className="track-info">

@@ -4,6 +4,7 @@ import type { User } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
 import { listsApi, type List, type ListItem } from '../lib/listsApi'
 import { profilesApi, type Profile } from '../lib/profilesApi'
+import AlbumArt from '../components/AlbumArt'
 import LoadingScreen from '../components/LoadingScreen'
 import './ListDetail.css'
 
@@ -176,9 +177,7 @@ export default function ListDetail() {
                   <span className="ranked-item-num">{item.position}</span>
                   <RankArrow position={item.position} previousPosition={item.previous_position} />
                 </div>
-                {item.album_image
-                  ? <img className="ranked-item-art" src={item.album_image} alt={name} />
-                  : <div className="ranked-item-art-placeholder" />}
+                <AlbumArt src={item.album_image} alt={name} className="ranked-item-art" placeholderClassName="ranked-item-art-placeholder" />
                 <div className="ranked-item-body">
                   <p className="ranked-item-name">{name}</p>
                   {subtitle && <p className="ranked-item-subtitle">{subtitle}</p>}
