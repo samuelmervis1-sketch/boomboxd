@@ -27,6 +27,18 @@
   margin-left: -34px;
 }
 
+.cover-stack-item-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #333;
+}
+
+.cover-stack-item-fallback svg {
+  width: 20px;
+  height: 20px;
+}
+
 /* Fan out on hover. The first sleeve holds its place and the rest slide
    right, so the stack grows from a fixed left edge. */
 .list-card:hover .cover-stack-item + .cover-stack-item,

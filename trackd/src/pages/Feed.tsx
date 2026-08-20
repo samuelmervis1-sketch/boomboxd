@@ -10,6 +10,7 @@ import { reviewerColor, reviewerInitial } from '../lib/reviewerDisplay'
 import type { Rating } from '../lib/ratingsApi'
 import { StarGlyph } from '../components/RatingModal'
 import LikeButton from '../components/LikeButton'
+import AlbumArt from '../components/AlbumArt'
 import EmptyState, { HeadphonesIcon } from '../components/EmptyState'
 import Seo from '../components/Seo'
 import { SkeletonList, SkeletonFeedItem } from '../components/Skeleton'
@@ -171,9 +172,7 @@ export default function Feed() {
                 className="feed-item-art-frame art-glow"
                 style={r.album_image ? ({ '--art': `url(${r.album_image})` } as React.CSSProperties) : undefined}
               >
-                {r.album_image
-                  ? <img className="feed-item-art" src={r.album_image} alt={r.album_name} />
-                  : <div className="feed-item-art-placeholder" />}
+                <AlbumArt src={r.album_image} alt={r.album_name} className="feed-item-art" placeholderClassName="feed-item-art-placeholder" />
               </div>
               <div className="feed-item-body">
                 <div className="feed-item-header">

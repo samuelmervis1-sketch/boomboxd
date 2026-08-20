@@ -13,6 +13,7 @@ import { formatDuration } from '../lib/format'
 import { reviewerColor, reviewerName, reviewerInitial } from '../lib/reviewerDisplay'
 import RatingModal, { StarGlyph } from '../components/RatingModal'
 import ShareCardModal from '../components/ShareCardModal'
+import AlbumArt from '../components/AlbumArt'
 import FollowButton from '../components/FollowButton'
 import AddToListButton from '../components/AddToListButton'
 import LikeButton from '../components/LikeButton'
@@ -394,10 +395,7 @@ export default function AlbumDetail() {
                 <span className="vinyl" aria-hidden="true">
                   <span className="vinyl-label" />
                 </span>
-                {image
-                  ? <img className="album-cover" src={image} alt={album.name} />
-                  : <div className="album-cover-placeholder" />
-                }
+                <AlbumArt src={image} alt={album.name} className="album-cover" placeholderClassName="album-cover-placeholder" />
               </div>
 
               <div className="album-info">

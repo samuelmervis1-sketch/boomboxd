@@ -6,6 +6,7 @@ import { supabase } from '../lib/supabase'
 import { ratingsApi, type Rating } from '../lib/ratingsApi'
 import { profilesApi, type Profile } from '../lib/profilesApi'
 import { StarGlyph } from '../components/RatingModal'
+import AlbumArt from '../components/AlbumArt'
 import LoadingScreen from '../components/LoadingScreen'
 import { SkeletonList, SkeletonFeedItem } from '../components/Skeleton'
 import './Profile.css'
@@ -367,9 +368,7 @@ function ProfileView({ user }: { user: User }) {
                 className="favorites-album"
                 title={`${fav.album_name} — ${fav.rating} stars`}
               >
-                {fav.album_image
-                  ? <img src={fav.album_image} alt={fav.album_name} />
-                  : <div className="favorites-album-placeholder" />}
+                <AlbumArt src={fav.album_image} alt={fav.album_name} placeholderClassName="favorites-album-placeholder" />
                 <span className="favorites-album-rating">{fav.rating}★</span>
               </Link>
             )
@@ -394,9 +393,7 @@ function ProfileView({ user }: { user: User }) {
           <div className="activity-list">
             {recentRatings.map(r => (
               <Link key={r.id} to={`/album/${r.album_id}`} className="activity-item">
-                {r.album_image
-                  ? <img className="activity-art" src={r.album_image} alt={r.album_name} />
-                  : <div className="activity-art-placeholder" />}
+                <AlbumArt src={r.album_image} alt={r.album_name} className="activity-art" placeholderClassName="activity-art-placeholder" />
                 <div className="activity-body">
                   <p className="activity-album-name">{r.album_name}</p>
                   <p className="activity-album-artist">{r.album_artist}</p>
