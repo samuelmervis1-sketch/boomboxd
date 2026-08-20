@@ -1,5 +1,3 @@
-const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID as string
-const CLIENT_SECRET = import.meta.env.VITE_SPOTIFY_CLIENT_SECRET as string
 const TOKEN_URL = '/api/spotify-token'
 const API_BASE = '/api/spotify'
 
@@ -10,20 +8,16 @@ interface TokenCache {
 
 let tokenCache: TokenCache | null = null
 
+// The client-credentials exchange happens entirely server-side in
+// api/spotify-token.js — it holds the Spotify client secret via
+// process.env, which Vite never inlines into the browser bundle. This
+// request carries no credentials at all.
 async function getAccessToken(): Promise<string> {
   if (tokenCache && Date.now() < tokenCache.expiresAt) {
     return tokenCache.token
   }
 
-  const credentials = btoa(`${CLIENT_ID}:${CLIENT_SECRET}`)
-  const res = await fetch(TOKEN_URL, {
-    method: 'POST',
-    headers: {
-      Authorization: `Basic ${credentials}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: 'grant_type=client_credentials',
-  })
+  const res = await fetch(TOKEN_URL, { method: 'POST' })
 
   if (!res.ok) throw new Error(`Spotify token error: ${res.status}`)
 
