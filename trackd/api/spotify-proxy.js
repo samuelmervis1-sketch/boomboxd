@@ -1,4 +1,7 @@
+import { rateLimit } from './_rateLimit.js';
+
 export default async function handler(req, res) {
+  if (!rateLimit(req, res, { limit: 60 })) return;
   const url = new URL(req.url, `https://${req.headers.host}`);
   const spotifyPath = url.pathname.replace('/api/spotify/', '');
   const spotifyUrl = new URL(`https://api.spotify.com/v1/${spotifyPath}`);
