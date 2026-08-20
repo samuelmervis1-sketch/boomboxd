@@ -1,5 +1,8 @@
+import { rateLimit } from './_rateLimit.js';
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  if (!rateLimit(req, res, { limit: 20 })) return;
   const clientId = process.env.SPOTIFY_CLIENT_ID;
   const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
   if (!clientId || !clientSecret) return res.status(500).json({ error: 'Missing credentials' });
