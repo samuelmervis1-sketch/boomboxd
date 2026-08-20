@@ -25,6 +25,18 @@ function getAvatarColor(str: string): string {
   return palette[Math.abs(hash) % palette.length]
 }
 
+// supabase-js can't always parse a real message out of the auth server's
+// error body — when none of its expected fields (msg/message/error_description/
+// error) are present, it falls back to JSON.stringify'ing the body, which for
+// an empty error object comes out as the literal string '{}'. That tells us
+// nothing about the actual failure, so showing it (or guessing a specific
+// cause from it) would be misleading — a neutral fallback is more honest.
+// The raw error is logged so the real cause is still visible in devtools.
+function authErrorMessage(error: { message?: string; status?: number; code?: string }, fallback: string): string {
+  console.error('Auth error:', error)
+  return error.message && error.message !== '{}' ? error.message : fallback
+}
+
 // ── Icons ──────────────────────────────────────────────────
 
 function GoogleIcon() {
@@ -76,26 +88,24 @@ function AuthForm() {
     setError(null)
     setMessage(null)
 
+    // Neither Supabase's JS client nor its auth server trims whitespace, and
+    // stray leading/trailing spaces are an easy way to end up here from
+    // autofill or a pasted address — normalize before it ever leaves the
+    // browser rather than let it produce a confusing server-side rejection.
+    const cleanEmail = email.trim().toLowerCase()
+
     if (mode === 'signin') {
       try {
-        const { error } = await supabase.auth.signInWithPassword({ email, password })
-        if (error) {
-          const msg = error.message && error.message !== '{}'
-            ? error.message
-            : 'Unable to sign in. Please check your email and password.'
-          setError(msg)
-        }
+        const { error } = await supabase.auth.signInWithPassword({ email: cleanEmail, password })
+        if (error) setError(authErrorMessage(error, 'Unable to sign in. Please check your email and password.'))
       } catch (err: any) {
         setError(err?.message || 'Something went wrong. Please try again.')
       }
     } else {
       try {
-        const { error } = await supabase.auth.signUp({ email, password })
+        const { error } = await supabase.auth.signUp({ email: cleanEmail, password })
         if (error) {
-          const msg = error.message && error.message !== '{}'
-            ? error.message
-            : 'Unable to create account. This email may already be registered.'
-          setError(msg)
+          setError(authErrorMessage(error, 'Something went wrong creating your account. Please try again.'))
         } else {
           setMessage('Check your email for a confirmation link.')
         }
