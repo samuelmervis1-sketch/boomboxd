@@ -60,16 +60,12 @@ function PlusIcon() {
 }
 
 // ── Auth form ──────────────────────────────────────────────
-
-type AuthMode = 'signin' | 'signup'
+// Google OAuth is the only auth path. It covers both new and returning
+// users in one flow, so there's no sign-in/sign-up distinction to make.
 
 function AuthForm() {
-  const [mode, setMode] = useState<AuthMode>('signin')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [message, setMessage] = useState<string | null>(null)
 
   async function handleGoogle() {
     setLoading(true)
@@ -78,105 +74,26 @@ function AuthForm() {
       provider: 'google',
       options: { redirectTo: window.location.origin + '/profile' },
     })
-    if (error) setError(error.message)
-    setLoading(false)
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
-    setMessage(null)
-
-    // Neither Supabase's JS client nor its auth server trims whitespace, and
-    // stray leading/trailing spaces are an easy way to end up here from
-    // autofill or a pasted address — normalize before it ever leaves the
-    // browser rather than let it produce a confusing server-side rejection.
-    const cleanEmail = email.trim().toLowerCase()
-
-    if (mode === 'signin') {
-      try {
-        const { error } = await supabase.auth.signInWithPassword({ email: cleanEmail, password })
-        if (error) setError(authErrorMessage(error, 'Unable to sign in. Please check your email and password.'))
-      } catch (err: any) {
-        setError(err?.message || 'Something went wrong. Please try again.')
-      }
-    } else {
-      try {
-        const { error } = await supabase.auth.signUp({ email: cleanEmail, password })
-        if (error) {
-          setError(authErrorMessage(error, 'Something went wrong creating your account. Please try again.'))
-        } else {
-          setMessage('Check your email for a confirmation link.')
-        }
-      } catch (err: any) {
-        setError(err?.message || 'Something went wrong. Please try again.')
-      }
+    // On success the browser is already on its way to Google, so the button
+    // stays disabled — only re-enable it if the redirect never started.
+    if (error) {
+      setError(authErrorMessage(error, 'Unable to continue with Google. Please try again.'))
+      setLoading(false)
     }
-    setLoading(false)
-  }
-
-  function switchMode(next: AuthMode) {
-    setMode(next)
-    setError(null)
-    setMessage(null)
   }
 
   return (
     <div className="auth-wrap">
       <div className="auth-card">
         <p className="auth-logo">boomboxd</p>
-        <h1 className="auth-heading">
-          {mode === 'signin' ? 'Welcome back' : 'Join boomboxd'}
-        </h1>
-
-        <div className="auth-tabs">
-          <button className={`auth-tab ${mode === 'signin' ? 'active' : ''}`} onClick={() => switchMode('signin')}>
-            Sign in
-          </button>
-          <button className={`auth-tab ${mode === 'signup' ? 'active' : ''}`} onClick={() => switchMode('signup')}>
-            Create account
-          </button>
-        </div>
+        <h1 className="auth-heading">Welcome back</h1>
 
         <button className="btn-google" onClick={handleGoogle} disabled={loading}>
           <GoogleIcon />
           Continue with Google
         </button>
 
-        <div className="auth-divider">or</div>
-
-        <form className="auth-form" onSubmit={handleSubmit}>
-          <div className="form-field">
-            <label className="form-label">Email</label>
-            <input
-              className="form-input"
-              type="email"
-              autoComplete="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          <div className="form-field">
-            <label className="form-label">Password</label>
-            <input
-              className="form-input"
-              type="password"
-              autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
-              placeholder={mode === 'signup' ? 'At least 6 characters' : '••••••••'}
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-            />
-          </div>
-          {error && <p className="auth-error">{error}</p>}
-          {message && <p className="auth-error" style={{ color: 'var(--accent)', background: 'rgba(232,255,107,0.06)', borderColor: 'rgba(232,255,107,0.2)' }}>{message}</p>}
-          <button className="btn-submit" type="submit" disabled={loading}>
-            {loading ? '…' : mode === 'signin' ? 'Sign in' : 'Create account'}
-          </button>
-        </form>
+        {error && <p className="auth-error">{error}</p>}
       </div>
     </div>
   )
