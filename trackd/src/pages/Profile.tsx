@@ -5,7 +5,15 @@ import type { User } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
 import { ratingsApi, type Rating } from '../lib/ratingsApi'
 import { profilesApi, type Profile } from '../lib/profilesApi'
+import {
+  filterRatings,
+  ratingStats,
+  countLabel,
+  isSongRating,
+  type RatingFilterMode,
+} from '../lib/ratingFilter'
 import { StarGlyph } from '../components/RatingModal'
+import RatingFilter from '../components/RatingFilter'
 import AlbumArt from '../components/AlbumArt'
 import LoadingScreen from '../components/LoadingScreen'
 import { SkeletonList, SkeletonFeedItem } from '../components/Skeleton'
@@ -107,6 +115,7 @@ function ProfileView({ user }: { user: User }) {
 
   const [ratings, setRatings] = useState<Rating[]>([])
   const [ratingsLoading, setRatingsLoading] = useState(true)
+  const [filter, setFilter] = useState<RatingFilterMode>('both')
 
   const [profile, setProfile] = useState<Profile | null>(null)
   const [editing, setEditing] = useState(false)
@@ -118,7 +127,9 @@ function ProfileView({ user }: { user: User }) {
   useEffect(() => {
     let cancelled = false
     setRatingsLoading(true)
-    ratingsApi.getMyRatings()
+    // Albums *and* songs — getMyRatings() filters to `spotify_track_id is
+    // null`, so it would leave the Songs tab permanently empty.
+    ratingsApi.getRatingsForUser(user.id)
       .then(data => { if (!cancelled) setRatings(data) })
       .catch(() => { if (!cancelled) setRatings([]) })
       .finally(() => { if (!cancelled) setRatingsLoading(false) })
@@ -177,15 +188,18 @@ function ProfileView({ user }: { user: User }) {
     }
   }
 
-  const totalAlbums = ratings.length
-  const totalReviews = ratings.filter(r => r.review && r.review.trim().length > 0).length
-  const avgRatingLabel = totalAlbums > 0
-    ? (ratings.reduce((sum, r) => sum + r.rating, 0) / totalAlbums).toFixed(1)
-    : '–'
+  // Every stat and the activity list below are scoped by the filter.
+  const visibleRatings = filterRatings(ratings, filter)
+  const stats = ratingStats(visibleRatings)
+  const avgRatingLabel = stats.avg !== null ? stats.avg.toFixed(1) : '–'
 
-  const recentRatings = ratings.slice(0, 5)
+  const recentRatings = visibleRatings.slice(0, 5)
 
-  const favoriteAlbums = [...ratings]
+  // Deliberately *not* filtered: this shelf is "Favorite Albums", links to
+  // /album/:id, and is album-only by definition — it shouldn't empty out
+  // when the list beside it is scoped to songs.
+  const favoriteAlbums = filterRatings(ratings, 'albums')
+    .slice()
     .sort((a, b) => b.rating - a.rating || new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     .slice(0, 4)
 
@@ -262,11 +276,11 @@ function ProfileView({ user }: { user: User }) {
       {/* Stats */}
       <div className="profile-stats">
         <div className="profile-stat">
-          <span className="stat-value">{totalAlbums}</span>
-          <span className="stat-label">Albums</span>
+          <span className="stat-value">{stats.count}</span>
+          <span className="stat-label">{countLabel(filter)}</span>
         </div>
         <div className="profile-stat">
-          <span className="stat-value">{totalReviews}</span>
+          <span className="stat-value">{stats.reviews}</span>
           <span className="stat-label">Reviews</span>
         </div>
         <div className="profile-stat">
@@ -305,7 +319,12 @@ function ProfileView({ user }: { user: User }) {
 
       {/* Recent activity */}
       <div className="profile-section">
-        <p className="profile-section-heading">Recent Activity</p>
+        <div className="section-heading-row">
+          <p className="profile-section-heading">Recent Activity</p>
+          {!ratingsLoading && ratings.length > 0 && (
+            <RatingFilter value={filter} onChange={setFilter} />
+          )}
+        </div>
         {ratingsLoading ? (
           <div className="activity-list">
             <SkeletonList count={4}>{i => <SkeletonFeedItem key={i} />}</SkeletonList>
@@ -313,24 +332,42 @@ function ProfileView({ user }: { user: User }) {
         ) : recentRatings.length === 0 ? (
           <div className="activity-empty">
             <div className="activity-empty-icon">🎵</div>
-            <p>No activity yet. Log an album to get started.</p>
-            <Link to="/" className="activity-empty-link">Search albums →</Link>
+            {/* Distinguish "nothing rated at all" from "nothing of this type" */}
+            {ratings.length === 0 ? (
+              <>
+                <p>No activity yet. Log an album to get started.</p>
+                <Link to="/" className="activity-empty-link">Search albums →</Link>
+              </>
+            ) : (
+              <p>
+                No {filter === 'songs' ? 'song' : 'album'} ratings yet — try
+                {' '}<button type="button" className="activity-empty-link activity-empty-btn" onClick={() => setFilter('both')}>Both</button>.
+              </p>
+            )}
           </div>
         ) : (
           <div className="activity-list">
-            {recentRatings.map(r => (
-              <Link key={r.id} to={`/album/${r.album_id}`} className="activity-item">
+            {recentRatings.map(r => {
+              // A song rating leads with the song; the album becomes context.
+              const isSong = isSongRating(r)
+              return (
+              <Link
+                key={r.id}
+                to={isSong ? `/track/${r.spotify_track_id}` : `/album/${r.album_id}`}
+                className="activity-item"
+              >
                 <AlbumArt src={r.album_image} alt={r.album_name} className="activity-art" placeholderClassName="activity-art-placeholder" />
                 <div className="activity-body">
-                  <p className="activity-album-name">{r.album_name}</p>
-                  <p className="activity-album-artist">{r.album_artist}</p>
+                  <p className="activity-album-name">{isSong ? r.track_name : r.album_name}</p>
+                  <p className="activity-album-artist">{isSong ? r.album_name : r.album_artist}</p>
                   <span className="activity-stars">
                     {[1, 2, 3, 4, 5].map(n => <StarGlyph key={n} value={r.rating} pos={n} />)}
                   </span>
                   {r.review && <p className="activity-review">{r.review}</p>}
                 </div>
               </Link>
-            ))}
+              )
+            })}
           </div>
         )}
       </div>
