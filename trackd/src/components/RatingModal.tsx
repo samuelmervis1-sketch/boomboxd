@@ -2,6 +2,7 @@ import { useState } from 'react'
 import confetti from 'canvas-confetti'
 import type { SpotifyAlbum, SpotifyTrack } from '../services/spotifyApi'
 import { ratingsApi, type Rating } from '../lib/ratingsApi'
+import { describeError } from '../lib/errorMessage'
 import './RatingModal.css'
 
 // ── Five-star celebration ──────────────────────────────────
@@ -79,8 +80,10 @@ export default function RatingModal({ album, track, existing, onClose, onSaved }
     if (!rating) { setError('Please select a rating.'); return }
     setSaving(true)
     setError(null)
+
+    let saved: Rating
     try {
-      const saved = track
+      saved = track
         ? await ratingsApi.upsertTrack({
             albumId: album.id,
             albumName: album.name,
@@ -99,12 +102,17 @@ export default function RatingModal({ album, track, existing, onClose, onSaved }
             rating,
             review: review.trim() || null,
           })
-      if (!existing && rating === 5) celebrateFiveStars()
-      onSaved(saved)
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Failed to save. Are you signed in?')
+      setError(describeError(e, "Couldn't save your rating. Please try again."))
       setSaving(false)
+      return
     }
+
+    // Deliberately outside the try: the write has already committed by this
+    // point, so a failure in the confetti or in the parent's refresh must not
+    // be reported to the user as "couldn't save your rating".
+    if (!existing && rating === 5) celebrateFiveStars()
+    onSaved(saved)
   }
 
   async function handleDelete() {
@@ -114,11 +122,12 @@ export default function RatingModal({ album, track, existing, onClose, onSaved }
     try {
       if (track) await ratingsApi.removeTrack(album.id, track.id)
       else await ratingsApi.remove(album.id)
-      onSaved(null)
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Failed to delete rating.')
+      setError(describeError(e, "Couldn't delete your rating. Please try again."))
       setSaving(false)
+      return
     }
+    onSaved(null)
   }
 
   function handleOverlayClick(e: React.MouseEvent) {
