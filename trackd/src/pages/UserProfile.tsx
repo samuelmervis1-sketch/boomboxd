@@ -9,7 +9,14 @@ import { followsApi } from '../lib/followsApi'
 import { listsApi, type List } from '../lib/listsApi'
 import { reviewLikesApi, type LikeInfo } from '../lib/reviewLikesApi'
 import { reviewerColor, reviewerInitial } from '../lib/reviewerDisplay'
+import {
+  filterRatings,
+  ratingStats,
+  countLabel,
+  type RatingFilterMode,
+} from '../lib/ratingFilter'
 import { StarGlyph } from '../components/RatingModal'
+import RatingFilter from '../components/RatingFilter'
 import AlbumArt from '../components/AlbumArt'
 import CoverStack from '../components/CoverStack'
 import FollowButton from '../components/FollowButton'
@@ -35,6 +42,7 @@ export default function UserProfile() {
 
   const [ratings, setRatings] = useState<Rating[]>([])
   const [ratingsLoading, setRatingsLoading] = useState(true)
+  const [filter, setFilter] = useState<RatingFilterMode>('both')
   const [likes, setLikes] = useState<Record<string, LikeInfo>>({})
 
   const [followerCount, setFollowerCount] = useState(0)
@@ -164,11 +172,15 @@ export default function UserProfile() {
   const avatarColor = reviewerColor(profile.id)
   const joinDate = format(new Date(profile.created_at), 'MMMM yyyy')
 
-  const totalRatings = ratings.length
-  const totalReviews = ratings.filter(r => r.review && r.review.trim().length > 0).length
-  const recentRatings = ratings.slice(0, 20)
+  // Displayed stats and list follow the filter; the SEO description stays on
+  // the unfiltered total, since a client-side toggle shouldn't rewrite what
+  // crawlers and link previews see.
+  const visibleRatings = filterRatings(ratings, filter)
+  const stats = ratingStats(visibleRatings)
+  const recentRatings = visibleRatings.slice(0, 20)
 
-  const seoDescription = `@${profile.username} · ${totalRatings} ${totalRatings === 1 ? 'rating' : 'ratings'} · ${followerCount} ${followerCount === 1 ? 'follower' : 'followers'} on boomboxd`
+  const allRatingsCount = ratings.length
+  const seoDescription = `@${profile.username} · ${allRatingsCount} ${allRatingsCount === 1 ? 'rating' : 'ratings'} · ${followerCount} ${followerCount === 1 ? 'follower' : 'followers'} on boomboxd`
 
   return (
     <div className="user-profile-page">
@@ -216,11 +228,11 @@ export default function UserProfile() {
       {/* Stats */}
       <div className="user-profile-stats">
         <div className="user-profile-stat">
-          <span className="stat-value">{totalRatings}</span>
-          <span className="stat-label">Ratings</span>
+          <span className="stat-value">{stats.count}</span>
+          <span className="stat-label">{countLabel(filter)}</span>
         </div>
         <div className="user-profile-stat">
-          <span className="stat-value">{totalReviews}</span>
+          <span className="stat-value">{stats.reviews}</span>
           <span className="stat-label">Reviews</span>
         </div>
         <div className="user-profile-stat">
@@ -235,14 +247,27 @@ export default function UserProfile() {
 
       {/* Recent ratings */}
       <div className="user-profile-section">
-        <p className="section-heading">Recent Ratings</p>
+        <div className="section-heading-row">
+          <p className="section-heading">Recent Ratings</p>
+          {!ratingsLoading && ratings.length > 0 && (
+            <RatingFilter
+              value={filter}
+              onChange={setFilter}
+              label={`Filter @${profile.username}'s ratings by type`}
+            />
+          )}
+        </div>
         {ratingsLoading ? (
           <div className="user-rating-list">
             <SkeletonList count={4}>{i => <SkeletonFeedItem key={i} />}</SkeletonList>
           </div>
         ) : recentRatings.length === 0 ? (
           <p className="user-profile-empty-text">
-            {isOwnProfile ? "You haven't rated anything yet." : `@${profile.username} hasn't rated anything yet.`}
+            {ratings.length === 0
+              ? (isOwnProfile ? "You haven't rated anything yet." : `@${profile.username} hasn't rated anything yet.`)
+              : (isOwnProfile
+                  ? `You haven't rated any ${filter === 'songs' ? 'songs' : 'albums'} yet.`
+                  : `@${profile.username} hasn't rated any ${filter === 'songs' ? 'songs' : 'albums'} yet.`)}
           </p>
         ) : (
           <div className="user-rating-list">
